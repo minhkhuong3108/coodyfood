@@ -1,6 +1,6 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
-import { globalStyle } from '../src/styles/globalStyle'
+import { globalStyle } from '../styles/globalStyle'
 
 const ContainerComponent = ({ isScroll, children, styles }) => {
     return (

@@ -1,13 +1,13 @@
 import { Image, StyleSheet, Text, ToastAndroid, View } from 'react-native'
 import React, { useState } from 'react'
-import ContainerComponent from '../../../components/ContainerComponent'
-import SpaceComponent from '../../../components/SpaceComponent'
-import RowComponent from '../../../components/RowComponent'
-import TextComponent from '../../../components/TextComponent'
+import ContainerComponent from '../../components/ContainerComponent'
+import SpaceComponent from '../../components/SpaceComponent'
+import RowComponent from '../../components/RowComponent'
+import TextComponent from '../../components/TextComponent'
 import { fontFamilies } from '../../constants/fontFamilies'
 import { appColor } from '../../constants/appColor'
-import InputComponent from '../../../components/InputComponent'
-import ButtonComponent from '../../../components/ButtonComponent'
+import InputComponent from '../../components/InputComponent'
+import ButtonComponent from '../../components/ButtonComponent'
 import { appInfor } from '../../constants/appInfor'
 import { globalStyle } from '../../styles/globalStyle'
 import { validateEmail, validatePass } from '../../utils/Validators'
@@ -18,11 +18,11 @@ const RegisterScreen = ({ navigation }) => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [rePassword, setRePassword] = useState('')
-    const [name, setName] = useState('')
+    const [phone, setPhone] = useState('')
     const [errorEmail, setErrorEmail] = useState(null)
     const [errorPass, setErrorPass] = useState(null)
     const [errorRePass, setErrorRePass] = useState(null)
-    const [errorName, setErrorName] = useState(null)
+    const [errorPhone, setErrorPhone] = useState(null)
     const [isLoading, setIsLoading] = useState(false)
 
     const changeEmail = (data) => {
@@ -35,9 +35,9 @@ const RegisterScreen = ({ navigation }) => {
         setErrorPass('')
     }
 
-    const changeName = (data) => {
-        setName(data)
-        setErrorName('')
+    const changePhone = (data) => {
+        setPhone(data)
+        setErrorPhone('')
     }
 
     const changeRePass = (data) => {
@@ -49,7 +49,7 @@ const RegisterScreen = ({ navigation }) => {
         if (!email && !password && !name) {
             setErrorEmail('Email không được để trống')
             setErrorPass('Password không được để trống')
-            setErrorName('Name không được để trống')
+            setErrorPhone('Name không được để trống')
             return
         }
         if (!email) {
@@ -60,8 +60,8 @@ const RegisterScreen = ({ navigation }) => {
             setErrorPass('Password không được để trống')
             return
         }
-        if (!name) {
-            setErrorName('Name không được để trống')
+        if (!phone) {
+            setErrorPhone('Name không được để trống')
             return
         }
         if (!validateEmail(email)) {
@@ -79,10 +79,11 @@ const RegisterScreen = ({ navigation }) => {
         }
         setIsLoading(true)
         try {
-            const response = await AxiosInstance().post('/users/register', { email, password, name })
+            const response = await AxiosInstance().post('/users/register', { email, password, phone })
             if (response.status == true) {
                 ToastAndroid.show('Đăng ký thành công', ToastAndroid.SHORT)
                 setIsLoading(false)
+                navigation.navigate('Login')
                 return response.data
             }
         } catch (error) {
@@ -96,8 +97,8 @@ const RegisterScreen = ({ navigation }) => {
             <Image source={require('../../assets/images/auth/login-regis/logo.png')} />
             <SpaceComponent height={30} />
             <RowComponent >
-                <TextComponent text={'Chào mừng đến với '} fontsize={28} fontFamily={fontFamilies.bold} />
-                <TextComponent text={'Coody'} fontsize={28} fontFamily={fontFamilies.bold} color={appColor.primary} />
+                <TextComponent text={'Coody '} fontsize={28} fontFamily={fontFamilies.bold}color={appColor.primary} />
+                <TextComponent text={'Xin Chào'} fontsize={28} fontFamily={fontFamilies.bold}  />
             </RowComponent>
             <SpaceComponent height={10} />
             <TextComponent text={'Vui lòng nhập thông tin của bạn'} fontFamily={fontFamilies.bold} color={appColor.subText} />
@@ -107,9 +108,9 @@ const RegisterScreen = ({ navigation }) => {
                 errorEmail && <View style={{ marginTop: 5 }}><TextComponent text={errorEmail} color={'red'} fontsize={11} /></View>
             }
             <SpaceComponent height={20} />
-            <InputComponent label={'Họ và tên'} placeholder={'Nhập họ và tên'} value={name} onChangeText={text => changeName(text)} error={errorName} />
+            <InputComponent label={'Số điện thoại'} placeholder={'Nhập số điện thoại'} value={phone} onChangeText={text => changePhone(text)} error={errorPhone} />
             {
-                errorName && <View style={{ marginTop: 5 }}><TextComponent text={errorName} color={'red'} fontsize={11} /></View>
+                errorPhone && <View style={{ marginTop: 5 }}><TextComponent text={errorPhone} color={'red'} fontsize={11} /></View>
             }
             <SpaceComponent height={20} />
             <InputComponent label={'Mật khẩu'} placeholder={'Nhập mật khẩu'} value={password} onChangeText={text => changePass(text)} error={errorPass} isPassword />

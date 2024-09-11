@@ -12,3 +12,27 @@ export const login = createAsyncThunk(
         }
     }
 )
+
+export const loginWithGG = createAsyncThunk(
+    'loginWithGG',
+    async (data, { rejectedWithValue }) => {
+        try {
+            const response = await AxiosInstance().post('/users/login-social', data)
+            return response.data
+        } catch (error) {
+            return rejectedWithValue(error)
+        }
+    }
+)
+
+export const loginWithFB = createAsyncThunk(
+    'loginWithFB',
+    async (data, { rejectedWithValue }) => {
+        try {
+            const response = await AxiosInstance().post('/users/login-social', data)
+            return response.data
+        } catch (error) {
+            return rejectedWithValue(error)
+        }
+    }
+)

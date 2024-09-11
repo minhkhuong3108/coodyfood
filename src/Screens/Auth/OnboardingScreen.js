@@ -2,16 +2,16 @@ import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useState } from 'react'
 import Swiper from 'react-native-swiper'
 import { appColor } from '../../constants/appColor'
-import TextComponent from '../../../components/TextComponent'
+import TextComponent from '../../components/TextComponent'
 import { fontFamilies } from '../../constants/fontFamilies'
-import ButtonComponent from '../../../components/ButtonComponent'
+import ButtonComponent from '../../components/ButtonComponent'
 
-const OnboardingScreen = () => {
+const OnboardingScreen = ({ navigation }) => {
     const [index, setIndex] = useState(0)
     console.log('index', index);
 
     const handleFinish = () => {
-        console.log('Finish');
+        navigation.navigate('Login')
 
     }
     return (
@@ -32,11 +32,11 @@ const OnboardingScreen = () => {
                 <Image style={styles.img} source={require('../../assets/images/auth/onboarding/3.png')} />
             </Swiper>
             {index == 2 && <View style={{ position: 'absolute', bottom: 50 }}>
-                <TouchableOpacity onPress={handleFinish} style={styles.btnNext2}>
+                <TouchableOpacity onPress={handleFinish} style={styles.btnNext}>
                     <Image source={require('../../assets/images/auth/onboarding/next.png')} />
                 </TouchableOpacity>
             </View>}
-            <ButtonComponent type={'link'} text={'Skip'} textStyle={styles.skip} />
+            <ButtonComponent type={'link'} text={'Skip'} styles={styles.skip} onPress={() => navigation.navigate('Login')} />
         </View>
     )
 }
@@ -57,14 +57,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         zIndex: 1
-    },
-    btnNext2: {
-        width: 80,
-        height: 80,
-        borderRadius: 80 / 2,
-        backgroundColor: appColor.secondary,
-        justifyContent: 'center',
-        alignItems: 'center',
     },
     viewBtn: {
         alignItems: 'flex-end',

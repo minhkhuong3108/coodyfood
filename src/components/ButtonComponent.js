@@ -1,12 +1,12 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React from 'react'
 import TextComponent from './TextComponent'
-import { appColor } from '../src/constants/appColor'
+import { appColor } from '../constants/appColor'
 
 const ButtonComponent = ({ text, color, styles, backgroundColor, textStyle, fontsize, borderColor, icon, onPress, width, height, type }) => {
     return (
         type == 'link' ?
-            <TouchableOpacity onPress={onPress}>
+            <TouchableOpacity onPress={onPress} style={styles}>
                 <TextComponent
                     text={text}
                     color={color ?? appColor.text}

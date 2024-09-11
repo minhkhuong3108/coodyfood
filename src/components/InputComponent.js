@@ -1,8 +1,8 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useState } from 'react'
-import { appColor } from '../src/constants/appColor'
+import { appColor } from '../constants/appColor'
 import { Eye, EyeSlash } from 'iconsax-react-native'
-import { fontFamilies } from '../src/constants/fontFamilies'
+import { fontFamilies } from '../constants/fontFamilies'
 import { TextInput } from 'react-native-paper'
 
 const InputComponent = ({ value, onChangeText, placeholder, isPassword, styles, affix, suffix, label, type, error }) => {

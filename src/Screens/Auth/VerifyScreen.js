@@ -1,13 +1,13 @@
 import { Image, StyleSheet, Text, TextInput, View } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
-import ContainerComponent from '../../../components/ContainerComponent'
-import SpaceComponent from '../../../components/SpaceComponent'
-import RowComponent from '../../../components/RowComponent'
-import TextComponent from '../../../components/TextComponent'
+import ContainerComponent from '../../components/ContainerComponent'
+import SpaceComponent from '../../components/SpaceComponent'
+import RowComponent from '../../components/RowComponent'
+import TextComponent from '../../components/TextComponent'
 import { fontFamilies } from '../../constants/fontFamilies'
 import { appColor } from '../../constants/appColor'
 import { globalStyle } from '../../styles/globalStyle'
-import ButtonComponent from '../../../components/ButtonComponent'
+import ButtonComponent from '../../components/ButtonComponent'
 
 const VerifyScreen = () => {
     const ref1 = useRef()

@@ -1,6 +1,7 @@
 import { Image, ImageBackground, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import { appInfor } from '../constants/appInfor'
+import { appColor } from '../constants/appColor'
 
 const SplashScreen = () => {
     return (
@@ -17,6 +18,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        backgroundColor:appColor.white
     },
     logo: {
         width: appInfor.sizes.width * 0.26,
