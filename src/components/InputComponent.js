@@ -27,6 +27,7 @@ const InputComponent = ({ value, onChangeText, placeholder, isPassword, styles, 
                     background: appColor.white,
                 }
             }}
+            
             right={isPassword && (
                 <TextInput.Icon
                     icon={() => (
