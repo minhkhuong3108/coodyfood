@@ -5,7 +5,7 @@ import { Eye, EyeSlash } from 'iconsax-react-native'
 import { fontFamilies } from '../constants/fontFamilies'
 import { TextInput } from 'react-native-paper'
 
-const InputComponent = ({ value, onChangeText, placeholder, isPassword, styles, affix, suffix, label, type, error }) => {
+const InputComponent = ({ value, onChangeText, placeholder, isPassword, styles, affix, suffix, label, type, error, keyboardType }) => {
     const [isShowPassword, setIsShowPassword] = useState(isPassword ?? false)
     return (
 
@@ -19,6 +19,7 @@ const InputComponent = ({ value, onChangeText, placeholder, isPassword, styles, 
             style={[styless.input]}
             mode='outlined'
             outlineColor={error ? appColor.primary : appColor.subText}
+            keyboardType={keyboardType ?? 'default'}
             theme={{
                 roundness: 10,
                 colors: {
@@ -29,7 +30,7 @@ const InputComponent = ({ value, onChangeText, placeholder, isPassword, styles, 
             right={isPassword && (
                 <TextInput.Icon
                     icon={() => (
-                        <TouchableOpacity style={{ zIndex: 2 }} onPress={() => setIsShowPassword(!isShowPassword)}>
+                        <TouchableOpacity  onPress={() => setIsShowPassword(!isShowPassword)}>
                             {isShowPassword ? (
                                 <EyeSlash size={22} color={appColor.subText} />
                             ) : (

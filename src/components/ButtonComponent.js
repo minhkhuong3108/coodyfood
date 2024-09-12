@@ -1,18 +1,19 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React from 'react'
 import TextComponent from './TextComponent'
 import { appColor } from '../constants/appColor'
 
-const ButtonComponent = ({ text, color, styles, backgroundColor, textStyle, fontsize, borderColor, icon, onPress, width, height, type }) => {
+const ButtonComponent = ({ text, color, styles, backgroundColor, textStyle, fontsize, borderColor, icon, onPress, width, height, type, image, imageStyle }) => {
     return (
         type == 'link' ?
             <TouchableOpacity onPress={onPress} style={styles}>
-                <TextComponent
-                    text={text}
-                    color={color ?? appColor.text}
-                    fonsize={fontsize ?? 16}
-                    styles={textStyle}
-                />
+                {image ? <Image source={image} style={imageStyle} /> :
+                    <TextComponent
+                        text={text}
+                        color={color ?? appColor.text}
+                        fonsize={fontsize ?? 16}
+                        styles={textStyle}
+                    />}
             </TouchableOpacity> :
             <TouchableOpacity
                 style={[styless.button, {
