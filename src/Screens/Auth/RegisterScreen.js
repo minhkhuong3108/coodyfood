@@ -10,7 +10,7 @@ import InputComponent from '../../components/InputComponent'
 import ButtonComponent from '../../components/ButtonComponent'
 import { appInfor } from '../../constants/appInfor'
 import { globalStyle } from '../../styles/globalStyle'
-import { validateEmail, validatePass } from '../../utils/Validators'
+import { validateEmail, validatePass, validatePhone } from '../../utils/Validators'
 import AxiosInstance from '../../helpers/AxiosInstance'
 import LoadingModal from '../../modal/LoadingModal'
 
@@ -49,7 +49,7 @@ const RegisterScreen = ({ navigation }) => {
         if (!email && !password && !name) {
             setErrorEmail('Email không được để trống')
             setErrorPass('Password không được để trống')
-            setErrorPhone('Name không được để trống')
+            setErrorPhone('Số điện thoại không được để trống')
             return
         }
         if (!email) {
@@ -66,6 +66,10 @@ const RegisterScreen = ({ navigation }) => {
         }
         if (!validateEmail(email)) {
             setErrorEmail('Email không phù hợp')
+            return
+        }
+        if (!validatePhone(phone)) {
+            setErrorPhone('Số điện thoại không hợp lệ')
             return
         }
         if (!validatePass(password)) {
@@ -97,8 +101,8 @@ const RegisterScreen = ({ navigation }) => {
             <Image source={require('../../assets/images/auth/login-regis/logo.png')} />
             <SpaceComponent height={30} />
             <RowComponent >
-                <TextComponent text={'Coody '} fontsize={28} fontFamily={fontFamilies.bold}color={appColor.primary} />
-                <TextComponent text={'Xin Chào'} fontsize={28} fontFamily={fontFamilies.bold}  />
+                <TextComponent text={'Coody '} fontsize={28} fontFamily={fontFamilies.bold} color={appColor.primary} />
+                <TextComponent text={'Xin Chào'} fontsize={28} fontFamily={fontFamilies.bold} />
             </RowComponent>
             <SpaceComponent height={10} />
             <TextComponent text={'Vui lòng nhập thông tin của bạn'} fontFamily={fontFamilies.bold} color={appColor.subText} />

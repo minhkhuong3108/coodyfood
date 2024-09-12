@@ -12,10 +12,12 @@ import { globalStyle } from '../../styles/globalStyle'
 import ContainerComponent from '../../components/ContainerComponent'
 import { validateEmail, validatePass } from '../../utils/Validators'
 import { useDispatch, useSelector } from 'react-redux'
-import { login, loginWithFB, loginWithGG } from '../../Redux/API/UserAPI'
+import { login, loginWithFB, loginWithGG, loginWithSocial } from '../../Redux/API/UserAPI'
 import LoadingModal from '../../modal/LoadingModal'
 import { GoogleSignin } from '@react-native-google-signin/google-signin'
 import { LoginManager, Profile, Settings } from 'react-native-fbsdk-next'
+import AxiosInstance from '../../helpers/AxiosInstance'
+import { logout } from '../../Redux/Reducers/LoginSlice'
 
 
 GoogleSignin.configure({
@@ -90,7 +92,12 @@ const LoginScreen = ({ navigation }) => {
             // console.log('usergg: ', usergg);
             const userInfo = usergg.data.user
             // console.log('userInfo: ', userInfo);
-            dispatch(loginWithGG({ userInfo }))
+            const response = await AxiosInstance().post('/users/check-user', { email: userInfo.email })
+            if (response.data == true) {
+                dispatch(loginWithSocial({ userInfo }))
+            } else {
+                navigation.navigate('AddPhone', { userInfo })
+            }
         } catch (error) {
             console.log(error);
         }
@@ -108,9 +115,14 @@ const LoginScreen = ({ navigation }) => {
                     const userInfo = {
                         email: profile.userID,
                         name: profile.name,
-                        photo:profile.imageURL
+                        photo: profile.imageURL
                     }
-                    dispatch(loginWithFB({ userInfo }))
+                    const response = await AxiosInstance().post('/users/check-user', { email: userInfo.email })
+                    if (response.data == true) {
+                        dispatch(loginWithSocial({ userInfo }))
+                    } else {
+                        navigation.navigate('AddPhone', { userInfo })
+                    }
                 }
             }
         } catch (error) {
@@ -140,7 +152,7 @@ const LoginScreen = ({ navigation }) => {
             }
             <SpaceComponent height={12} />
             <RowComponent justifyContent='flex-end'>
-                <ButtonComponent type={'link'} text={'Quên mật khẩu?'} fontsize={14} />
+                <ButtonComponent type={'link'} text={'Quên mật khẩu?'} fontsize={14} onPress={() => navigation.navigate('ForgotPassword')} />
             </RowComponent>
             <SpaceComponent height={30} />
             <ButtonComponent text={'Đăng nhập'} color={appColor.white} onPress={handleLogin} />
@@ -169,6 +181,7 @@ const LoginScreen = ({ navigation }) => {
                     onPress={handleLoginWithFB}
                 />
             </RowComponent>
+            {/* <ButtonComponent text={'Clear'} onPress={() => dispatch(logout())} type={'link'} /> */}
             <LoadingModal visible={isLoading} />
         </ContainerComponent>
     )

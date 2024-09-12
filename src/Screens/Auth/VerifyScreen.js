@@ -8,16 +8,22 @@ import { fontFamilies } from '../../constants/fontFamilies'
 import { appColor } from '../../constants/appColor'
 import { globalStyle } from '../../styles/globalStyle'
 import ButtonComponent from '../../components/ButtonComponent'
+import AxiosInstance from '../../helpers/AxiosInstance'
+import LoadingModal from '../../modal/LoadingModal'
 
-const VerifyScreen = () => {
+const VerifyScreen = ({ navigation, route }) => {
+    const { email, code } = route.params
+
     const ref1 = useRef()
     const ref2 = useRef()
     const ref3 = useRef()
     const ref4 = useRef()
 
-    const [codevalue, setCodeValue] = useState([])
+    const [codevalue, setCodeValue] = useState(['', '', '', ''])
     const [codeMain, setCodeMain] = useState('')
-    const [time, setTime] = useState(60)
+    const [codeCurrent, setCodeCurrent] = useState(code)
+    const [time, setTime] = useState(120)
+    const [error, setError] = useState('')
     const [isLoading, setIsLoading] = useState(false)
     const [errorMess, setErrorMess] = useState('')
     console.log('codevalue', codevalue);
@@ -28,19 +34,17 @@ const VerifyScreen = () => {
     }, [])
     const handleChangeCode = (value, index) => {
         if (value.length > 0) {
-            switch (index) {
-                case 0:
-                    ref2.current.focus()
-                    break
-                case 1:
-                    ref3.current.focus()
-                    break
-                case 2:
-                    ref4.current.focus()
-                    break
-                case 3:
-                    ref4.current.blur()
-                    break
+            if (index === 0) {
+                ref2.current.focus()
+            }
+            if (index === 1) {
+                ref3.current.focus()
+            }
+            if (index === 2) {
+                ref4.current.focus()
+            }
+            if (index === 3) {
+                ref4.current.blur()
             }
         }
         const data = [...codevalue]
@@ -49,6 +53,20 @@ const VerifyScreen = () => {
         console.log('data', data);
         setCodeValue(data)
     }
+    const handleKeyPress = (e, index) => {
+        if (e.nativeEvent.key === 'Backspace' && codevalue[index] === '') {
+            if (index === 1) {
+                ref1.current.focus();
+            }
+            if (index === 2) {
+                ref2.current.focus();
+            }
+            if (index === 3) {
+                ref3.current.focus();
+            }
+        }
+    };
+
 
     useEffect(() => {
         let item = ''
@@ -56,9 +74,63 @@ const VerifyScreen = () => {
         setCodeMain(item)
     }, [codevalue])
 
+    useEffect(() => {
+        if (time > 0) {
+            const interval = setInterval(() => {
+                setTime(time => time - 1)
+            }, 1000);
+            return () => clearInterval(interval)
+        }
+    }, [time])
+
+    const handleResetCode = async () => {
+        try {
+            setCodeValue(['', '', '', ''])
+            setCodeMain('')
+            setError('')
+            setIsLoading(true)
+            const response = await AxiosInstance().post('/users/verify', { email })
+            if (response.status == true) {
+                setIsLoading(false)
+                setCodeCurrent(response.data)
+                setTime(120)
+            }
+        } catch (error) {
+            setIsLoading(false)
+            console.log(error);
+        }
+    }
+    const handleVerify = async () => {
+        setIsLoading(true)
+        try {
+            if (time > 0) {
+                if (codeMain == codeCurrent) {
+                    setIsLoading(false)
+                    navigation.navigate('ResetPassword', { email })
+                } else {
+                    setIsLoading(false)
+                    setError('Mã xác thực không chính xác')
+                }
+            } else {
+                setIsLoading(false)
+                setError('Mã xác thực đã hết hạn')
+            }
+        } catch (error) {
+            console.log('verify error', error);
+            setIsLoading(false)
+        }
+    }
+
+    const formatTime = (time) => {
+        const minutes = Math.floor(time / 60)
+        const seconds = time % 60
+        return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`
+    }
     return (
         <ContainerComponent styles={globalStyle.container}>
             <SpaceComponent height={50} />
+            <ButtonComponent image={require('../../assets/images/auth/login-regis/back.png')} type={'link'} onPress={() => navigation.goBack()} />
+            <SpaceComponent height={20} />
             <Image source={require('../../assets/images/auth/login-regis/logo.png')} />
             <SpaceComponent height={30} />
             <RowComponent>
@@ -68,7 +140,7 @@ const VerifyScreen = () => {
             <SpaceComponent height={10} />
             <TextComponent text={'Mã xác thực đã được gửi đến email'} color={appColor.subText} />
             <SpaceComponent height={40} />
-            <View style={styles.viewInput}>
+            <RowComponent justifyContent={'space-between'}>
                 <TextInput
                     style={styles.input}
                     maxLength={1}
@@ -76,6 +148,7 @@ const VerifyScreen = () => {
                     ref={ref1}
                     value={codevalue[0]}
                     onChangeText={text => handleChangeCode(text, 0)}
+                    onKeyPress={(e) => handleKeyPress(e, 0)}
                 />
                 <TextInput
                     style={styles.input}
@@ -84,6 +157,7 @@ const VerifyScreen = () => {
                     ref={ref2}
                     value={codevalue[1]}
                     onChangeText={text => handleChangeCode(text, 1)}
+                    onKeyPress={(e) => handleKeyPress(e, 1)}
                 />
                 <TextInput
                     style={styles.input}
@@ -92,6 +166,7 @@ const VerifyScreen = () => {
                     ref={ref3}
                     value={codevalue[2]}
                     onChangeText={text => handleChangeCode(text, 2)}
+                    onKeyPress={(e) => handleKeyPress(e, 2)}
                 />
                 <TextInput
                     style={styles.input}
@@ -100,15 +175,20 @@ const VerifyScreen = () => {
                     ref={ref4}
                     value={codevalue[3]}
                     onChangeText={text => handleChangeCode(text, 3)}
+                    onKeyPress={(e) => handleKeyPress(e, 3)}
                 />
-            </View>
-            <SpaceComponent height={40} />
-            <ButtonComponent text={'Next'} color={appColor.white} />
-            <SpaceComponent height={20} />
-            <RowComponent justifyContent={'center'}>
-                <TextComponent text={'Bạn không nhận được mã?  '} fontsize={14} />
-                <ButtonComponent type={'link'} text={`Gửi lại (${time} giây)`} color={appColor.primary} fontsize={14} />
             </RowComponent>
+            {error && <TextComponent text={error} color={appColor.primary} fontsize={14} styles={{ marginTop: 10 }} />}
+            <SpaceComponent height={40} />
+            <ButtonComponent text={'Next'} color={appColor.white} onPress={handleVerify}/>
+            <SpaceComponent height={20} />
+            {time > 0 ? <RowComponent justifyContent={'center'}>
+                <TextComponent text={'Bạn không nhận được mã?  '} fontsize={14} />
+                <ButtonComponent type={'link'} text={`Gửi lại (${formatTime(time)})`} color={appColor.primary} fontsize={14} />
+            </RowComponent> :
+                <ButtonComponent type={'link'} text={'Gửi lại'} color={appColor.primary} onPress={handleResetCode} fontsize={14} textStyle={{ textAlign: 'center' }} />
+            }
+            <LoadingModal visible={isLoading}/>
         </ContainerComponent>
     )
 }
@@ -126,10 +206,5 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         fontSize: 26,
         fontFamily: fontFamilies.bold
-    },
-    viewInput: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
     },
 })

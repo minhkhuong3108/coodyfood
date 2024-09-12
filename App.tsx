@@ -5,6 +5,7 @@ import { PersistGate } from 'redux-persist/integration/react'
 import { persistor, store } from './src/Redux/Store'
 import AppNavigation from './src/navigators/AppNavigation'
 
+
 const App = () => {
   return (
     <>

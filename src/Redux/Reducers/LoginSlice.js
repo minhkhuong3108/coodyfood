@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { login, loginWithFB, loginWithGG } from "../API/UserAPI";
+import { login, loginWithSocial } from "../API/UserAPI";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { LoginManager } from "react-native-fbsdk-next";
 
@@ -35,35 +35,21 @@ const LoginSlice = createSlice({
             console.log('Error');
         })
 
-        builder.addCase(loginWithGG.pending, (state, action) => {
+        builder.addCase(loginWithSocial.pending, (state, action) => {
             state.status = 'loading'
             console.log('Loading');
         })
-        builder.addCase(loginWithGG.fulfilled, (state, action) => {
+        builder.addCase(loginWithSocial.fulfilled, (state, action) => {
             state.status = 'success'
             state.user = action.payload
             console.log('Success');
         })
-        builder.addCase(loginWithGG.rejected, (state, action) => {
+        builder.addCase(loginWithSocial.rejected, (state, action) => {
             state.status = 'failed'
             state.error = action.payload
             console.log('Error');
         })
 
-        builder.addCase(loginWithFB.pending, (state, action) => {
-            state.status = 'loading'
-            console.log('Loading');
-        })
-        builder.addCase(loginWithFB.fulfilled, (state, action) => {
-            state.status = 'success'
-            state.user = action.payload
-            console.log('Success');
-        })
-        builder.addCase(loginWithFB.rejected, (state, action) => {
-            state.status = 'failed'
-            state.error = action.payload
-            console.log('Error');
-        })
     }
 })
 

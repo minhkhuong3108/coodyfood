@@ -6,7 +6,8 @@ import LoginScreen from '../Screens/Auth/LoginScreen'
 import RegisterScreen from '../Screens/Auth/RegisterScreen'
 import ForgotPassword from '../Screens/Auth/ForgotPassword'
 import VerifyScreen from '../Screens/Auth/VerifyScreen'
-import { NavigationContainer } from '@react-navigation/native'
+import ResetPasswordScreen from '../Screens/Auth/ResetPasswordScreen'
+import AddPhoneScreen from '../Screens/Auth/AddPhoneScreen'
 const Stack = createStackNavigator()
 
 const AuthNavigation = () => {
@@ -17,6 +18,8 @@ const AuthNavigation = () => {
             <Stack.Screen name='Onboarding' component={OnboardingScreen} />
             <Stack.Screen name='ForgotPassword' component={ForgotPassword} />
             <Stack.Screen name='Verify' component={VerifyScreen} />
+            <Stack.Screen name='ResetPassword' component={ResetPasswordScreen} />
+            <Stack.Screen name='AddPhone' component={AddPhoneScreen} />
         </Stack.Navigator>
 
     )
