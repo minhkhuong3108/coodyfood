@@ -27,11 +27,11 @@ const styless = StyleSheet.create({
         fontSize: 16,
         fontFamily: fontFamilies.medium,
         color: appColor.text,
-        paddingLeft: 10,
+        paddingHorizontal: 10,
         width:'100%'
     },
     container: {
-        width: '100%',
+        flex:1,
         height: 50,
         paddingHorizontal: 20,
         borderWidth: 1,

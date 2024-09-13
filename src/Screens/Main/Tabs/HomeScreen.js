@@ -12,12 +12,18 @@ import { appColor } from '../../../constants/appColor'
 import SearchComponent from '../../../components/SearchComponent'
 import { fontFamilies } from '../../../constants/fontFamilies'
 import Swiper from 'react-native-swiper'
+import ShopRecomendList from '../../../components/ShopRecomendList'
+import ShopAndProductComponent from '../../../components/ShopAndProductComponent'
 
 const HomeScreen = () => {
   const dispatch = useDispatch()
   const { user } = useSelector(state => state.login)
   const [search, setSearch] = useState('')
   const [cate, setCate] = useState(CATE)
+  const [cate2, setCate2] = useState(CATE2)
+  const [shopRecomend, setShopRecomend] = useState(FEATURE)
+  const [shop, setShop] = useState(SHOP)
+  const [selectedCate, setSelectedCate] = useState(cate2[0].id)
   console.log('user', user);
 
   const groupedData = [];
@@ -25,8 +31,8 @@ const HomeScreen = () => {
     groupedData.push(cate.slice(i, i + 2));
   }
 
-  const renderGroupedItem = ({ item ,index}) => (
-    <View key={index} style={styles.groupedItem}>
+  const renderGroupedItem = ({ item, index }) => (
+    <View key={index}>
       {item.map((subItem) => (
         <View key={subItem.id} style={styles.item}>
           {renderCate({ item: subItem })}
@@ -42,13 +48,26 @@ const HomeScreen = () => {
         <View style={styles.viewImgCate}>
           <Image source={image} />
         </View>
-        <TextComponent text={name} fontsize={14} styles={{width:63}} textAlign={'center'}/>
+        <TextComponent text={name} fontsize={14} styles={{ width: 63 }} textAlign={'center'} />
       </TouchableOpacity>
     )
   }
 
-  const renderFeature = ({ item }) => {
-
+  const renderCate2 = ({ item, index }) => {
+    const { id, name } = item
+    return (
+      <TouchableOpacity
+        key={id}
+        style={[{ marginRight: 20 }, index == cate2.length - 1 && styles.itemLast]}
+        onPress={() => setSelectedCate(id)}
+      >
+        <TextComponent
+          text={name}
+          fontsize={18} styles={id == selectedCate && styles.activeCate}
+          color={id == selectedCate ? appColor.primary : appColor.text}
+        />
+      </TouchableOpacity>
+    )
   }
 
   const signOut = () => {
@@ -90,15 +109,56 @@ const HomeScreen = () => {
           showsHorizontalScrollIndicator={false}
           data={groupedData}
           renderItem={renderGroupedItem}
-          keyExtractor={(item,index) => index.toString()}
+          keyExtractor={(item, index) => index.toString()}
         />
       </View>
       <SpaceComponent height={20} />
-      <TextComponent text={'Nổi bật gần bạn'}/>
+      <TextComponent text={'Nổi bật gần bạn'} />
+      <SpaceComponent height={10} />
       <View>
-        
+        <FlatList
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          data={shopRecomend}
+          renderItem={({ item, index }) =>
+            <ShopRecomendList item={item} index={index} type={'large'} list={shopRecomend} />
+          }
+          keyExtractor={item => item.id}
+        />
       </View>
-
+      <SpaceComponent height={20} />
+      <TextComponent text={'Đề xuất cho bạn'} fontsize={18} />
+      <SpaceComponent height={10} />
+      <View>
+        <FlatList
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          data={shopRecomend}
+          renderItem={({ item, index }) =>
+            <ShopRecomendList item={item} index={index} list={shopRecomend} />
+          }
+          key={item => item.id}
+        />
+      </View>
+      <SpaceComponent height={30} />
+      <View>
+        <FlatList
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          data={cate2}
+          renderItem={renderCate2}
+          keyExtractor={item => item.id}
+        />
+      </View>
+      <SpaceComponent height={30} />
+      <View>
+        <FlatList
+          data={shop}
+          renderItem={({ item }) => <ShopAndProductComponent type={'shop'}  item={item} />}
+          keyExtractor={item => item.id}
+          scrollEnabled={false}
+        />
+      </View>
     </ContainerComponent>
   )
 }
@@ -106,10 +166,37 @@ const HomeScreen = () => {
 export default HomeScreen
 
 const styles = StyleSheet.create({
-  // groupedItem: {
-  //   flexDirection: 'column',
-  //   justifyContent: 'space-between',
-  // },
+  activeCate: {
+    borderBottomWidth: 2,
+    borderBottomColor: appColor.primary,
+    paddingBottom: 5
+  },
+  itemLast: {
+    marginRight: 0
+  },
+  viewRate: {
+    width: 60,
+    height: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 5,
+    backgroundColor: appColor.green
+  },
+  viewInfo: {
+    paddingVertical: 10
+  },
+  imgFeature: {
+    width: 230,
+    height: 156,
+    borderRadius: 15
+  },
+  containerFeature: {
+    padding: 10,
+    borderWidth: 1,
+    borderColor: appColor.gray,
+    borderRadius: 15,
+    marginRight: 40
+  },
   item: {
     marginVertical: 15,
   },
@@ -190,5 +277,118 @@ var CATE = [
     id: 10,
     name: 'Pizza',
     image: require('../../../assets/images/home/piza.png')
+  },
+]
+
+var CATE2 = [
+  {
+    id: 1,
+    name: 'Gần đây',
+  },
+  {
+    id: 2,
+    name: 'Bán chạy',
+  },
+  {
+    id: 3,
+    name: 'Món mới',
+  },
+  {
+    id: 4,
+    name: 'Đánh giá',
+  },
+]
+
+var FEATURE = [
+  {
+    id: 1,
+    name: 'Drumsteak Thai Ha',
+    location: 2,
+    time: 20,
+    rate: 4.5,
+    image: require('../../../assets/images/home/p1.png')
+  },
+  {
+    id: 2,
+    name: 'Chicken salan',
+    location: 2,
+    time: 20,
+    rate: 4.5,
+    image: require('../../../assets/images/home/p2.png')
+  },
+  {
+    id: 3,
+    name: 'Drumsteak Thai Ha',
+    location: 2,
+    time: 20,
+    rate: 4.5,
+    image: require('../../../assets/images/home/p1.png')
+  },
+
+]
+var SHOP = [
+  {
+    id: 1,
+    name: 'Drumsteak Thai Ha',
+    location: 2,
+    time: 20,
+    rate: 4.5,
+    discount: 20,
+    image: require('../../../assets/images/home/p1.png')
+  },
+  {
+    id: 2,
+    name: 'Chicken salan',
+    location: 2,
+    time: 20,
+    rate: 4.5,
+    discount: 20,
+    image: require('../../../assets/images/home/p2.png')
+  },
+  {
+    id: 3,
+    name: 'Drumsteak Thai Ha',
+    location: 2,
+    time: 20,
+    rate: 4.5,
+    discount: 20,
+    image: require('../../../assets/images/home/p1.png')
+  },
+
+]
+
+var PRODUCT = [
+  {
+    id: 1,
+    name: 'Drumsteak Thai Ha',
+    location: 2,
+    time: 20,
+    rate: 4.5,
+    sold: 20,
+    price: 20,
+    oldPrice: 25,
+    image: require('../../../assets/images/home/p1.png')
+  },
+  {
+    id: 2,
+    name: 'Chicken salan',
+    location: 2,
+    time: 20,
+    rate: 4.5,
+    sold: 20,
+    price: 20,
+    oldPrice: 25,
+    image: require('../../../assets/images/home/p2.png')
+  },
+  {
+    id: 3,
+    name: 'Drumsteak Thai Ha',
+    location: 2,
+    time: 20,
+    rate: 4.5,
+    sold: 20,
+    price: 20,
+    oldPrice: 25,
+    image: require('../../../assets/images/home/p1.png')
   },
 ]
