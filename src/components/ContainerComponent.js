@@ -5,7 +5,7 @@ import { globalStyle } from '../styles/globalStyle'
 const ContainerComponent = ({ isScroll, children, styles }) => {
     return (
         isScroll ?
-            <ScrollView style={styles}>
+            <ScrollView style={styles} showsVerticalScrollIndicator={false}>
                 {children}
             </ScrollView> :
             <View style={styles}>

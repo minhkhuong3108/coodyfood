@@ -3,7 +3,7 @@ import React from 'react'
 import { appColor } from '../constants/appColor'
 import { fontFamilies } from '../constants/fontFamilies'
 
-const TextComponent = ({ text, color, fontsize, fontFamily, styles, textAlign }) => {
+const TextComponent = ({ text, color, fontsize, fontFamily, styles, textAlign, numberOfLines, ellipsizeMode }) => {
     return (
         <Text style={[{
             color: color ?? appColor.text,
@@ -11,7 +11,10 @@ const TextComponent = ({ text, color, fontsize, fontFamily, styles, textAlign })
             fontFamily: fontFamily ?? fontFamilies.medium,
             textAlign: textAlign ?? 'left',
 
-        }, styles]}>
+        }, styles]} 
+        numberOfLines={numberOfLines} 
+        ellipsizeMode={ellipsizeMode}
+        >
             {text}
         </Text>
     )
