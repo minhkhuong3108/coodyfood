@@ -15,7 +15,7 @@ import Swiper from 'react-native-swiper'
 import ShopRecomendList from '../../../components/ShopRecomendList'
 import ShopAndProductComponent from '../../../components/ShopAndProductComponent'
 
-const HomeScreen = () => {
+const HomeScreen = ({ navigation }) => {
   const dispatch = useDispatch()
   const { user } = useSelector(state => state.login)
   const [search, setSearch] = useState('')
@@ -88,7 +88,7 @@ const HomeScreen = () => {
         <Image source={require('../../../assets/images/home/avatar.png')} style={styles.imgAvatar} />
       </RowComponent>
       <SpaceComponent height={25} />
-      <SearchComponent placeholder={'Tìm kiếm'} value={search} onchangeText={text => setSearch(text)} />
+      <SearchComponent placeholder={'Tìm kiếm'} value={search} onchangeText={text => setSearch(text)} onPress={() => navigation.navigate('Search')} />
       <SpaceComponent height={20} />
 
       <Swiper
@@ -121,7 +121,7 @@ const HomeScreen = () => {
           showsHorizontalScrollIndicator={false}
           data={shopRecomend}
           renderItem={({ item, index }) =>
-            <ShopRecomendList item={item} index={index} type={'large'} list={shopRecomend} />
+            <ShopRecomendList item={item} index={index} type={'large'} list={shopRecomend} onpress={() => navigation.navigate('Shop')} />
           }
           keyExtractor={item => item.id}
         />
@@ -154,11 +154,12 @@ const HomeScreen = () => {
       <View>
         <FlatList
           data={shop}
-          renderItem={({ item }) => <ShopAndProductComponent type={'shop'}  item={item} />}
+          renderItem={({ item }) => <ShopAndProductComponent type={'shop'} item={item} />}
           keyExtractor={item => item.id}
           scrollEnabled={false}
         />
       </View>
+      <ButtonComponent text={'Đăng xuất'} onPress={signOut} type={'link'} />
     </ContainerComponent>
   )
 }

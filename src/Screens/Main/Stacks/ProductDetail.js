@@ -48,6 +48,7 @@ const ProductDetail = () => {
                         image={require('../../../assets/images/shopDetail/back.png')}
                         styles={styles.btnBack}
                         type={'link'}
+                        onPress={() => navigation.goBack()}
                     />
                     <ButtonComponent
                         image={require('../../../assets/images/shopDetail/search.png')}

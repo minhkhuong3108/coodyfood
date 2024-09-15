@@ -9,7 +9,7 @@ const ShopRecomendList = ({item,onpress, type,index, list}) => {
     const { id, name, location,time, rate, image } = item
   return (
     type=='large'?
-    <TouchableOpacity style={[styles.containerRecomend, index == list.length - 1 && styles.itemLast]}>
+    <TouchableOpacity style={[styles.containerRecomend, index == list.length - 1 && styles.itemLast]} onPress={onpress}>
     <Image style={styles.imgRecomend} source={image} />
     <RowComponent justifyContent={'space-between'} styles={styles.viewInfo}>
       <View>
@@ -23,7 +23,7 @@ const ShopRecomendList = ({item,onpress, type,index, list}) => {
     </RowComponent>
   </TouchableOpacity>
     :
-    <TouchableOpacity style={[styles.containerRecomendSmall, index == list.length - 1 && styles.itemLast]}>
+    <TouchableOpacity style={[styles.containerRecomendSmall, index == list.length - 1 && styles.itemLast]} onPress={onpress}>
         <Image style={styles.imgRecomendSmall} source={image} />
         <RowComponent justifyContent={'space-between'} styles={styles.viewInfo}>
           <View>
