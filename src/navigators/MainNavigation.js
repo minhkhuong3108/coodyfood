@@ -1,24 +1,138 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { Image, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import { createStackNavigator } from '@react-navigation/stack'
 import HomeScreen from '../Screens/Main/Tabs/HomeScreen'
 import SearchScreen from '../Screens/Main/Stacks/SearchScreen'
 import ShopDetailScreen from '../Screens/Main/Stacks/ShopDetailScreen'
 import ProductDetail from '../Screens/Main/Stacks/ProductDetail'
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import TextComponent from '../components/TextComponent'
+import { appColor } from '../constants/appColor'
 
 const Stack = createStackNavigator()
+const Tab = createBottomTabNavigator()
 
 const MainNavigation = () => {
     return (
         <Stack.Navigator screenOptions={{ headerShown: false }}>
-            <Stack.Screen name='ProductDetail' component={ProductDetail} />
+            <Stack.Screen name='Tab' component={TabNavigation} />
+            <Stack.Screen name='Product' component={ProductDetail} />
             <Stack.Screen name='Shop' component={ShopDetailScreen} />
             <Stack.Screen name='Search' component={SearchScreen} />
-            <Stack.Screen name='Home' component={HomeScreen} />
         </Stack.Navigator>
+    )
+}
+
+const TabNavigation = () => {
+    return (
+        <Tab.Navigator screenOptions={{ headerShown: false, tabBarShowLabel: false, tabBarStyle: styles.tabBar }}>
+            <Tab.Screen name='Home' component={HomeScreen}
+                options={{
+                    tabBarIcon: ({ focused }) => (
+                        <View style={styles.viewTabItem}>
+                            <Image source={require('../assets/images/tabBar/home.png')}
+                                style={styles.imgTab}
+                                resizeMode='contain'
+                                tintColor={focused ? appColor.primary : appColor.text}
+                            />
+                            <TextComponent text={'Trang chủ'} fontsize={10} color={focused ? appColor.primary : appColor.text} styles={{ marginTop: 5 }} />
+                        </View>
+                    )
+                }}
+            />
+            <Tab.Screen name='Cart' component={SearchScreen}
+                options={{
+                    tabBarIcon: ({ focused }) => (
+                        <View style={styles.viewTabItem}>
+                            <Image source={require('../assets/images/tabBar/cart.png')}
+                                style={styles.imgTab}
+                                resizeMode='contain'
+                                tintColor={focused ? appColor.primary : appColor.text}
+                            />
+                            <TextComponent text={'Đơn hàng'} fontsize={10} color={focused ? appColor.primary : appColor.text} styles={{ marginTop: 5 }} />
+                        </View>
+                    )
+                }}
+            />
+            <Tab.Screen name='Favorite' component={ShopDetailScreen}
+                options={{
+                    tabBarIcon: ({ focused }) => (
+                        <View style={[styles.viewFavor,styles.shadow]}>
+                            <Image source={require('../assets/images/tabBar/favor.png')}
+                                resizeMode='contain'
+                                tintColor={appColor.white}
+                                style={styles.imgFavor}
+                            />
+                        </View>
+                    )
+                }}
+            />
+            <Tab.Screen name='Notify' component={ProductDetail}
+                options={{
+                    tabBarIcon: ({ focused }) => (
+                        <View style={styles.viewTabItem}>
+                            <Image source={require('../assets/images/tabBar/notification.png')}
+                                style={styles.imgTab}
+                                resizeMode='contain'
+                                tintColor={focused ? appColor.primary : appColor.text}
+                            />
+                            <TextComponent text={'Thông báo'} fontsize={10} color={focused ? appColor.primary : appColor.text} styles={{ marginTop: 5 }} />
+                        </View>
+                    )
+                }}
+            />
+            <Tab.Screen name='Profile' component={HomeScreen}
+                options={{
+                    tabBarIcon: ({ focused }) => (
+                        <View style={styles.viewTabItem}>
+                            <Image source={require('../assets/images/tabBar/profile.png')}
+                                style={styles.imgTab}
+                                resizeMode='contain'
+                                tintColor={focused ? appColor.primary : appColor.text}
+                            />
+                            <TextComponent text={'Tài khoản'} fontsize={10} color={focused ? appColor.primary : appColor.text} styles={{ marginTop: 5 }} />
+                        </View>
+                    )
+                }}
+            />
+
+        </Tab.Navigator>
     )
 }
 
 export default MainNavigation
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+    imgFavor:{
+        width:28,
+        height:28
+    },
+    shadow:{
+        shadowColor: 'rgba(0, 0, 0, 0.9)',
+        elevation:5
+    },
+    viewFavor: {
+        position: 'absolute',
+        top: -30,
+        width: 65,
+        height: 65,
+        // padding: 5,
+        backgroundColor: appColor.primary,
+        borderBlockColor: appColor.text,
+        borderRadius: 65 / 2,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    tabBar: {
+        height: 60,
+        backgroundColor: appColor.white,
+    },
+    imgTab: {
+        width: 25,
+        height: 25
+    },
+    viewTabItem: {
+        justifyContent: 'center',
+        alignItems: 'center'
+    }
+})

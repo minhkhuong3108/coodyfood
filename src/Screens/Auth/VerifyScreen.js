@@ -30,7 +30,12 @@ const VerifyScreen = ({ navigation, route }) => {
 
 
     useEffect(() => {
-        ref1.current.focus()
+        const timer = setTimeout(() => {
+            if (ref1.current) {
+                ref1.current.focus();
+            }
+        }, 100); // Delay to ensure the component is mounted
+        return () => clearTimeout(timer);
     }, [])
     const handleChangeCode = (value, index) => {
         if (value.length > 0) {
@@ -180,7 +185,7 @@ const VerifyScreen = ({ navigation, route }) => {
             </RowComponent>
             {error && <TextComponent text={error} color={appColor.primary} fontsize={14} styles={{ marginTop: 10 }} />}
             <SpaceComponent height={40} />
-            <ButtonComponent text={'Next'} color={appColor.white} onPress={handleVerify}/>
+            <ButtonComponent text={'Next'} color={appColor.white} onPress={handleVerify} />
             <SpaceComponent height={20} />
             {time > 0 ? <RowComponent justifyContent={'center'}>
                 <TextComponent text={'Bạn không nhận được mã?  '} fontsize={14} />
@@ -188,7 +193,7 @@ const VerifyScreen = ({ navigation, route }) => {
             </RowComponent> :
                 <ButtonComponent type={'link'} text={'Gửi lại'} color={appColor.primary} onPress={handleResetCode} fontsize={14} textStyle={{ textAlign: 'center' }} />
             }
-            <LoadingModal visible={isLoading}/>
+            <LoadingModal visible={isLoading} />
         </ContainerComponent>
     )
 }

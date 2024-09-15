@@ -11,7 +11,7 @@ import { globalStyle } from '../../../styles/globalStyle'
 import LineComponent from '../../../components/LineComponent'
 import ShopAndProductComponent from '../../../components/ShopAndProductComponent'
 
-const ShopDetailScreen = () => {
+const ShopDetailScreen = ({ navigation }) => {
     const [popularFood, setPopularFood] = useState(POPULARFOOD)
     const [category, setCategory] = useState(CATEGORY)
     const [selectedCategory, setSelectedCategory] = useState(category[0]._id)
@@ -25,7 +25,7 @@ const ShopDetailScreen = () => {
     const renderPopularFood = ({ item }) => {
         const { name, price, sold, image } = item
         return (
-            <TouchableOpacity style={styles.containerPopularFood}>
+            <TouchableOpacity style={styles.containerPopularFood} onPress={() => navigation.navigate('Product')}>
                 <ImageBackground source={image} style={styles.imgProduct}>
                     <View style={styles.viewSold}>
                         <TextComponent text={`${formatSold(sold)} đã bán`} color={appColor.white} fontsize={10} />
@@ -61,6 +61,7 @@ const ShopDetailScreen = () => {
                         image={require('../../../assets/images/shopDetail/back.png')}
                         styles={styles.btnBack}
                         type={'link'}
+                        onPress={() => navigation.goBack()}
                     />
                     <ButtonComponent
                         image={require('../../../assets/images/shopDetail/search.png')}

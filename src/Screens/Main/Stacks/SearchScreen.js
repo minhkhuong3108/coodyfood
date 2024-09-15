@@ -1,5 +1,5 @@
 import { FlatList, Image, StyleSheet, Text, View } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import ContainerComponent from '../../../components/ContainerComponent'
 import SpaceComponent from '../../../components/SpaceComponent'
 import SearchComponent from '../../../components/SearchComponent'
@@ -9,11 +9,52 @@ import ButtonComponent from '../../../components/ButtonComponent'
 import { appColor } from '../../../constants/appColor'
 import ShopRecomendList from '../../../components/ShopRecomendList'
 import { globalStyle } from '../../../styles/globalStyle'
+import SearchModal from '../../../modal/SearchResultsModal'
+import SearchResultsModal from '../../../modal/SearchResultsModal'
 
-const SearchScreen = () => {
+const SearchScreen = ({ navigation }) => {
     const [search, setSearch] = useState('')
     const [shop, setShop] = useState(FEATURE)
     const [historySearch, setHistorySearch] = useState(HISTORY)
+    const [isModalVisible, setModalVisible] = useState(false);
+    // console.log('search', search.length);
+
+
+    const refSearch = useRef()
+
+    useEffect(() => {
+        // if (refSearch.current) {
+        //     refSearch.current.focus()
+        //     console.log('refSearch.current', refSearch.current.focus());  
+        // }
+        const timer = setTimeout(() => {
+            if (refSearch.current) {
+                refSearch.current.focus();
+            }
+        }, 100); // Delay to ensure the component is mounted
+        return () => clearTimeout(timer);
+    }, [])
+
+    const handleSearchChange = (text) => {
+        setSearch(text);
+        if (text.length > 0) {
+            setModalVisible(true);
+        } else {
+            setModalVisible(false);
+        }
+    };
+
+    const suggestedProducts = [
+        { id: '1', name: 'Product 1' },
+        { id: '2', name: 'Product 2' },
+        { id: '3', name: 'Product 3' },
+        // Thêm các sản phẩm khác ở đây
+    ];
+    const renderProduct = ({ item }) => (
+        <View style={styles.productContainer}>
+            <Text style={styles.productName}>{item.name}</Text>
+        </View>
+    );
 
     const renderHistorySearch = ({ item }) => {
         const { name } = item
@@ -31,35 +72,48 @@ const SearchScreen = () => {
                 <ButtonComponent
                     image={require('../../../assets/images/home/back.png')}
                     type={'link'}
+                    onPress={() => navigation.goBack()}
                 />
                 <SpaceComponent width={10} />
-                <SearchComponent placeholder={'Tìm kiếm'} value={search} onchangeText={text => setSearch(text)} />
+                <SearchComponent placeholder={'Tìm kiếm'} value={search} onchangeText={text => handleSearchChange(text)} ref={refSearch} />
             </RowComponent>
-            <SpaceComponent height={40} />
-            <RowComponent justifyContent={'space-between'} >
-                <TextComponent text={'Tìm kiếm gần đây'} fontsize={18} />
-                <ButtonComponent text={'Xóa'} type={'link'} color={appColor.primary} fontsize={14} />
-            </RowComponent>
-            <SpaceComponent height={20} />
+            {search.length > 0 ? 
             <View>
+                <SpaceComponent height={20} />
                 <FlatList
-                    data={historySearch.slice(0, 3)}
-                    renderItem={renderHistorySearch}
-                    keyExtractor={item => item.id}
+                data={suggestedProducts}
+                renderItem={renderProduct}
+                keyExtractor={item => item.id}
                 />
-            </View>
-            <SpaceComponent height={30} />
-            <TextComponent text={'Nhà hàng nổi bật'} fontsize={20} />
-            <SpaceComponent height={20} />
-            <View>
-                <FlatList
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    data={shop}
-                    renderItem={({ item, index }) => <ShopRecomendList item={item} index={index} list={shop} />}
-                    keyExtractor={item => item.id}
-                />
-            </View>
+            </View> :
+                <View>
+                    <SpaceComponent height={40} />
+                    <RowComponent justifyContent={'space-between'} >
+                        <TextComponent text={'Tìm kiếm gần đây'} fontsize={18} />
+                        <ButtonComponent text={'Xóa'} type={'link'} color={appColor.primary} fontsize={14} />
+                    </RowComponent>
+                    <SpaceComponent height={20} />
+                    <View>
+                        <FlatList
+                            data={historySearch.slice(0, 3)}
+                            renderItem={renderHistorySearch}
+                            keyExtractor={item => item.id}
+                        />
+                    </View>
+                    <SpaceComponent height={30} />
+                    <TextComponent text={'Nhà hàng nổi bật'} fontsize={20} />
+                    <SpaceComponent height={20} />
+                    <View>
+                        <FlatList
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            data={shop}
+                            renderItem={({ item, index }) => <ShopRecomendList item={item} index={index} list={shop} />}
+                            keyExtractor={item => item.id}
+                        />
+                    </View>
+                </View>
+            }
         </ContainerComponent>
     )
 }
@@ -67,6 +121,14 @@ const SearchScreen = () => {
 export default SearchScreen
 
 const styles = StyleSheet.create({
+    productContainer: {
+        padding: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: '#ccc',
+    },
+    productName: {
+        fontSize: 16,
+    },
     containerHS: {
         borderBottomWidth: 1,
         borderBottomColor: appColor.gray,
