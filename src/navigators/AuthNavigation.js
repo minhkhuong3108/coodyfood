@@ -1,30 +1,35 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
-import { createStackNavigator } from '@react-navigation/stack'
-import OnboardingScreen from '../Screens/Auth/OnboardingScreen'
-import LoginScreen from '../Screens/Auth/LoginScreen'
-import RegisterScreen from '../Screens/Auth/RegisterScreen'
-import ForgotPassword from '../Screens/Auth/ForgotPassword'
-import VerifyScreen from '../Screens/Auth/VerifyScreen'
-import ResetPasswordScreen from '../Screens/Auth/ResetPasswordScreen'
-import AddPhoneScreen from '../Screens/Auth/AddPhoneScreen'
-const Stack = createStackNavigator()
+import {StyleSheet, Text, View} from 'react-native';
+import React from 'react';
+import {createStackNavigator} from '@react-navigation/stack';
+import OnboardingScreen from '../Screens/Auth/OnboardingScreen';
+import LoginScreen from '../Screens/Auth/LoginScreen';
+import RegisterScreen from '../Screens/Auth/RegisterScreen';
+import ForgotPassword from '../Screens/Auth/ForgotPassword';
+import VerifyScreen from '../Screens/Auth/VerifyScreen';
+import ResetPasswordScreen from '../Screens/Auth/ResetPasswordScreen';
+import AddPhoneScreen from '../Screens/Auth/AddPhoneScreen';
+import MyOrder from '../Screens/MyOrder/MyOrder';
+import DetailOrder from '../Screens/MyOrder/DetailOrder';
+import EditProfile from '../Screens/Profile/EditProfile';
+const Stack = createStackNavigator();
 
 const AuthNavigation = () => {
-    return (
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-            <Stack.Screen name='Login' component={LoginScreen} />
-            <Stack.Screen name='Register' component={RegisterScreen} />
-            <Stack.Screen name='Onboarding' component={OnboardingScreen} />
-            <Stack.Screen name='ForgotPassword' component={ForgotPassword} />
-            <Stack.Screen name='Verify' component={VerifyScreen} />
-            <Stack.Screen name='ResetPassword' component={ResetPasswordScreen} />
-            <Stack.Screen name='AddPhone' component={AddPhoneScreen} />
-        </Stack.Navigator>
+  return (
+    <Stack.Navigator screenOptions={{headerShown: false}}>
+      <Stack.Screen name="EditProfile" component={EditProfile} />
+      <Stack.Screen name="Myorder" component={MyOrder} />
+      <Stack.Screen name="DetailOrder" component={DetailOrder} />
+      <Stack.Screen name="Login" component={LoginScreen} />
+      <Stack.Screen name="Register" component={RegisterScreen} />
+      <Stack.Screen name="Onboarding" component={OnboardingScreen} />
+      <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
+      <Stack.Screen name="Verify" component={VerifyScreen} />
+      <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
+      <Stack.Screen name="AddPhone" component={AddPhoneScreen} />
+    </Stack.Navigator>
+  );
+};
 
-    )
-}
+export default AuthNavigation;
 
-export default AuthNavigation
-
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({});
