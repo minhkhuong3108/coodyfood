@@ -16,9 +16,6 @@ const Stack = createStackNavigator();
 const AuthNavigation = () => {
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
-      <Stack.Screen name="EditProfile" component={EditProfile} />
-      <Stack.Screen name="Myorder" component={MyOrder} />
-      <Stack.Screen name="DetailOrder" component={DetailOrder} />
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Register" component={RegisterScreen} />
       <Stack.Screen name="Onboarding" component={OnboardingScreen} />

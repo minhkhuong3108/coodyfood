@@ -6,15 +6,20 @@ import { appColor } from '../constants/appColor'
 import { fontFamilies } from '../constants/fontFamilies'
 import SpaceComponent from './SpaceComponent'
 import { appInfor } from '../constants/appInfor'
+import { globalStyle } from '../styles/globalStyle'
+import ButtonComponent from './ButtonComponent'
 
-const ShopAndProductComponent = ({ item, onPress, type }) => {
+const ShopAndProductComponent = ({ item, onPress, type, favorite }) => {
     const { _id, name, image, discount, rate, location, time, sold, price, oldPrice } = item
     return (
         type == 'shop' ?
-            <TouchableOpacity style={styles.container}>
+            <TouchableOpacity style={[styles.container, globalStyle.shawdow]}>
                 <Image source={image} style={styles.img} />
-                <View>
-                    <TextComponent text={name} fontsize={16} />
+                <View style={{ flex: 1 }}>
+                    <RowComponent>
+                        <TextComponent text={name} fontsize={16} styles={{ flex: 1 }} ellipsizeMode={'tail'} numberOfLines={1} />
+                        {favorite && <ButtonComponent type={'link'} image={require('../assets/images/favoriteProduct/heart.png')} />}
+                    </RowComponent>
                     <RowComponent styles={{ marginTop: 8, marginBottom: 10 }}>
                         <Image source={require('../assets/images/home/star.png')} style={{ marginRight: 5 }} />
                         <TextComponent text={`${rate} | ${location}.0 km | ${time} phút`} fontsize={12} color={appColor.subText} />
@@ -24,14 +29,14 @@ const ShopAndProductComponent = ({ item, onPress, type }) => {
                     </View>
                 </View>
             </TouchableOpacity> :
-            <TouchableOpacity style={styles.container}>
+            <TouchableOpacity style={[styles.container, globalStyle.shawdow]}>
                 <Image source={image} style={styles.img} />
-                <View style={{flex:1}}>
+                <View style={{ flex: 1 }}>
                     <TextComponent text={name} fontsize={16} />
                     <TextComponent text={`${sold} đã bán`} fontsize={12} color={appColor.subText} styles={{ marginTop: 8, marginBottom: 10 }} />
                     <RowComponent justifyContent={'space-between'}>
                         <RowComponent>
-                            <TextComponent text={`${oldPrice}.000đ`} fontsize={14} color={appColor.subText} styles={styles.txtOldPrice}/>
+                            <TextComponent text={`${oldPrice}.000đ`} fontsize={14} color={appColor.subText} styles={styles.txtOldPrice} />
                             <SpaceComponent width={5} />
                             <TextComponent text={`${price}.000đ`} fontsize={14} color={appColor.primary} />
                         </RowComponent>
@@ -73,6 +78,7 @@ const styles = StyleSheet.create({
         marginRight: 20
     },
     container: {
+        flex: 1,
         borderWidth: 1,
         borderColor: appColor.gray,
         borderRadius: 15,
@@ -80,5 +86,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         paddingRight: 10,
+        backgroundColor: appColor.white,
     }
 })

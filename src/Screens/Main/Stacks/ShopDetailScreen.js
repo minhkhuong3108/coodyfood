@@ -72,7 +72,7 @@ const ShopDetailScreen = ({ navigation }) => {
                 </RowComponent>
             </ImageBackground>
             <SpaceComponent height={20} />
-            <ContainerComponent styles={globalStyle.container}>
+            <ContainerComponent styles={[globalStyle.container, { paddingTop: 0 }]}>
                 <RowComponent justifyContent={'space-between'}>
                     <View>
                         <TextComponent text={'Nhà hàng'} fontsize={18} fontFamily={fontFamilies.bold} />

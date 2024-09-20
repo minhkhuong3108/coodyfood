@@ -12,6 +12,7 @@ import OrderSummaryItem from '../../components/MyOrder/OrderSummaryItem';
 import ButtonComponent from '../../components/ButtonComponent';
 import {useRoute} from '@react-navigation/native';
 import HeaderComponent from '../../components/HeaderComponent';
+import { globalStyle } from '../../styles/globalStyle';
 
 const DetailOrder = () => {
   const route = useRoute(); // Sử dụng useRoute để lấy route
@@ -30,11 +31,11 @@ const DetailOrder = () => {
     );
   };
   return (
-    <ContainerComponent styles={styles.container}>
+    <ContainerComponent styles={globalStyle.container}>
       {/* header chi tiet */}
       <HeaderComponent isback={true} text={'Chi tiết đơn hàng'} />
       {/* header body */}
-      <View style={styles.body}>
+      <View >
         {/* ảnh_tên quán_ ngày đặt*/}
         <View style={styles.nameimgdate}>
           {/*ảnh*/}
@@ -110,9 +111,9 @@ const styles = StyleSheet.create({
     height: appInfor.sizes.height * 0.1,
     borderRadius: 10,
   },
-  body: {
-    margin: appInfor.sizes.width * 0.05,
-  },
+  // body: {
+  //   margin: appInfor.sizes.width * 0.05,
+  // },
   name: {
     width: '94%',
   },

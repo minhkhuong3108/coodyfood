@@ -44,7 +44,7 @@ const HomeScreen = ({ navigation }) => {
   const renderCate = ({ item }) => {
     const { id, name, image } = item
     return (
-      <TouchableOpacity key={id} style={styles.btnCate}>
+      <TouchableOpacity key={id} style={styles.btnCate} onPress={()=>navigation.navigate('CheckOut')}>
         <View style={styles.viewImgCate}>
           <Image source={image} />
         </View>
@@ -75,7 +75,6 @@ const HomeScreen = ({ navigation }) => {
   }
   return (
     <ContainerComponent styles={globalStyle.container} isScroll>
-      <SpaceComponent height={50} />
       <RowComponent justifyContent={'space-between'}>
         <View>
           <TextComponent text={'Giao đến'} fontsize={16} fontFamily={fontFamilies.bold} />

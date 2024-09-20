@@ -133,7 +133,6 @@ const VerifyScreen = ({ navigation, route }) => {
     }
     return (
         <ContainerComponent styles={globalStyle.container}>
-            <SpaceComponent height={50} />
             <ButtonComponent image={require('../../assets/images/auth/login-regis/back.png')} type={'link'} onPress={() => navigation.goBack()} />
             <SpaceComponent height={20} />
             <Image source={require('../../assets/images/auth/login-regis/logo.png')} />

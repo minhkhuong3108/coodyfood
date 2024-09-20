@@ -8,6 +8,15 @@ import ProductDetail from '../Screens/Main/Stacks/ProductDetail'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import TextComponent from '../components/TextComponent'
 import { appColor } from '../constants/appColor'
+import EditProfile from '../Screens/Profile/EditProfile'
+import MyOrder from '../Screens/MyOrder/MyOrder'
+import DetailOrder from '../Screens/MyOrder/DetailOrder'
+import ReviewShopScreen from '../Screens/Main/Stacks/ReviewShopScreen'
+import TicketSaleScreen from '../Screens/Main/Stacks/TicketSaleScreen'
+import ProductFavoriteScreen from '../Screens/Main/Stacks/ProductFavoriteScreen'
+import ProfileScreen from '../Screens/Main/Stacks/ProfileScreen'
+import CheckOutScreen from '../Screens/Main/Stacks/CheckOutScreen'
+import CheckOrderScreen from '../Screens/Main/Stacks/CheckOrderScreen'
 
 const Stack = createStackNavigator()
 const Tab = createBottomTabNavigator()
@@ -19,6 +28,14 @@ const MainNavigation = () => {
             <Stack.Screen name='Product' component={ProductDetail} />
             <Stack.Screen name='Shop' component={ShopDetailScreen} />
             <Stack.Screen name='Search' component={SearchScreen} />
+            <Stack.Screen name="EditProfile" component={EditProfile} />
+            <Stack.Screen name="Myorder" component={MyOrder} />
+            <Stack.Screen name="DetailOrder" component={DetailOrder} />
+            <Stack.Screen name="ReviewShop" component={ReviewShopScreen} />
+            <Stack.Screen name="TicketSale" component={TicketSaleScreen} />
+            <Stack.Screen name="ProductFavorite" component={ProductFavoriteScreen} />
+            <Stack.Screen name="Profile" component={ProfileScreen} />
+            <Stack.Screen name="CheckOut" component={CheckOutScreen} />
         </Stack.Navigator>
     )
 }
@@ -57,17 +74,19 @@ const TabNavigation = () => {
             <Tab.Screen name='Favorite' component={ShopDetailScreen}
                 options={{
                     tabBarIcon: ({ focused }) => (
-                        <View style={[styles.viewFavor,styles.shadow]}>
-                            <Image source={require('../assets/images/tabBar/favor.png')}
-                                resizeMode='contain'
-                                tintColor={appColor.white}
-                                style={styles.imgFavor}
-                            />
+                        <View style={styles.containerFavor}>
+                            <View style={[styles.viewFavor, styles.shadow]}>
+                                <Image source={require('../assets/images/tabBar/favor.png')}
+                                    resizeMode='contain'
+                                    tintColor={appColor.white}
+                                    style={styles.imgFavor}
+                                />
+                            </View>
                         </View>
                     )
                 }}
             />
-            <Tab.Screen name='Notify' component={ProductDetail}
+            <Tab.Screen name='Notify' component={CheckOrderScreen}
                 options={{
                     tabBarIcon: ({ focused }) => (
                         <View style={styles.viewTabItem}>
@@ -81,7 +100,7 @@ const TabNavigation = () => {
                     )
                 }}
             />
-            <Tab.Screen name='Profile' component={HomeScreen}
+            <Tab.Screen name='Profile' component={ProfileScreen}
                 options={{
                     tabBarIcon: ({ focused }) => (
                         <View style={styles.viewTabItem}>
@@ -103,23 +122,32 @@ const TabNavigation = () => {
 export default MainNavigation
 
 const styles = StyleSheet.create({
-    imgFavor:{
-        width:28,
-        height:28
+    containerFavor: {
+        position: 'absolute',
+        top: -20,
+        padding: 4,
+        backgroundColor: appColor.white,
+        borderRadius: 70 / 2,
+        borderColor: appColor.primary,
+        borderWidth: 2,
     },
-    shadow:{
+    imgFavor: {
+        width: 25,
+        height: 25
+    },
+    shadow: {
         shadowColor: 'rgba(0, 0, 0, 0.9)',
-        elevation:5
+        elevation: 5
     },
     viewFavor: {
-        position: 'absolute',
-        top: -30,
-        width: 65,
-        height: 65,
+        // position: 'absolute',
+        // top: -25,
+        width: 55,
+        height: 55,
         // padding: 5,
         backgroundColor: appColor.primary,
         borderBlockColor: appColor.text,
-        borderRadius: 65 / 2,
+        borderRadius: 60 / 2,
         justifyContent: 'center',
         alignItems: 'center'
     },

@@ -22,6 +22,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import HeaderComponent from '../../components/HeaderComponent';
+import { globalStyle } from '../../styles/globalStyle';
 
 const MyOrder = ({navigation}) => {
   const [Data, setData] = useState(data);
@@ -132,11 +133,11 @@ const MyOrder = ({navigation}) => {
     );
   };
   return (
-    <ContainerComponent styles={{backgroundColor: appColor.white}}>
+    <ContainerComponent styles={globalStyle.container}>
       {/* header đơn hàng của tôi */}
       <HeaderComponent isback={true} text={'Đơn hàng của tôi'} />
       {/* body*/}
-      <View style={styles.container}>
+      <View >
         {/* đã giao- đang giao */}
         <View style={styles.orders}>
           <Animated.View style={animatedStyle} />
@@ -164,11 +165,11 @@ const MyOrder = ({navigation}) => {
 
 export default MyOrder;
 const styles = StyleSheet.create({
-  container: {
-    height: appInfor.sizes.height,
-    marginLeft: appInfor.sizes.width * 0.05,
-    marginRight: appInfor.sizes.width * 0.05,
-  },
+  // container: {
+  //   height: appInfor.sizes.height,
+  //   marginLeft: appInfor.sizes.width * 0.05,
+  //   marginRight: appInfor.sizes.width * 0.05,
+  // },
   orders: {
     flexDirection: 'row',
     justifyContent: 'space-around',
