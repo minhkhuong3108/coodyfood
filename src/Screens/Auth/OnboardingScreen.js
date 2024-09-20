@@ -17,7 +17,6 @@ const OnboardingScreen = ({ navigation }) => {
     return (
         <View style={styles.container}>
             <Swiper
-
                 loop={false}
                 showsPagination={false}
                 buttonWrapperStyle={styles.viewBtn}

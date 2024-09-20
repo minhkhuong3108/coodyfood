@@ -67,7 +67,7 @@ const SearchScreen = ({ navigation }) => {
     }
     return (
         <ContainerComponent styles={globalStyle.container}>
-            <SpaceComponent height={70} />
+            <SpaceComponent height={20} />
             <RowComponent>
                 <ButtonComponent
                     image={require('../../../assets/images/home/back.png')}

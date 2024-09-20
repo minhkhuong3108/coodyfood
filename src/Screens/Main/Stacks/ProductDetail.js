@@ -9,36 +9,10 @@ import SpaceComponent from '../../../components/SpaceComponent'
 import LineComponent from '../../../components/LineComponent'
 import { fontFamilies } from '../../../constants/fontFamilies'
 import { globalStyle } from '../../../styles/globalStyle'
+import ReviewList from '../../../components/ReviewList'
 
-const ProductDetail = () => {
+const ProductDetail = ({ navigation }) => {
     const [rate, setRate] = useState(RATE)
-
-    const renderRate = ({ item }) => {
-        const { name, rate, comment, images, avatar, day } = item
-        return (
-            <View style={styles.containerRate}>
-                <Image source={avatar} style={styles.imgAvatar} />
-                <View style={{ flex: 1 }}>
-                    <RowComponent justifyContent={'space-between'}>
-                        <View>
-                            <TextComponent text={name} fontsize={18} fontFamily={fontFamilies.bold} />
-                            <SpaceComponent height={5} />
-                            <TextComponent text={day} color={appColor.subText} fontsize={12} fontFamily={fontFamilies.regular} />
-                        </View>
-                        <Image source={require('../../../assets/images/productDetail/5start.png')} />
-                    </RowComponent>
-                    {comment && <TextComponent text={comment} fontsize={16} styles={{ marginTop: 15 }} />}
-
-                    {images && <RowComponent styles={{ marginTop: 15 }}>
-                        {images.map((item, index) => (
-                            <Image source={item} key={index} style={styles.imgRate} />
-                        ))}
-                    </RowComponent>}
-
-                </View>
-            </View>
-        )
-    }
 
     return (
         <ContainerComponent styles={{ flex: 1, backgroundColor: appColor.white }} isScroll>
@@ -59,7 +33,7 @@ const ProductDetail = () => {
                 </RowComponent>
             </ImageBackground>
             <SpaceComponent height={15} />
-            <ContainerComponent styles={globalStyle.container}>
+            <ContainerComponent styles={[globalStyle.container, { paddingTop: 0 }]}>
                 <TextComponent text={'Product Detail'} fontsize={18} />
                 <SpaceComponent height={15} />
                 <TextComponent text={'400 đã bán | 10 đánh giá'} fontsize={12} color={appColor.subText} />
@@ -80,7 +54,7 @@ const ProductDetail = () => {
                     showsVerticalScrollIndicator={false}
                     scrollEnabled={false}
                     data={rate}
-                    renderItem={renderRate}
+                    renderItem={({ item }) => <ReviewList item={item} />}
                     keyExtractor={item => item.id}
                 />
             </ContainerComponent>

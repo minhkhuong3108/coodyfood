@@ -97,7 +97,6 @@ const RegisterScreen = ({ navigation }) => {
     }
     return (
         <ContainerComponent isScroll={true} styles={globalStyle.container}>
-            <SpaceComponent height={50} />
             <Image source={require('../../assets/images/auth/login-regis/logo.png')} />
             <SpaceComponent height={30} />
             <RowComponent >
