@@ -9,7 +9,7 @@ import { appInfor } from '../constants/appInfor'
 import { globalStyle } from '../styles/globalStyle'
 import ButtonComponent from './ButtonComponent'
 
-const ShopAndProductComponent = ({ item, onPress, type, favorite }) => {
+const ShopAndProductComponent = ({ item, onPress, type, favorite, quantity }) => {
     const { _id, name, image, discount, rate, location, time, sold, price, oldPrice } = item
     return (
         type == 'shop' ?
@@ -36,13 +36,31 @@ const ShopAndProductComponent = ({ item, onPress, type, favorite }) => {
                     <TextComponent text={`${sold} đã bán`} fontsize={12} color={appColor.subText} styles={{ marginTop: 8, marginBottom: 10 }} />
                     <RowComponent justifyContent={'space-between'}>
                         <RowComponent>
-                            <TextComponent text={`${oldPrice}.000đ`} fontsize={14} color={appColor.subText} styles={styles.txtOldPrice} />
-                            <SpaceComponent width={5} />
+                            {oldPrice &&
+                                <RowComponent>
+                                    <TextComponent text={`${oldPrice}.000đ`} fontsize={14} color={appColor.subText} styles={styles.txtOldPrice} />
+                                    <SpaceComponent width={5} />
+                                </RowComponent>
+                            }
                             <TextComponent text={`${price}.000đ`} fontsize={14} color={appColor.primary} />
                         </RowComponent>
-                        <TouchableOpacity style={styles.btnAdd}>
-                            <Image source={require('../assets/images/home/add.png')} />
-                        </TouchableOpacity>
+
+                        {/* Test */}
+                        <RowComponent>
+                            {quantity &&
+                                <RowComponent>
+                                    <TouchableOpacity>
+                                        <Image source={require('../assets/images/home/reduce.png')} />
+                                    </TouchableOpacity>
+                                    <SpaceComponent width={5} />
+                                    <TextComponent text={'1'} fontsize={14} styles={{ marginHorizontal: 10 }} />
+                                    <SpaceComponent width={5} />
+                                </RowComponent>
+                            }
+                            <TouchableOpacity >
+                                <Image source={require('../assets/images/home/add.png')} />
+                            </TouchableOpacity>
+                        </RowComponent>
                     </RowComponent>
                 </View>
             </TouchableOpacity>
@@ -78,7 +96,7 @@ const styles = StyleSheet.create({
         marginRight: 20
     },
     container: {
-        flex: 1,
+        // flex: 1,
         borderWidth: 1,
         borderColor: appColor.gray,
         borderRadius: 15,

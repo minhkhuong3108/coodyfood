@@ -33,8 +33,8 @@ const styless = StyleSheet.create({
         width: '100%'
     },
     container: {
-        flex: 1,
         height: 50,
+        flex:1,
         paddingHorizontal: 20,
         borderWidth: 1,
         borderColor: appColor.gray,
