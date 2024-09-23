@@ -8,5 +8,6 @@ export const appColor = {
   lightgray: '#A5A7B9',
   bluee: '#005EB4',
   opacity: '#F7F7F7',
-  green: '#34C759'
+  green: '#34C759',
+  note:'#EFEFEF'
 };

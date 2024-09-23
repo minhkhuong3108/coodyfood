@@ -17,6 +17,9 @@ import ProductFavoriteScreen from '../Screens/Main/Stacks/ProductFavoriteScreen'
 import ProfileScreen from '../Screens/Main/Stacks/ProfileScreen'
 import CheckOutScreen from '../Screens/Main/Stacks/CheckOutScreen'
 import CheckOrderScreen from '../Screens/Main/Stacks/CheckOrderScreen'
+import AddressScreen from '../Screens/Main/Stacks/AddressScreen'
+import EditAddressScreen from '../Screens/Main/Stacks/EditAddressScreen'
+import AddAddressScreen from '../Screens/Main/Stacks/AddAddressScreen'
 
 const Stack = createStackNavigator()
 const Tab = createBottomTabNavigator()
@@ -57,7 +60,7 @@ const TabNavigation = () => {
                     )
                 }}
             />
-            <Tab.Screen name='Cart' component={SearchScreen}
+            <Tab.Screen name='Cart' component={CheckOrderScreen}
                 options={{
                     tabBarIcon: ({ focused }) => (
                         <View style={styles.viewTabItem}>
@@ -86,7 +89,7 @@ const TabNavigation = () => {
                     )
                 }}
             />
-            <Tab.Screen name='Notify' component={CheckOrderScreen}
+            <Tab.Screen name='Notify' component={CheckOutScreen}
                 options={{
                     tabBarIcon: ({ focused }) => (
                         <View style={styles.viewTabItem}>

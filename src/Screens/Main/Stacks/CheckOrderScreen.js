@@ -80,7 +80,7 @@ const CheckOrderScreen = () => {
                 <FlatList
                     scrollEnabled={false}
                     data={order}
-                    renderItem={({ item }) => <OrderItem item={item} />}
+                    renderItem={({ item }) => <OrderItem noTouch item={item} />}
                     keyExtractor={item => item._id}
                 />
             </View>

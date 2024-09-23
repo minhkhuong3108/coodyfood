@@ -1,4 +1,4 @@
-import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Alert, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useState } from 'react'
 import ContainerComponent from '../../../components/ContainerComponent'
 import HeaderComponent from '../../../components/HeaderComponent'
@@ -11,10 +11,15 @@ import SpaceComponent from '../../../components/SpaceComponent'
 import { globalStyle } from '../../../styles/globalStyle'
 import OrderItem from '../../../components/OrderItem'
 import LineComponent from '../../../components/LineComponent'
+import NoteModel from '../../../modal/NoteModel'
+import AlertModel from '../../../modal/AlertModel'
+import AlertChoiceModal from '../../../modal/AlertChoiceModal'
 
 const CheckOutScreen = () => {
     const [order, setOrder] = useState(ORDER)
     const [indexPay, setIndexPay] = useState()
+    const [visible, setVisible] = useState(false)
+    const [note, setNote] = useState('')
     console.log('indexPay', indexPay);
 
     const options = [
@@ -58,14 +63,9 @@ const CheckOutScreen = () => {
                 <ButtonComponent type={'link'} text={'Thêm món'} fontsize={14} color={appColor.primary} />
             </RowComponent>
             <SpaceComponent height={10} />
-            <View>
-                <FlatList
-                    scrollEnabled={false}
-                    data={order}
-                    renderItem={({ item }) => <OrderItem item={item} />}
-                    keyExtractor={item => item._id}
-                />
-            </View>
+            {order.map((item, index) =>
+                <OrderItem key={index} item={item} onpress={() => setVisible(true)} />
+            )}
             <LineComponent />
             <SpaceComponent height={15} />
             <TextComponent text={'Phương thức thanh toán'} fontsize={20} fontFamily={fontFamilies.bold} />
@@ -104,8 +104,10 @@ const CheckOutScreen = () => {
                 <TextComponent text={'500.000 đ'} fontsize={14} fontFamily={fontFamilies.bold} />
             </RowComponent>
             <SpaceComponent height={15} />
-            <ButtonComponent text={'Đặt hàng'} height={60} color={appColor.white} />
-            <SpaceComponent height={70}/>
+            <ButtonComponent text={'Đặt hàng'} height={60} color={appColor.white} onPress={() => setVisible(true)} />
+            <SpaceComponent height={70} />
+            <AlertChoiceModal visible={visible} title={'Xác nhận'} onClose={() => setVisible(false)} />
+            {/* <AlertModel visible={visible} title={'Thành công'} fail onRequestClose={() => setVisible(false)}  description={'Thanh toán thành công'} /> */}
         </ContainerComponent>
     )
 }
@@ -139,19 +141,22 @@ const styles = StyleSheet.create({
 
 var ORDER = [
     {
-        '_id': 1,
+        _id: 1,
         name: 'Cơm gà',
         price: 250,
         quantity: 1,
+        sold: 999,
         image: require('../../../assets/images/checkout/p1.png'),
         note: 'Không ớt'
     },
     {
-        '_id': 2,
-        name: 'Cơm gà',
+        _id: 2,
+        name: 'Cơm bò',
         price: 250,
-        quantity: 1,
+        quantity: 2,
+        sold: 999,
         image: require('../../../assets/images/checkout/p1.png'),
         note: 'Không ớt'
     },
 ]
+
