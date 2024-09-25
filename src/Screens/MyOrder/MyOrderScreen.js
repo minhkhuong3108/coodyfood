@@ -7,9 +7,7 @@ import {
   Image,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
-
 import TextComponent from '../../components/TextComponent';
-import Header from '../../components/HeaderComponent';
 import ContainerComponent from '../../components/ContainerComponent';
 import {appColor} from '../../constants/appColor';
 import {appInfor} from '../../constants/appInfor';
@@ -24,7 +22,7 @@ import Animated, {
 import HeaderComponent from '../../components/HeaderComponent';
 import { globalStyle } from '../../styles/globalStyle';
 
-const MyOrder = ({navigation}) => {
+const MyOrderScreen = ({navigation}) => {
   const [Data, setData] = useState(data);
   const [selectedOrder, setSelectedOrder] = useState('delivered');
   const transx = useSharedValue(0);
@@ -53,6 +51,7 @@ const MyOrder = ({navigation}) => {
       transx.value = withTiming(0, {duration: 300});
     }
   }, [selectedOrder]);
+
   //lọc data tương ứng với status đã giao hay đang giao
   useEffect(() => {
     const filteredData = data.filter(item => {
@@ -67,7 +66,7 @@ const MyOrder = ({navigation}) => {
   }, [selectedOrder]);
 
   const rendreitem = ({item}) => {
-    const {id, status, name, date, price, time, img} = item;
+    const {id, status, name, date, price, time, img, paymenttype} = item;
     return (
       <TouchableOpacity
         style={styles.item}
@@ -101,12 +100,21 @@ const MyOrder = ({navigation}) => {
               <TextComponent text={price} fontFamily={fontFamilies.bold} />
             </View>
             {/* ngày */}
-            <TextComponent
-              styles={styles.date}
-              text={date}
-              color={appColor.lightgray}
-              fontsize={14}
-            />
+            <View style={styles.datepayment}>
+              <TextComponent
+                styles={styles.date}
+                text={date}
+                color={appColor.lightgray}
+                fontsize={14}
+              />
+              <TextComponent
+                styles={styles.date}
+                text={paymenttype}
+                color={appColor.text}
+                fontFamily={fontFamilies.bold}
+                fontsize={14}
+              />
+            </View>
           </View>
         </View>
         {/* nút đặt hàng lại_xem chi tiết */}
@@ -163,13 +171,8 @@ const MyOrder = ({navigation}) => {
   );
 };
 
-export default MyOrder;
+export default MyOrderScreen;
 const styles = StyleSheet.create({
-  // container: {
-  //   height: appInfor.sizes.height,
-  //   marginLeft: appInfor.sizes.width * 0.05,
-  //   marginRight: appInfor.sizes.width * 0.05,
-  // },
   orders: {
     flexDirection: 'row',
     justifyContent: 'space-around',
@@ -191,7 +194,7 @@ const styles = StyleSheet.create({
     borderColor: '#CED7DF',
   },
   nameandprice: {
-    width: '85%',
+    width: appInfor.sizes.width * 0.62,
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
@@ -213,9 +216,6 @@ const styles = StyleSheet.create({
   name: {
     width: appInfor.sizes.width * 0.35,
   },
-  date: {
-    width: appInfor.sizes.width * 0.6,
-  },
   clocktime: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -225,14 +225,23 @@ const styles = StyleSheet.create({
     width: appInfor.sizes.width * 0.035,
     resizeMode: 'contain',
   },
+  datepayment: {
+    flexDirection: 'row',
+    width: appInfor.sizes.width * 0.62,
+    justifyContent: 'space-between',
+  },
+  date: {
+    maxWidth: appInfor.sizes.width * 0.62,
+  },
 });
 const data = [
   {
     id: 1,
     status: 'đã giao',
     name: 'Quán A',
-    date: '01 thg 01, 00:00',
+    date: '2024-9-15 (13:44)',
     price: '999.999đ',
+    paymenttype: 'ZaloPay',
     img: 'https://res.cloudinary.com/djywo5wza/image/upload/v1726317280/Rectangle_175_mcixkk.png',
     order: [
       {id: 1, count: '156x', name: 'lục trà', price: '111.111.111đ'},
@@ -244,6 +253,7 @@ const data = [
     status: 'đang giao',
     name: 'Quán B',
     time: '18',
+    paymenttype: null,
     img: 'https://res.cloudinary.com/djywo5wza/image/upload/v1726318386/Rectangle_175_xzn14n.jpg',
     date: 'Đơn hàng của bạn đã được nhận để giao hàng',
     price: '99.999.999đ',
@@ -256,7 +266,8 @@ const data = [
     id: 3,
     status: 'đã giao',
     name: 'Quán Cdgdfhf-fsf gfdg gfdg',
-    date: '01 thg 01, 00:00',
+    date: '2024-9-16 (13:44)',
+    paymenttype: 'ZaloPay',
     img: 'https://res.cloudinary.com/djywo5wza/image/upload/v1726318392/Rectangle_175_1_rspy6t.jpg',
     price: '9.999.999đ',
     order: [{id: 1, count: '156x', name: 'lục trà mạn', price: '111.111.111đ'}],

@@ -42,10 +42,10 @@ const styles = StyleSheet.create({
     backgroundColor: appColor.white,
     flexDirection: 'row',
     alignItems: 'center',
-    // height: appInfor.sizes.height * 0.1,
-    // padding: appInfor.sizes.width * 0.05,
-    // paddingTop: appInfor.sizes.height * 0.08,
-    paddingBottom: 40
+    height: appInfor.sizes.height * 0.1,
+    padding: appInfor.sizes.width * 0.05,
+    paddingTop: appInfor.sizes.height * 0.08,
+    paddingBottom:30
   },
   title: {
     position: 'absolute',
@@ -65,8 +65,8 @@ const styles = StyleSheet.create({
     // alignItems: 'center',
   },
   img: {
-    width: 20,
-    height: 20,
+    width: '60%',
     resizeMode: 'contain',
+    transform: [{translateY: -3}],
   },
 });
