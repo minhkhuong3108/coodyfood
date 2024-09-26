@@ -89,7 +89,7 @@ const TabNavigation = () => {
                     )
                 }}
             />
-            <Tab.Screen name='Notify' component={CheckOutScreen}
+            <Tab.Screen name='Notify' component={DetailOrder}
                 options={{
                     tabBarIcon: ({ focused }) => (
                         <View style={styles.viewTabItem}>

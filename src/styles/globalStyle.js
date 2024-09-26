@@ -5,10 +5,13 @@ export const globalStyle = StyleSheet.create({
         flex: 1,
         backgroundColor: 'white',
         paddingTop: 50,
-        paddingHorizontal: 24,
+        paddingHorizontal: 16,
     },
-    shawdow:{
+    shawdow: {
         shadowColor: 'rgba(0,0,0,0.5)',
         elevation: 6,
-    }
+    },
+    itemLast: {
+        marginRight: 0
+    },
 })
