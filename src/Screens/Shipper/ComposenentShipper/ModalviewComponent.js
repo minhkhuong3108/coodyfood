@@ -1,24 +1,18 @@
-import {
-  View,
-  Text,
-  Modal,
-  Button,
-  StyleSheet,
-  Image,
-  TouchableOpacity,
-} from 'react-native';
-import React, {useEffect, useState} from 'react';
+import {View, Modal, StyleSheet, Image} from 'react-native';
+import React, {useRef, useState} from 'react';
 import {appInfor} from '../../../constants/appInfor';
 import Textcompose from './TextComponent';
 import {fontFamilies} from '../../../constants/fontFamilies';
 import {appColor} from '../../../constants/appColor';
 import BtnComponent from './BtnComponent';
+import CountDownTimer from 'react-native-countdown-timer-hooks';
 
 const ModalviewComponent = ({setModalVisible, setOrder}) => {
-  const [cancelVisible, setCancelVisible] = useState(false);
-
+  const [cancelVisible, setCancelVisible] = useState(false); //quản lí modal xác nhận huỷ
+  const refTimer = useRef();
   return (
     <View style={[styles.bg, {zIndex: 1}]}>
+      {/*làm tối bg khi modal xác nhận huỷ xuất hiện */}
       {cancelVisible && <View style={[styles.bg, {zIndex: 2}]} />}
       <View style={[styles.modal]}>
         <View style={styles.detail}>
@@ -29,12 +23,18 @@ const ModalviewComponent = ({setModalVisible, setOrder}) => {
               fontfamily={fontFamilies.bold}
               color={appColor.primary}
             />
-            <Textcompose
-              text={'09:52'}
-              fontsize={14}
-              fontfamily={fontFamilies.bold}
-              color={appColor.primary}
-              styles={styles.time}
+            <CountDownTimer
+              ref={refTimer}
+              timestamp={999}
+              timerCallback={() => {
+                setModalVisible(false);
+              }} //gọi funtion khi hết tg
+              containerStyle={styles.time}
+              textStyle={{
+                color: appColor.primary,
+                fontsize: 14,
+                fontFamily: fontFamilies.bold,
+              }}
             />
           </View>
           <View style={styles.address}>
@@ -170,9 +170,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   detail: {
-    //340 ÷ 430 = 0.79
-    width: appInfor.sizes.width * 0.79,
-    maxHeight: appInfor.sizes.height * 0.68,
+    width: '79%',
+    maxHeight: '68%',
     margin: 20,
     backgroundColor: 'white',
     borderRadius: 30,
@@ -182,8 +181,8 @@ const styles = StyleSheet.create({
   },
   time: {
     position: 'absolute',
-    right: appInfor.sizes.width * -0.15,
-    top: appInfor.sizes.height * 0.012,
+    right: "-20%",
+    top: '29%',
   },
   address: {
     borderBottomWidth: 1,

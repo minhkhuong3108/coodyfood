@@ -1,4 +1,4 @@
-import {View, Text, Image, StyleSheet, Button} from 'react-native';
+import {View, Image, StyleSheet} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import ModalviewComponent from './ComposenentShipper/ModalviewComponent';
 import OrderDetailsComponent from './ComposenentShipper/OrderDetailsComponent';

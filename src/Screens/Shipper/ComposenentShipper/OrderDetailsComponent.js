@@ -15,7 +15,7 @@ import TextComponent from '../../../components/TextComponent';
 import {fontFamilies} from '../../../constants/fontFamilies';
 import Check from './CheckComponent';
 import Info4txt from './Info4txtComponent';
-import ButtonComponent from '../../../components/ButtonComponent';
+
 
 const OrderDetailsComponent = props => {
   const sheetRef = useRef(null);
