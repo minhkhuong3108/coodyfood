@@ -89,7 +89,7 @@ const TabNavigation = () => {
                     )
                 }}
             />
-            <Tab.Screen name='Notify' component={DetailOrder}
+            <Tab.Screen name='Notify' component={MyOrder}
                 options={{
                     tabBarIcon: ({ focused }) => (
                         <View style={styles.viewTabItem}>

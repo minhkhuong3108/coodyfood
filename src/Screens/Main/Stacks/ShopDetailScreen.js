@@ -1,5 +1,5 @@
 import { FlatList, Image, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { act, useState } from 'react'
+import React, { act, useCallback, useRef, useState } from 'react'
 import ButtonComponent from '../../../components/ButtonComponent'
 import SpaceComponent from '../../../components/SpaceComponent'
 import TextComponent from '../../../components/TextComponent'
@@ -10,11 +10,26 @@ import ContainerComponent from '../../../components/ContainerComponent'
 import { globalStyle } from '../../../styles/globalStyle'
 import LineComponent from '../../../components/LineComponent'
 import ShopAndProductComponent from '../../../components/ShopAndProductComponent'
+import BottomSheet, { BottomSheetBackdrop, BottomSheetFlatList, BottomSheetModal, BottomSheetView } from '@gorhom/bottom-sheet'
 
 const ShopDetailScreen = ({ navigation }) => {
     const [popularFood, setPopularFood] = useState(POPULARFOOD)
     const [category, setCategory] = useState(CATEGORY)
     const [selectedCategory, setSelectedCategory] = useState(category[0]._id)
+    const snapPoint = ['80%']
+    const bottomSheetRef = useRef(null)
+    const handleOpenBottomSheet = () => {
+        bottomSheetRef.current?.expand()
+    }
+    const handleCloseBottomSheet = () => {
+        bottomSheetRef.current?.close()
+    }
+
+    const renderBackdrop = useCallback(
+        (props) => (
+            <BottomSheetBackdrop appearsOnIndex={0} disappearsOnIndex={-1} {...props} />
+        )
+    )
 
     const formatSold = (sold) => {
         if (sold < 1000) return sold.toString();
@@ -139,7 +154,7 @@ const ShopDetailScreen = ({ navigation }) => {
                     <SpaceComponent height={60} />
                 </ContainerComponent>
             </ContainerComponent>
-            <RowComponent activeOpacity={1} button justifyContent={'space-between'} styles={styles.containerCart}>
+            <RowComponent onPress={handleOpenBottomSheet} activeOpacity={1} button justifyContent={'space-between'} styles={styles.containerCart}>
                 <View style={styles.viewCart}>
                     <View style={styles.viewQuantity}>
                         <TextComponent text={'1'} color={appColor.white} fontsize={10} />
@@ -152,6 +167,28 @@ const ShopDetailScreen = ({ navigation }) => {
                     <ButtonComponent text={'Giao hàng'} color={appColor.white} height={70} width={150} borderRadius={0} />
                 </RowComponent>
             </RowComponent>
+            <BottomSheet
+                enablePanDownToClose
+                ref={bottomSheetRef}
+                snapPoints={snapPoint}
+                backdropComponent={renderBackdrop}
+                handleComponent={null}
+                index={-1}
+            >
+                <RowComponent styles={styles.headerBottomSheet} justifyContent={'space-between'}>
+                    <ButtonComponent type={'link'} text={'Xóa '} color={appColor.white} />
+                    <TextComponent text={'Giỏ hàng'} color={appColor.white} />
+                    <ButtonComponent type={'link'} text={'Đóng'} color={appColor.white} onPress={handleCloseBottomSheet} />
+                </RowComponent>
+                <SpaceComponent height={20} />
+                <BottomSheetFlatList
+                showsVerticalScrollIndicator={false}
+                data={popularFood}
+                renderItem={({item})=><ShopAndProductComponent item={item}  quantity/>}
+                keyExtractor={item=>item.id}
+                contentContainerStyle={{paddingHorizontal:16}}
+                />
+            </BottomSheet>
         </ContainerComponent>
     )
 }
@@ -159,6 +196,13 @@ const ShopDetailScreen = ({ navigation }) => {
 export default ShopDetailScreen
 
 const styles = StyleSheet.create({
+    headerBottomSheet: {
+        backgroundColor: appColor.primary,
+        height: 50,
+        paddingHorizontal: 16,
+        borderTopLeftRadius: 15,
+        borderTopRightRadius: 15,
+    },
     viewQuantity: {
         backgroundColor: appColor.primary,
         width: 20,
@@ -268,6 +312,7 @@ var POPULARFOOD = [
         image: require('../../../assets/images/shopDetail/p2.png'),
         oldPrice: 50
     },
+    
     {
         id: 3,
         name: 'Berry Toast',
@@ -276,6 +321,7 @@ var POPULARFOOD = [
         image: require('../../../assets/images/shopDetail/p2.png'),
         oldPrice: 50
     },
+    
 ]
 
 var CATEGORY = [
