@@ -11,7 +11,7 @@ const ButtonComponent = ({ text, color, styles, backgroundColor, textStyle, font
                     <TextComponent
                         text={text}
                         color={color ?? appColor.text}
-                        fonsize={fontsize ?? 16}
+                        fontsize={fontsize ?? 16}
                         styles={textStyle}
                     />}
             </TouchableOpacity> :

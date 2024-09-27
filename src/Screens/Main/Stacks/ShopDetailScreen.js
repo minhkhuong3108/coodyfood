@@ -1,5 +1,5 @@
 import { FlatList, Image, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { act, useState } from 'react'
+import React, { act, useCallback, useRef, useState } from 'react'
 import ButtonComponent from '../../../components/ButtonComponent'
 import SpaceComponent from '../../../components/SpaceComponent'
 import TextComponent from '../../../components/TextComponent'
@@ -10,11 +10,26 @@ import ContainerComponent from '../../../components/ContainerComponent'
 import { globalStyle } from '../../../styles/globalStyle'
 import LineComponent from '../../../components/LineComponent'
 import ShopAndProductComponent from '../../../components/ShopAndProductComponent'
+import BottomSheet, { BottomSheetBackdrop, BottomSheetFlatList, BottomSheetModal, BottomSheetView } from '@gorhom/bottom-sheet'
 
 const ShopDetailScreen = ({ navigation }) => {
     const [popularFood, setPopularFood] = useState(POPULARFOOD)
     const [category, setCategory] = useState(CATEGORY)
     const [selectedCategory, setSelectedCategory] = useState(category[0]._id)
+    const snapPoint = ['80%']
+    const bottomSheetRef = useRef(null)
+    const handleOpenBottomSheet = () => {
+        bottomSheetRef.current?.expand()
+    }
+    const handleCloseBottomSheet = () => {
+        bottomSheetRef.current?.close()
+    }
+
+    const renderBackdrop = useCallback(
+        (props) => (
+            <BottomSheetBackdrop appearsOnIndex={0} disappearsOnIndex={-1} {...props} />
+        )
+    )
 
     const formatSold = (sold) => {
         if (sold < 1000) return sold.toString();
@@ -47,94 +62,133 @@ const ShopDetailScreen = ({ navigation }) => {
     const renderCategory = ({ item, index }) => {
         const { _id, name, image } = item
         return (
-            <TouchableOpacity style={{ marginRight: 40 }} onPress={() => setSelectedCategory(_id)}>
+            <TouchableOpacity style={[{ marginRight: 40 }, index == category.length - 1 && globalStyle.itemLast]} onPress={() => setSelectedCategory(_id)}>
                 <TextComponent text={name} fontsize={14} styles={_id == selectedCategory && styles.activeCategory}
                     color={_id == selectedCategory ? appColor.primary : appColor.text} />
-            </TouchableOpacity>
+            </TouchableOpacity >
         )
     }
     return (
-        <ContainerComponent styles={{ flex: 1, backgroundColor: appColor.white }} isScroll>
-            <ImageBackground style={styles.imageBackground} source={require('../../../assets/images/shopDetail/p1.png')}>
-                <RowComponent justifyContent={'space-between'} styles={styles.containerHead}>
-                    <ButtonComponent
-                        image={require('../../../assets/images/shopDetail/back.png')}
-                        styles={styles.btnBack}
-                        type={'link'}
-                        onPress={() => navigation.goBack()}
-                    />
-                    <ButtonComponent
-                        image={require('../../../assets/images/shopDetail/search.png')}
-                        styles={styles.btnBack}
-                        type={'link'}
-                    />
+        <ContainerComponent styles={{ flex: 1, backgroundColor: appColor.white }}>
+            <ContainerComponent styles={{ flex: 1, backgroundColor: appColor.white }} isScroll>
+                <ImageBackground style={styles.imageBackground} source={require('../../../assets/images/shopDetail/p1.png')}>
+                    <RowComponent justifyContent={'space-between'} styles={styles.containerHead}>
+                        <ButtonComponent
+                            image={require('../../../assets/images/shopDetail/back.png')}
+                            styles={styles.btnBack}
+                            type={'link'}
+                            onPress={() => navigation.goBack()}
+                        />
+                        <ButtonComponent
+                            image={require('../../../assets/images/shopDetail/search.png')}
+                            styles={styles.btnBack}
+                            type={'link'}
+                        />
 
-                </RowComponent>
-            </ImageBackground>
-            <SpaceComponent height={20} />
-            <ContainerComponent styles={[globalStyle.container, { paddingTop: 0 }]}>
-                <RowComponent justifyContent={'space-between'}>
+                    </RowComponent>
+                </ImageBackground>
+                <SpaceComponent height={20} />
+                <ContainerComponent styles={[globalStyle.container, { paddingTop: 0 }]}>
+                    <RowComponent justifyContent={'space-between'}>
+                        <View>
+                            <TextComponent text={'Nhà hàng'} fontsize={18} fontFamily={fontFamilies.bold} />
+                            <SpaceComponent height={15} />
+                            <RowComponent>
+                                <Image source={require('../../../assets/images/shopDetail/star.png')} />
+                                <TextComponent text={'4.5'} fontsize={14} styles={{ marginHorizontal: 5 }} />
+                                <TextComponent text={'(99+ đánh giá)'} fontsize={12} color={appColor.subText} />
+                            </RowComponent>
+                            <SpaceComponent height={15} />
+                            <RowComponent>
+                                <RowComponent>
+                                    <Image source={require('../../../assets/images/shopDetail/location.png')} />
+                                    <SpaceComponent width={10} />
+                                    <TextComponent text={`4.6 km`} fontsize={14} />
+                                </RowComponent>
+                                <SpaceComponent width={20} />
+                                <RowComponent>
+                                    <Image source={require('../../../assets/images/shopDetail/time.png')} />
+                                    <SpaceComponent width={10} />
+                                    <TextComponent text={`30 phút`} fontsize={14} />
+                                </RowComponent>
+                            </RowComponent>
+                        </View>
+                        <ButtonComponent
+                            type={'link'}
+                            image={require('../../../assets/images/shopDetail/no-favor.png')}
+                        />
+                    </RowComponent>
+                    <SpaceComponent height={20} />
+                    <LineComponent />
+                    <SpaceComponent height={20} />
+                    <TextComponent text={'Món phổ biến'} fontsize={18} />
+                    <SpaceComponent height={20} />
                     <View>
-                        <TextComponent text={'Nhà hàng'} fontsize={18} fontFamily={fontFamilies.bold} />
-                        <SpaceComponent height={15} />
-                        <RowComponent>
-                            <Image source={require('../../../assets/images/shopDetail/star.png')} />
-                            <TextComponent text={'4.5'} fontsize={14} styles={{ marginHorizontal: 5 }} />
-                            <TextComponent text={'(99+ đánh giá)'} fontsize={12} color={appColor.subText} />
-                        </RowComponent>
-                        <SpaceComponent height={15} />
-                        <RowComponent>
-                            <RowComponent>
-                                <Image source={require('../../../assets/images/shopDetail/location.png')} />
-                                <SpaceComponent width={10} />
-                                <TextComponent text={`4.6 km`} fontsize={14} />
-                            </RowComponent>
-                            <SpaceComponent width={20} />
-                            <RowComponent>
-                                <Image source={require('../../../assets/images/shopDetail/time.png')} />
-                                <SpaceComponent width={10} />
-                                <TextComponent text={`30 phút`} fontsize={14} />
-                            </RowComponent>
-                        </RowComponent>
+                        <FlatList
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            data={popularFood}
+                            renderItem={renderPopularFood}
+                            keyExtractor={item => item.id}
+                        />
                     </View>
-                    <ButtonComponent
-                        type={'link'}
-                        image={require('../../../assets/images/shopDetail/no-favor.png')}
+                    <SpaceComponent height={20} />
+                    <View>
+                        <FlatList
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            // contentContainerStyle={{width:'100%',justifyContent:'center'}}
+                            data={category}
+                            renderItem={renderCategory}
+                            keyExtractor={item => item._id}
+                        />
+                    </View>
+                    <SpaceComponent height={20} />
+                    <FlatList
+                        showsVerticalScrollIndicator={false}
+                        data={popularFood}
+                        renderItem={({ item }) => <ShopAndProductComponent item={item} />}
+                        keyExtractor={item => item.id}
+                        scrollEnabled={false}
                     />
+                    <SpaceComponent height={60} />
+                </ContainerComponent>
+            </ContainerComponent>
+            <RowComponent onPress={handleOpenBottomSheet} activeOpacity={1} button justifyContent={'space-between'} styles={styles.containerCart}>
+                <View style={styles.viewCart}>
+                    <View style={styles.viewQuantity}>
+                        <TextComponent text={'1'} color={appColor.white} fontsize={10} />
+                    </View>
+                    <Image source={require('../../../assets/images/cart/cart.png')} />
+                </View>
+                <RowComponent>
+                    <TextComponent text={'100.000đ'} />
+                    <SpaceComponent width={10} />
+                    <ButtonComponent text={'Giao hàng'} color={appColor.white} height={70} width={150} borderRadius={0} />
+                </RowComponent>
+            </RowComponent>
+            <BottomSheet
+                enablePanDownToClose
+                ref={bottomSheetRef}
+                snapPoints={snapPoint}
+                backdropComponent={renderBackdrop}
+                handleComponent={null}
+                index={-1}
+            >
+                <RowComponent styles={styles.headerBottomSheet} justifyContent={'space-between'}>
+                    <ButtonComponent type={'link'} text={'Xóa '} color={appColor.white} />
+                    <TextComponent text={'Giỏ hàng'} color={appColor.white} />
+                    <ButtonComponent type={'link'} text={'Đóng'} color={appColor.white} onPress={handleCloseBottomSheet} />
                 </RowComponent>
                 <SpaceComponent height={20} />
-                <LineComponent />
-                <SpaceComponent height={20} />
-                <TextComponent text={'Món phổ biến'} fontsize={18} />
-                <SpaceComponent height={20} />
-                <View>
-                    <FlatList
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        data={popularFood}
-                        renderItem={renderPopularFood}
-                        keyExtractor={item => item.id}
-                    />
-                </View>
-                <SpaceComponent height={20} />
-                <View>
-                    <FlatList
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        data={category}
-                        renderItem={renderCategory}
-                        keyExtractor={item => item._id}
-                    />
-                </View>
-                <SpaceComponent height={20} />
-                <FlatList
-                    showsVerticalScrollIndicator={false}
-                    data={popularFood}
-                    renderItem={({ item }) => <ShopAndProductComponent item={item} />}
-                    keyExtractor={item => item.id}
-                    scrollEnabled={false}
+                <BottomSheetFlatList
+                showsVerticalScrollIndicator={false}
+                data={popularFood}
+                renderItem={({item})=><ShopAndProductComponent item={item}  quantity/>}
+                keyExtractor={item=>item.id}
+                contentContainerStyle={{paddingHorizontal:16}}
                 />
-            </ContainerComponent>
+            </BottomSheet>
         </ContainerComponent>
     )
 }
@@ -142,6 +196,41 @@ const ShopDetailScreen = ({ navigation }) => {
 export default ShopDetailScreen
 
 const styles = StyleSheet.create({
+    headerBottomSheet: {
+        backgroundColor: appColor.primary,
+        height: 50,
+        paddingHorizontal: 16,
+        borderTopLeftRadius: 15,
+        borderTopRightRadius: 15,
+    },
+    viewQuantity: {
+        backgroundColor: appColor.primary,
+        width: 20,
+        height: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 20 / 2,
+        position: 'absolute',
+        top: -5,
+        right: -5,
+    },
+    viewCart: {
+        backgroundColor: '#F6F6F7',
+        width: 55,
+        height: 55,
+        borderRadius: 55 / 2,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    containerCart: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: appColor.white,
+        paddingLeft: 16,
+        zIndex: 1,
+    },
     activeCategory: {
         paddingBottom: 5,
         borderBottomWidth: 2,
@@ -223,6 +312,7 @@ var POPULARFOOD = [
         image: require('../../../assets/images/shopDetail/p2.png'),
         oldPrice: 50
     },
+    
     {
         id: 3,
         name: 'Berry Toast',
@@ -231,6 +321,7 @@ var POPULARFOOD = [
         image: require('../../../assets/images/shopDetail/p2.png'),
         oldPrice: 50
     },
+    
 ]
 
 var CATEGORY = [
@@ -249,5 +340,6 @@ var CATEGORY = [
     {
         _id: 4,
         name: 'Đồ uống',
-    }
+    },
+
 ]
