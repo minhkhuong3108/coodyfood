@@ -22,7 +22,7 @@ const HomeScreen = () => {
         />
       )}
       {order && <OrderDetailsComponent />}
-      {/*để tạm-sau này thay thế bằng định bị */}
+      {/*để tạm-sau này thay thế bằng maps */}
       <Image
         style={styles.img}
         source={require('../../assets/images/shipper/map.png')}

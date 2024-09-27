@@ -10,17 +10,12 @@ import ResetPasswordScreen from '../Screens/Auth/ResetPasswordScreen';
 import AddPhoneScreen from '../Screens/Auth/AddPhoneScreen';
 import Revenue from '../Screens/Shipper/RevenueScreen';
 import HomeScreen from '../Screens/Shipper/HomeScreen';
-import CameraComponent from '../Screens/Shipper/CameraComponent';
-
-
-
 
 const Stack = createStackNavigator();
 
 const AuthNavigation = () => {
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
-      <Stack.Screen name="EditProfile" component={HomeScreen} />
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Register" component={RegisterScreen} />
       <Stack.Screen name="Onboarding" component={OnboardingScreen} />

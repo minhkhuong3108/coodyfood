@@ -1,8 +1,6 @@
 import {
   View,
-  Text,
   StyleSheet,
-  ScrollView,
   Image,
   FlatList,
   TouchableOpacity,
@@ -16,7 +14,7 @@ import {fontFamilies} from '../../../constants/fontFamilies';
 import SlideButton from 'rn-slide-button-updated';
 import Check from './CheckComponent';
 import Info4txt from './Info4txtComponent';
-import CameraComponent from '../CameraComponent';
+import CameraComponent from '../ComposenentShipper/CameraComponent';
 
 const OrderDetailsComponent = () => {
   const sheetRef = useRef(null);
@@ -175,8 +173,8 @@ const OrderDetailsComponent = () => {
                 checked={item3 ? true : false}
               />
             </View>
-            {/*info4: tóm tắt*/}
           </View>
+          {/*info4: tóm tắt*/}
           <View style={styles.info4}>
             <TextComponent
               text={'Tóm tắt'}
@@ -190,6 +188,7 @@ const OrderDetailsComponent = () => {
             <Info4txt text={'Thu nhập'} price={'31,500'} />
           </View>
           <View style={[styles.info4, {marginTop: '4%', gap: 22}]}>
+            {/*nút kéo từ trái sang phải*/}
             <SlideButton
               onReachedToEnd={handleReachedToEnd}
               autoReset={true}
@@ -210,6 +209,7 @@ const OrderDetailsComponent = () => {
               }
               thumbStyle={{borderRadius: 25}}
             />
+            {/*nút chụp ảnh chỉ hiện khi ở `shiper đẫ lấy món ăn`*/}
             {item1 && !item2 && (
               <TouchableOpacity
                 style={[styles.button, {backgroundColor: appColor.primary}]}
@@ -224,6 +224,7 @@ const OrderDetailsComponent = () => {
                 />
               </TouchableOpacity>
             )}
+            {/*hiện ảnh nếu đã chụp*/}
             {image && (
               <View>
                 <TextComponent
@@ -238,6 +239,7 @@ const OrderDetailsComponent = () => {
                 />
               </View>
             )}
+            {/*view thông tin khách hàng*/}
             <View style={styles.customer}>
               <View style={styles.imgcustomer}>
                 <Image
