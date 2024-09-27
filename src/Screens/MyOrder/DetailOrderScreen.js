@@ -14,7 +14,7 @@ import {useRoute} from '@react-navigation/native';
 import HeaderComponent from '../../components/HeaderComponent';
 import { globalStyle } from '../../styles/globalStyle';
 
-const DetailOrder = () => {
+const DetailOrderScreen = () => {
   const route = useRoute(); // Sử dụng useRoute để lấy route
   const {orderData} = route.params; // Lấy orderData từ params
   const renderItem = ({item}) => {
@@ -100,7 +100,7 @@ const DetailOrder = () => {
   );
 };
 
-export default DetailOrder;
+export default DetailOrderScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,

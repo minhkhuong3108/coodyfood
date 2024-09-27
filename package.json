@@ -24,6 +24,9 @@
     "jwt-decode": "^4.0.0",
     "react": "18.3.1",
     "react-native": "0.75.2",
+    "react-native-countdown-timer-hooks": "^1.0.5",
+    "react-native-draggable": "^3.3.0",
+    "react-native-element-dropdown": "^2.12.1",
     "react-native-fbsdk-next": "^13.0.0",
     "react-native-gesture-handler": "^2.19.0",
     "react-native-paper": "^5.12.5",
@@ -32,8 +35,10 @@
     "react-native-screens": "^3.34.0",
     "react-native-svg": "^15.6.0",
     "react-native-swiper": "^1.6.0",
+    "react-native-vision-camera": "^4.5.3",
     "react-redux": "^9.1.2",
-    "redux-persist": "^6.0.0"
+    "redux-persist": "^6.0.0",
+    "rn-slide-button-updated": "^1.0.4"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

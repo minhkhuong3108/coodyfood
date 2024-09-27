@@ -1,3 +1,4 @@
+@ -1,260 +0,0 @@
 import {
   View,
   Text,
