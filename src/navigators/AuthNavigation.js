@@ -10,6 +10,10 @@ import ResetPasswordScreen from '../Screens/Auth/ResetPasswordScreen';
 import AddPhoneScreen from '../Screens/Auth/AddPhoneScreen';
 import Revenue from '../Screens/Shipper/RevenueScreen';
 import HomeScreen from '../Screens/Shipper/HomeScreen';
+import CameraComponent from '../Screens/Shipper/CameraComponent';
+
+
+
 
 const Stack = createStackNavigator();
 

@@ -4,14 +4,15 @@ import ModalviewComponent from './ComposenentShipper/ModalviewComponent';
 import OrderDetailsComponent from './ComposenentShipper/OrderDetailsComponent';
 
 const HomeScreen = () => {
-  const [modalVisible, setModalVisible] = useState(false);
-  const [order, setOrder] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false); //modal nhận đơn hiện và tắt
+  const [order, setOrder] = useState(false); //hiện thông tin(dưới dạng bottomsheet) sau khi nhấn "NHẬN ĐƠN"
   //giả lập sau 2s sẽ có đơn
   useEffect(() => {
     setTimeout(() => {
       setModalVisible(true);
     }, 2000);
   }, []);
+
   return (
     <View style={{flex: 1}}>
       {modalVisible && (
@@ -21,6 +22,7 @@ const HomeScreen = () => {
         />
       )}
       {order && <OrderDetailsComponent />}
+      {/*để tạm-sau này thay thế bằng định bị */}
       <Image
         style={styles.img}
         source={require('../../assets/images/shipper/map.png')}

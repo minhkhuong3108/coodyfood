@@ -6,45 +6,62 @@ import {
   Image,
   FlatList,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import React, {useRef, useState} from 'react';
 import BottomSheet, {BottomSheetScrollView} from '@gorhom/bottom-sheet';
 import {appColor} from '../../../constants/appColor';
-import {appInfor} from '../../../constants/appInfor';
 import TextComponent from '../../../components/TextComponent';
 import {fontFamilies} from '../../../constants/fontFamilies';
+import SlideButton from 'rn-slide-button-updated';
 import Check from './CheckComponent';
 import Info4txt from './Info4txtComponent';
+import CameraComponent from '../CameraComponent';
 
-
-const OrderDetailsComponent = props => {
+const OrderDetailsComponent = () => {
   const sheetRef = useRef(null);
   const snapPoints = ['20%', '90%'];
   const [item1, setItem1] = useState(false);
   const [item2, setItem2] = useState(false);
   const [item3, setItem3] = useState(false);
-  const [item4, setItem4] = useState(false);
+  const [title, setTitle] = useState('Đã Đến Nhà Hàng');
   const Data = data;
-  console.log(appInfor.sizes.height);
-  const renderitem = item => {
-    const {id, name, quantity, note} = item;
+  const [showCamera, setShowCamera] = useState(false);
+  const [image, setImageSource] = useState('');
+  //hiện các status khi đang ship
+  const handleReachedToEnd = () => {
+    if (!item1) {
+      setItem1(true);
+      setTitle('Đã lấy món ăn');
+    } else if (item2 == false) {
+      if (image) {
+        setItem2(true);
+        setTitle('Đã đến nơi giao');
+      } else {
+        Alert.alert('Thông báo', 'Bạn cần phải chụp hình');
+      }
+    } else if (!item3) {
+      setItem3(true);
+      setTitle('Hoàn tất đơn hàng');
+    }
+  };
+  //render item
+  const renderitem = ({item}) => {
+    const {id, name, quantity, note, img} = item;
     return (
       <View style={styles.item}>
         <View style={styles.imgitem}>
           <Image
             style={{flex: 1}}
             source={{
-              uri: 'https://res.cloudinary.com/djywo5wza/image/upload/v1726318386/Rectangle_175_xzn14n.jpg',
+              uri: img,
             }}
           />
         </View>
         <View style={styles.detail2}>
+          <TextComponent text={name} fontFamily={fontFamilies.bold} />
           <TextComponent
-            text={'Bánh Pizza Margherita'}
-            fontFamily={fontFamilies.bold}
-          />
-          <TextComponent
-            text={'Số lượng 1'}
+            text={'Số lượng: ' + quantity}
             styles={{maxHeight: '50%'}}
             fontsize={13}
             color={appColor.subText}
@@ -54,16 +71,26 @@ const OrderDetailsComponent = props => {
               style={styles.star}
               source={require('../../../assets/images/shipper/note.png')}
             />
-            <TextComponent text={' ' + 'Nướng chín vừa'} fontsize={11} />
+            <TextComponent text={' ' + note} fontsize={11} />
           </View>
         </View>
       </View>
     );
   };
+  //
   return (
     <View style={styles.container}>
+      {/*hiện camera khi nhấn nút chụp ảnh*/}
+      {showCamera && (
+        <CameraComponent
+          setImageSource={setImageSource}
+          setShowcamera={setShowCamera}
+        />
+      )}
+      {/*bottom sheet */}
       <BottomSheet ref={sheetRef} snapPoints={snapPoints} index={0}>
         <BottomSheetScrollView>
+          {/*info1: thông tin quán ăn*/}
           <View style={styles.info1}>
             <View style={styles.img}>
               <Image
@@ -95,6 +122,7 @@ const OrderDetailsComponent = props => {
               </View>
             </View>
           </View>
+          {/*info2: danh sách các món ăn*/}
           <View style={styles.info2}>
             <TextComponent
               text={'Danh sách món'}
@@ -110,23 +138,44 @@ const OrderDetailsComponent = props => {
               scrollEnabled={false}
             />
           </View>
+          {/*info3: bảng lộ trình của shipper*/}
           <View style={styles.info3}>
+            {/*ảnh vòng tròn màu xám */}
             <Image
               style={styles.bodership}
               source={require('../../../assets/images/shipper/Frame_11.png')}
             />
+            {/*thông tin bên phải các vòng tròn*/}
             <View style={styles.statusship}>
               <TextComponent text={'Shipper đã đến nhà hàng'} />
               <TextComponent text={'Shipper đã lấy món ăn'} />
               <TextComponent text={'Shipper đã đến nơi giao'} />
               <TextComponent text={'Đơn hàng hoàn tất'} />
             </View>
+            {/*các vòng tròn check gồm start(bắt đầu) và check(đã thực hiện hay chưa)*/}
             <View style={styles.check}>
-              <Check height={'6.5%'} start={true} checked={true} />
-              <Check height={'8.5%'} start={true} checked={false} />
-              <Check height={'10.5%'} start={false} checked={false} />
-              <Check height={'12.5%'} start={false} checked={false} />
+              <Check
+                height={'7%'}
+                start={true}
+                checked={item1 ? true : false}
+              />
+              <Check
+                height={'9%'}
+                start={item1 ? true : false}
+                checked={item2 ? true : false}
+              />
+              <Check
+                height={'10%'}
+                start={item2 ? true : false}
+                checked={item3 ? true : false}
+              />
+              <Check
+                height={'12%'}
+                start={item2 ? true : false}
+                checked={item3 ? true : false}
+              />
             </View>
+            {/*info4: tóm tắt*/}
           </View>
           <View style={styles.info4}>
             <TextComponent
@@ -141,17 +190,54 @@ const OrderDetailsComponent = props => {
             <Info4txt text={'Thu nhập'} price={'31,500'} />
           </View>
           <View style={[styles.info4, {marginTop: '4%', gap: 22}]}>
-            <View style={[styles.button, {backgroundColor: appColor.primary}]}>
-              <TextComponent
-                text={'Đã đến nhà hàng'}
-                color={appColor.white}
-                fontFamily={fontFamilies.bold}
-              />
-            </View>
-            <TouchableOpacity
-              style={[styles.button, {backgroundColor: appColor.white}]}>
-              <TextComponent text={'Nhà Hàng Đóng Cửa/Hết Món'} />
-            </TouchableOpacity>
+            <SlideButton
+              onReachedToEnd={handleReachedToEnd}
+              autoReset={true}
+              borderRadius={10}
+              title={title}
+              titleStyle={{fontsize: 20, fontFamily: fontFamilies.bold}}
+              containerStyle={{
+                backgroundColor: appColor.primary,
+                elevation: 10,
+              }}
+              underlayStyle={{backgroundColor: 'transparent'}}
+              autoResetDelay={400}
+              icon={
+                <Image
+                  style={{flex: 0.6, resizeMode: 'contain'}}
+                  source={require('../../../assets/images/shipper/image_45.png')}
+                />
+              }
+              thumbStyle={{borderRadius: 25}}
+            />
+            {item1 && !item2 && (
+              <TouchableOpacity
+                style={[styles.button, {backgroundColor: appColor.primary}]}
+                onPress={() => {
+                  setShowCamera(true);
+                }}>
+                <TextComponent
+                  text={'Chụp ảnh'}
+                  color={appColor.white}
+                  fontsize={20}
+                  fontFamily={fontFamilies.bold}
+                />
+              </TouchableOpacity>
+            )}
+            {image && (
+              <View>
+                <TextComponent
+                  text={'Hình ảnh xác thực'}
+                  color={appColor.primary}
+                  fontsize={20}
+                  fontFamily={fontFamilies.semiBold}
+                />
+                <Image
+                  style={styles.verified}
+                  source={{uri: `file://${image}`}}
+                />
+              </View>
+            )}
             <View style={styles.customer}>
               <View style={styles.imgcustomer}>
                 <Image
@@ -237,7 +323,7 @@ const styles = StyleSheet.create({
     margin: '6%',
   },
   bodership: {
-    width: '7.7%',
+    width: '7.6%',
     height: '100%',
     resizeMode: 'contain',
   },
@@ -318,19 +404,25 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     marginRight: '2%',
   },
+  verified: {
+    width: '100%',
+    height: 200,
+    resizeMode: 'contain',
+    marginTop: '5%',
+  },
 });
 const data = [
   {
     id: 1,
-    status: 'Bánh Pizza Margherita',
+    name: 'Bánh Pizza Margherita',
     quantity: 1,
     note: 'Nướng chín vừa',
     img: 'https://res.cloudinary.com/djywo5wza/image/upload/v1726318386/Rectangle_175_xzn14n.jpg',
   },
   {
     id: 2,
-    status: 'Bánh Pizza Margherita',
-    quantity: 1,
+    name: 'Bánh Pizza Margherita',
+    quantity: 2,
     note: 'Nướng cháy khét lẹt',
     img: 'https://res.cloudinary.com/djywo5wza/image/upload/v1726318386/Rectangle_175_xzn14n.jpg',
   },

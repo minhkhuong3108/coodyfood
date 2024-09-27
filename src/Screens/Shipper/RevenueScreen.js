@@ -13,7 +13,6 @@ const RevenueScreen = () => {
   const [value, setValue] = useState(null);
   const [Data, setData] = useState(data);
 
-
   const renderItem = ({item}) => {
     const {
       status,
@@ -172,7 +171,7 @@ const styles = StyleSheet.create({
   dropdown: {
     backgroundColor: appColor.primary,
     padding: 13,
-    width: '38%',
+    width: '42%',
     borderRadius: 10,
   },
   placeholder: {
@@ -186,7 +185,7 @@ const styles = StyleSheet.create({
   revenue: {
     marginTop: '4%',
     flexShrink: 1,
-    minHeight: 212,
+    minHeight: "30%",
     borderTopWidth: 1,
     borderBottomWidth: 1,
     borderColor: appColor.gray,
