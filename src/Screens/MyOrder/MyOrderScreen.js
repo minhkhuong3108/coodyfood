@@ -1,4 +1,3 @@
-@ -1,260 +0,0 @@
 import {
   View,
   Text,
@@ -27,7 +26,7 @@ import { globalStyle } from '../../styles/globalStyle';
 import RowComponent from '../../components/RowComponent';
 import SpaceComponent from '../../components/SpaceComponent';
 
-const MyOrder = ({ navigation }) => {
+const MyOrderScreen = ({ navigation }) => {
   const [Data, setData] = useState(data);
   const [selectedOrder, setSelectedOrder] = useState('shipping');
   const transx = useSharedValue(0);
@@ -91,13 +90,13 @@ const MyOrder = ({ navigation }) => {
             <RowComponent justifyContent={'space-between'} noAlign>
               <TextComponent numberOfLines={2} ellipsizeMode={'tail'} text={name} fontFamilies={fontFamilies.bold} width={appInfor.sizes.width * 0.45} />
               {payment ? <TextComponent text={price} fontsize={14} color={appColor.primary} fontFamily={fontFamilies.bold} /> :
-                <ButtonComponent type={'link'} image={require('../../assets/images/myorder/close.png')}/>
+                <ButtonComponent type={'link'} image={require('../../assets/images/myorder/close.png')} />
               }
             </RowComponent>
             {time && (
               <RowComponent>
-                <Image source={require('../../assets/images/myorder/clock.png')} 
-                style={{ width: 20, height: 20, marginVertical: 5 }} />
+                <Image source={require('../../assets/images/myorder/clock.png')}
+                  style={{ width: 20, height: 20, marginVertical: 5 }} />
                 <SpaceComponent width={5} />
                 <TextComponent text={time + ' phút'} fontsize={14} color={appColor.subText} />
               </RowComponent>
@@ -175,7 +174,7 @@ const MyOrder = ({ navigation }) => {
   );
 };
 
-export default MyOrder;
+export default MyOrderScreen;
 const styles = StyleSheet.create({
   imgShop: {
     width: 80,

@@ -14,8 +14,8 @@ const App = () => {
       <Provider store={store}>
         <PersistGate persistor={persistor}>
           <StatusBar barStyle="dark-content" backgroundColor='transparent' translucent />
-          {/* <AppNavigation /> */}
-          <MapScreen />
+          <AppNavigation />
+          {/* <MapScreen /> */}
         </PersistGate>
       </Provider>
 

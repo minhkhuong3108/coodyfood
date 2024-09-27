@@ -9,8 +9,6 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import TextComponent from '../components/TextComponent'
 import { appColor } from '../constants/appColor'
 import EditProfile from '../Screens/Profile/EditProfile'
-import MyOrder from '../Screens/MyOrder/MyOrder'
-import DetailOrder from '../Screens/MyOrder/DetailOrder'
 import ReviewShopScreen from '../Screens/Main/Stacks/ReviewShopScreen'
 import TicketSaleScreen from '../Screens/Main/Stacks/TicketSaleScreen'
 import ProductFavoriteScreen from '../Screens/Main/Stacks/ProductFavoriteScreen'
@@ -20,6 +18,8 @@ import CheckOrderScreen from '../Screens/Main/Stacks/CheckOrderScreen'
 import AddressScreen from '../Screens/Main/Stacks/AddressScreen'
 import EditAddressScreen from '../Screens/Main/Stacks/EditAddressScreen'
 import AddAddressScreen from '../Screens/Main/Stacks/AddAddressScreen'
+import MyOrderScreen from '../Screens/MyOrder/MyOrderScreen'
+import DetailOrderScreen from '../Screens/MyOrder/DetailOrderScreen'
 
 const Stack = createStackNavigator()
 const Tab = createBottomTabNavigator()
@@ -32,13 +32,17 @@ const MainNavigation = () => {
             <Stack.Screen name='Shop' component={ShopDetailScreen} />
             <Stack.Screen name='Search' component={SearchScreen} />
             <Stack.Screen name="EditProfile" component={EditProfile} />
-            <Stack.Screen name="Myorder" component={MyOrder} />
-            <Stack.Screen name="DetailOrder" component={DetailOrder} />
+            <Stack.Screen name="Myorder" component={MyOrderScreen} />
+            <Stack.Screen name="DetailOrder" component={DetailOrderScreen} />
             <Stack.Screen name="ReviewShop" component={ReviewShopScreen} />
             <Stack.Screen name="TicketSale" component={TicketSaleScreen} />
             <Stack.Screen name="ProductFavorite" component={ProductFavoriteScreen} />
             <Stack.Screen name="Profile" component={ProfileScreen} />
             <Stack.Screen name="CheckOut" component={CheckOutScreen} />
+            <Stack.Screen name="CheckOrder" component={CheckOrderScreen} />
+            <Stack.Screen name="Address" component={AddressScreen} />
+            <Stack.Screen name="EditAddress" component={EditAddressScreen} />
+            <Stack.Screen name="AddAddress" component={AddAddressScreen} />
         </Stack.Navigator>
     )
 }
@@ -89,7 +93,7 @@ const TabNavigation = () => {
                     )
                 }}
             />
-            <Tab.Screen name='Notify' component={MyOrder}
+            <Tab.Screen name='Notify' component={MyOrderScreen}
                 options={{
                     tabBarIcon: ({ focused }) => (
                         <View style={styles.viewTabItem}>
