@@ -1,11 +1,11 @@
-import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
-import React, {useState} from 'react';
-import {appColor} from '../../constants/appColor';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { appColor } from '../../constants/appColor';
 import TextComponent from '../TextComponent';
-import {fontFamilies} from '../../constants/fontFamilies';
-import {appInfor} from '../../constants/appInfor';
+import { fontFamilies } from '../../constants/fontFamilies';
+import { appInfor } from '../../constants/appInfor';
 
-const OrderComponent = ({order, selectedOrder, handleSelectOrder}) => {
+const OrderComponent = ({ order, selectedOrder, handleSelectOrder }) => {
   return (
     <TouchableOpacity
       style={styles.order}
@@ -17,7 +17,7 @@ const OrderComponent = ({order, selectedOrder, handleSelectOrder}) => {
         color={selectedOrder == order ? appColor.primary : appColor.lightgray}
         fontFamily={selectedOrder == order ? fontFamilies.extraBold : null}
         fontsize={18}
-        text={order == 'delivered' ? 'Đã giao' : 'Đang giao'}
+        text={order == 'delivered' ? 'Đã giao' : order == 'cart' ? 'Đơn nháp' : 'Đang giao'}
       />
     </TouchableOpacity>
   );
