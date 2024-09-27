@@ -8,9 +8,9 @@ import ForgotPassword from '../Screens/Auth/ForgotPassword';
 import VerifyScreen from '../Screens/Auth/VerifyScreen';
 import ResetPasswordScreen from '../Screens/Auth/ResetPasswordScreen';
 import AddPhoneScreen from '../Screens/Auth/AddPhoneScreen';
-import MyOrder from '../Screens/MyOrder/MyOrder';
-import DetailOrder from '../Screens/MyOrder/DetailOrder';
-import EditProfile from '../Screens/Profile/EditProfile';
+import Revenue from '../Screens/Shipper/RevenueScreen';
+import HomeScreen from '../Screens/Shipper/HomeScreen';
+
 const Stack = createStackNavigator();
 
 const AuthNavigation = () => {
