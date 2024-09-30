@@ -15,8 +15,9 @@ import ProductFavoriteScreen from '../Screens/Main/Stacks/ProductFavoriteScreen'
 import ProfileScreen from '../Screens/Main/Stacks/ProfileScreen'
 import CheckOutScreen from '../Screens/Main/Stacks/CheckOutScreen'
 import CheckOrderScreen from '../Screens/Main/Stacks/CheckOrderScreen'
-import MyOrderScreen from '../Screens/MyOrder/MyOrderScreen'
-import DetailOrderScreen from '../Screens/MyOrder/DetailOrderScreen'
+import AddressScreen from '../Screens/Main/Stacks/AddressScreen'
+import EditAddressScreen from '../Screens/Main/Stacks/EditAddressScreen'
+import AddAddressScreen from '../Screens/Main/Stacks/AddAddressScreen'
 
 const Stack = createStackNavigator()
 const Tab = createBottomTabNavigator()
@@ -36,6 +37,10 @@ const MainNavigation = () => {
             <Stack.Screen name="ProductFavorite" component={ProductFavoriteScreen} />
             <Stack.Screen name="Profile" component={ProfileScreen} />
             <Stack.Screen name="CheckOut" component={CheckOutScreen} />
+            <Stack.Screen name="CheckOrder" component={CheckOrderScreen} />
+            <Stack.Screen name="Address" component={AddressScreen} />
+            <Stack.Screen name="EditAddress" component={EditAddressScreen} />
+            <Stack.Screen name="AddAddress" component={AddAddressScreen} />
         </Stack.Navigator>
     )
 }
