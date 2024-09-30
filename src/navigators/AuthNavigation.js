@@ -10,6 +10,10 @@ import ResetPasswordScreen from '../Screens/Auth/ResetPasswordScreen';
 import AddPhoneScreen from '../Screens/Auth/AddPhoneScreen';
 import ShipperRevenue from '../Screens/Shipper/RevenueScreen';
 import HomeShipperScreen from '../Screens/Shipper/HomeScreen';
+import ProfileScreen from '../Screens/Shipper/ProfileScreen';
+import TicketSaleScreen from '../Screens/Main/Stacks/TicketSaleScreen';
+import Account from '../Screens/Shipper/Account';
+import Message from '../Screens/Shipper/Message';
 
 
 const Stack = createStackNavigator();
@@ -17,7 +21,7 @@ const Stack = createStackNavigator();
 const AuthNavigation = () => {
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
-      <Stack.Screen name="Login" component={LoginScreen} />
+      <Stack.Screen name="Login" component={Message} />
       <Stack.Screen name="Register" component={RegisterScreen} />
       <Stack.Screen name="Onboarding" component={OnboardingScreen} />
       <Stack.Screen name="ForgotPassword" component={ForgotPassword} />

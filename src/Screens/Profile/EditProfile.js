@@ -1,7 +1,6 @@
 import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import ContainerComponent from '../../components/ContainerComponent';
-import Header from '../../components/HeaderComponent';
 import {appColor} from '../../constants/appColor';
 import {appInfor} from '../../constants/appInfor';
 import InputIn4 from '../../components/Profile/InputIn4';
@@ -12,6 +11,7 @@ import ButtonComponent from '../../components/ButtonComponent';
 import {validateEmail, validatePhone} from '../../utils/Validators';
 import HeaderComponent from '../../components/HeaderComponent';
 
+//SỬA LẠI HẾT ĐI 
 const EditProfile = () => {
   const [name, setName] = useState('ABC');
   const [errorName, setErrorName] = useState('Email không được để trống');
