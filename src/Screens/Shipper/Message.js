@@ -1,4 +1,12 @@
-import {View, Text, StyleSheet, Image, FlatList, TextInput} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  FlatList,
+  TextInput,
+  TouchableOpacity,
+} from 'react-native';
 import React from 'react';
 import {appColor} from '../../constants/appColor';
 import HeaderComponent from '../../components/HeaderComponent';
@@ -51,7 +59,6 @@ const Message = () => {
         data={Data[0].chat[0].text}
         renderItem={renderItem}
         keyExtractor={item => item.id.toString()}
-        contentContainerStyle={styles.flatlist}
       />
       <View style={styles.input}>
         <Image
@@ -64,10 +71,14 @@ const Message = () => {
           placeholderTextColor={appColor.subText}
           color={appColor.text}
         />
-        <Image
-          style={[styles.icon, {width: '14%'}]}
-          source={require('../../assets/images/shipper/send.png')}
-        />
+        <TouchableOpacity
+          activeOpacity={0.7}
+          style={[styles.icon, {width: '14%'}]}>
+          <Image
+            style={{width: '100%', resizeMode: 'contain'}}
+            source={require('../../assets/images/shipper/send.png')}
+          />
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -79,12 +90,15 @@ const styles = StyleSheet.create({
     paddingTop: '12%',
     flex: 1,
     backgroundColor: appColor.white,
-    padding: '6%',
+    paddingLeft: '6%',
+    paddingRight: '6%',
+    paddingBottom: '3%',
   },
   chat: {
     flexShrink: 1,
     gap: 10,
     justifyContent: 'flex-start',
+    marginBottom: '5%',
   },
   img: {
     width: 50,
@@ -100,9 +114,10 @@ const styles = StyleSheet.create({
   flatlist: {
     flex: 1,
     gap: 38,
+    backgroundColor: 'pink',
   },
   input: {
-    flex: 0.12,
+    height: 70,
     borderTopWidth: 1,
     borderColor: appColor.input,
     flexDirection: 'row',
@@ -113,6 +128,8 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     aspectRatio: 1,
     resizeMode: 'contain',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   textinput: {
     width: '78%',
@@ -141,6 +158,36 @@ const data = [
           },
           {
             id: 3,
+            name: 'shippervip',
+            text: 'hi?',
+            time: '99:99',
+          },
+          {
+            id: 4,
+            name: 'shippervip',
+            text: 'hi?',
+            time: '99:99',
+          },
+          {
+            id: 5,
+            name: 'shippervip',
+            text: 'hi?',
+            time: '99:99',
+          },
+          {
+            id: 6,
+            name: 'shippervip',
+            text: 'hi?',
+            time: '99:99',
+          },
+          {
+            id: 7,
+            name: 'shippervip',
+            text: 'hi?',
+            time: '99:99',
+          },
+          {
+            id: 8,
             name: 'shippervip',
             text: 'hi?',
             time: '99:99',

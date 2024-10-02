@@ -71,6 +71,7 @@ const styles = StyleSheet.create({
     backgroundColor: appColor.primary,
     borderBottomRightRadius: 15,
     borderBottomLeftRadius: 15,
+    padding:"2%"
   },
   body: {
     flex: 2,
