@@ -9,8 +9,9 @@ import InputComponent from '../../../components/InputComponent'
 import ButtonComponent from '../../../components/ButtonComponent'
 import { appColor } from '../../../constants/appColor'
 
-const EditAddressScreen = () => {
-    const [address, setAddress] = useState('')
+const EditAddressScreen = ({ navigation, route }) => {
+    const { item } = route.params || {}
+    const address = item
     const [name, setName] = useState('')
     const [phone, setPhone] = useState('')
     const [label, setLabel] = useState('')
@@ -23,7 +24,7 @@ const EditAddressScreen = () => {
             <SpaceComponent height={10} />
             <InputComponent value={'0123456789'} placeholder={'Số điện thoại'} onchangeText={text => setPhone(text)} />
             <SpaceComponent height={10} />
-            <InputComponent value={'Công Viên Phần Mềm Quang Trung, Tân Chánh Hiệp, Quận 12, Hồ Chí Minh, Việt Nam'}
+            <InputComponent value={address}
                 placeholder={'Địa chỉ'} onchangeText={text => setAddress(text)} />
             <SpaceComponent height={20} />
             <TextComponent text={'Tên nhãn'} />

@@ -1,5 +1,5 @@
-import { FlatList, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import React, { useState } from 'react'
+import { FlatList, Image, PermissionsAndroid, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import ButtonComponent from '../../../components/ButtonComponent'
 import { useDispatch, useSelector } from 'react-redux'
 import { logout } from '../../../Redux/Reducers/LoginSlice'
@@ -14,6 +14,9 @@ import { fontFamilies } from '../../../constants/fontFamilies'
 import Swiper from 'react-native-swiper'
 import ShopRecomendList from '../../../components/ShopRecomendList'
 import ShopAndProductComponent from '../../../components/ShopAndProductComponent'
+import Geolocation from 'react-native-geolocation-service'
+import MapAPI from '../../../core/apiMap/MapAPI'
+
 
 const HomeScreen = ({ navigation }) => {
   const dispatch = useDispatch()
@@ -23,8 +26,15 @@ const HomeScreen = ({ navigation }) => {
   const [cate2, setCate2] = useState(CATE2)
   const [shopRecomend, setShopRecomend] = useState(FEATURE)
   const [shop, setShop] = useState(SHOP)
+  console.log('shop', shop);
+
   const [selectedCate, setSelectedCate] = useState(cate2[0].id)
-  console.log('user', user);
+  const [userLocation, setUserLocation] = useState(null);
+  const [addressUser, setAddressUser] = useState('');
+  // console.log('userlocation', userLocation);
+
+
+  // console.log('user', user);
 
   const groupedData = [];
   for (let i = 0; i < cate.length; i += 2) {
@@ -44,7 +54,7 @@ const HomeScreen = ({ navigation }) => {
   const renderCate = ({ item }) => {
     const { id, name, image } = item
     return (
-      <TouchableOpacity key={id} style={styles.btnCate} onPress={()=>navigation.navigate('CheckOut')}>
+      <TouchableOpacity key={id} style={styles.btnCate} onPress={() => navigation.navigate('CheckOut')}>
         <View style={styles.viewImgCate}>
           <Image source={image} />
         </View>
@@ -70,18 +80,106 @@ const HomeScreen = ({ navigation }) => {
     )
   }
 
-  const signOut = () => {
-    dispatch(logout())
+  const requestLocationPermission = async () => {
+    if (Platform.OS === 'android') {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+      );
+      return granted === PermissionsAndroid.RESULTS.GRANTED;
+
+    }
+    return true;
+  };
+  const getGeocoding = async () => {
+    let geocoding = await MapAPI.getGeocoding({
+      description: encodeURIComponent(userLocation[1] + ',' + userLocation[0]),
+    });
+    console.log('geocoding', geocoding.results[0].formatted_address);
+
+    setAddressUser(geocoding.results[0].formatted_address);
   }
+  const getUserLocation = () => {
+    Geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setUserLocation([longitude, latitude]);
+      },
+      (error) => {
+        console.error(error);
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+    );
+  };
+  const getDirections = async (lat, long) => {
+    const direction = await MapAPI.getDirections({
+      vehicle: 'bike',
+      origin: userLocation,
+      destination: [long, lat],
+    });
+    // console.log('direction', direction.routes[0].legs[0].distance.value);
+    return direction
+  }
+
+  const nearByShops = async () => {
+    if (shop) {
+      const promises = shop.map(async (shop) => {
+        const response = await getDirections(shop.latitude, shop.longitude)
+        const distance = response.routes[0].legs[0].distance.value
+        const location = await response.routes[0].legs[0].distance.value
+        const time = await response.routes[0].legs[0].duration.value
+        return { ...shop, location, time, distance }
+      })
+      const result = await Promise.all(promises)
+      const filteredShops = result.filter((shop, index) => shop.distance <= 5000)
+      setShop(filteredShops)
+    }
+  }
+
+  // const calculatteDistanceDuration = async () => {
+  //   if (shop) {
+  //     const promises = shop.map(async (item) => {
+  //       const response = await getDirections(item.latitude, item.longitude)
+        
+  //       console.log('distance', location);
+  //       console.log('time', time);
+
+  //       return { ...item, time, location }
+
+  //     })
+  //     const results = await Promise.all(promises);
+  //     console.log('results', results);
+  //     setShop(results)
+  //   }
+  // }
+
+
+
+  useEffect(() => {
+    requestLocationPermission().then((hasPermission) => {
+      if (hasPermission) {
+        getUserLocation();
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    if (userLocation) {
+      getGeocoding();
+      nearByShops()
+      // calculatteDistanceDuration()
+    }
+  }, [userLocation]);
+
+
   return (
     <ContainerComponent styles={globalStyle.container} isScroll>
       <RowComponent justifyContent={'space-between'}>
-        <View>
+        <View style={{ flex: 1 }}>
           <TextComponent text={'Giao đến'} fontsize={16} fontFamily={fontFamilies.bold} />
           <SpaceComponent height={15} />
-          <RowComponent>
+          <RowComponent button onPress={() => navigation.navigate('EditAddress', { item: addressUser })}>
             <Image source={require('../../../assets/images/home/location.png')} style={{ marginRight: 10 }} />
-            <TextComponent text={'Ahmedabad,Gujarat'} color={appColor.subText} />
+            <TextComponent text={`${addressUser}`} color={appColor.subText} fontsize={12} width={'80%'} />
           </RowComponent>
         </View>
         <Image source={require('../../../assets/images/home/avatar.png')} style={styles.imgAvatar} />
@@ -158,7 +256,8 @@ const HomeScreen = ({ navigation }) => {
           scrollEnabled={false}
         />
       </View>
-      <ButtonComponent text={'Đăng xuất'} onPress={signOut} type={'link'} />
+      {/* <ButtonComponent text={'Đăng xuất'} onPress={signOut} type={'link'} /> */}
+      <SpaceComponent height={70} />
     </ContainerComponent>
   )
 }
@@ -223,7 +322,7 @@ const styles = StyleSheet.create({
   imgAvatar: {
     width: 50,
     height: 50,
-    borderRadius: 25
+    borderRadius: 25,
   }
 })
 
@@ -330,29 +429,29 @@ var SHOP = [
   {
     id: 1,
     name: 'Drumsteak Thai Ha',
-    location: 2,
-    time: 20,
     rate: 4.5,
     discount: 20,
-    image: require('../../../assets/images/home/p1.png')
+    image: require('../../../assets/images/home/p1.png'),
+    latitude: 10.787273,
+    longitude: 106.749809
   },
   {
     id: 2,
     name: 'Chicken salan',
-    location: 2,
-    time: 20,
     rate: 4.5,
     discount: 20,
-    image: require('../../../assets/images/home/p2.png')
+    image: require('../../../assets/images/home/p2.png'),
+    latitude: 10.841910,
+    longitude: 106.643610
   },
   {
     id: 3,
     name: 'Drumsteak Thai Ha',
-    location: 2,
-    time: 20,
     rate: 4.5,
     discount: 20,
-    image: require('../../../assets/images/home/p1.png')
+    image: require('../../../assets/images/home/p1.png'),
+    latitude: 10.833920,
+    longitude: 106.643370
   },
 
 ]
@@ -367,7 +466,9 @@ var PRODUCT = [
     sold: 20,
     price: 20,
     oldPrice: 25,
-    image: require('../../../assets/images/home/p1.png')
+    image: require('../../../assets/images/home/p1.png'),
+    latitude: 10.867153,
+    longitude: 106.641335
   },
   {
     id: 2,
@@ -378,7 +479,9 @@ var PRODUCT = [
     sold: 20,
     price: 20,
     oldPrice: 25,
-    image: require('../../../assets/images/home/p2.png')
+    image: require('../../../assets/images/home/p2.png'),
+    latitude: 10.841910,
+    longitude: 106.643610
   },
   {
     id: 3,
@@ -389,6 +492,8 @@ var PRODUCT = [
     sold: 20,
     price: 20,
     oldPrice: 25,
-    image: require('../../../assets/images/home/p1.png')
+    image: require('../../../assets/images/home/p1.png'),
+    latitude: 10.775659,
+    longitude: 106.700424
   },
 ]

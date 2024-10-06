@@ -12,16 +12,16 @@ import { appColor } from '../../../constants/appColor'
 import ButtonComponent from '../../../components/ButtonComponent'
 import AddressItem from '../../../components/AddressItem'
 
-const AddressScreen = () => {
+const AddressScreen = ({navigation}) => {
     const [search, setSearch] = useState('')
     const [address, setAddress] = useState(ADDRESS)
     return (
         <ContainerComponent styles={globalStyle.container} isScroll>
             <HeaderComponent text={'Địa chỉ'} isback />
-            <SearchComponent placeholder={'Tìm kiếm'} value={search} onchangeText={text => setSearch(text)} />
+            {/* <SearchComponent placeholder={'Tìm kiếm'} value={search} onchangeText={text => setSearch(text)} />
             <SpaceComponent height={10} />
             <LineComponent />
-            <SpaceComponent height={10} />
+            <SpaceComponent height={10} /> */}
             <RowComponent>
                 <Image source={require('../../../assets/images/address/location.png')} />
                 <SpaceComponent width={8} />
@@ -52,7 +52,7 @@ const AddressScreen = () => {
                 <AddressItem key={index} title={item.title} address={item.address} name={item.name} phone={item.phone} save />
             ))}
             <SpaceComponent height={20} />
-            <ButtonComponent text={'Thêm địa chỉ mới'} color={appColor.white}  />
+            <ButtonComponent text={'Thêm địa chỉ mới'} color={appColor.white}  onPress={()=>navigation.navigate('AddAddress')}/>
             <SpaceComponent height={70} />
         </ContainerComponent>
     )
