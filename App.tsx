@@ -5,6 +5,8 @@ import { PersistGate } from 'redux-persist/integration/react'
 import { persistor, store } from './src/Redux/Store'
 import AppNavigation from './src/navigators/AppNavigation'
 import MapScreen from './src/Screens/Main/Stacks/MapScreen'
+import TestScreen from './src/Screens/Main/Stacks/TestScreen'
+import ZaloPay from './src/utils/ZaloPay'
 
 
 const App = () => {
@@ -16,6 +18,9 @@ const App = () => {
           <StatusBar barStyle="dark-content" backgroundColor='transparent' translucent />
           <AppNavigation />
           {/* <MapScreen /> */}
+          {/* <TestScreen /> */}
+          {/* <ZaloPay /> */}
+
         </PersistGate>
       </Provider>
 
