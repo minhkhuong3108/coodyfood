@@ -1,11 +1,22 @@
 package com.coodyfood
 
+import android.os.Bundle
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
 import com.facebook.react.defaults.DefaultReactActivityDelegate
+import com.facebook.soloader.SoLoader
+import vn.zalopay.sdk.Environment
+import vn.zalopay.sdk.ZaloPaySDK
+
 
 class MainActivity : ReactActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // Khởi tạo SDK ZaloPay với AppID của bạn
+        ZaloPaySDK.init(2553, Environment.SANDBOX)
+    }
 
   /**
    * Returns the name of the main component registered from JavaScript. This is used to schedule

@@ -164,7 +164,8 @@ const ShopDetailScreen = ({ navigation }) => {
                 <RowComponent>
                     <TextComponent text={'100.000đ'} />
                     <SpaceComponent width={10} />
-                    <ButtonComponent text={'Giao hàng'} color={appColor.white} height={70} width={150} borderRadius={0} />
+                    <ButtonComponent text={'Giao hàng'} color={appColor.white} height={70} width={150} borderRadius={0} 
+                    onPress={()=>navigation.navigate('CheckOut')} />
                 </RowComponent>
             </RowComponent>
             <BottomSheet

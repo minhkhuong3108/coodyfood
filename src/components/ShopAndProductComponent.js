@@ -8,9 +8,13 @@ import SpaceComponent from './SpaceComponent'
 import { appInfor } from '../constants/appInfor'
 import { globalStyle } from '../styles/globalStyle'
 import ButtonComponent from './ButtonComponent'
+import { formatDistance } from './format/FormatDistance'
+import formatTime from './format/FormatTime'
 
 const ShopAndProductComponent = ({ item, onPress, type, favorite, quantity }) => {
-    const { _id, name, image, discount, rate, location, time, sold, price, oldPrice } = item
+    const { _id, name, image, discount, rate, distance, time, sold, price, oldPrice, location } = item
+    // console.log('item', item);
+
     return (
         type == 'shop' ?
             <TouchableOpacity style={[styles.container, globalStyle.shawdow]}>
@@ -20,9 +24,9 @@ const ShopAndProductComponent = ({ item, onPress, type, favorite, quantity }) =>
                         <TextComponent text={name} fontsize={16} styles={{ flex: 1 }} ellipsizeMode={'tail'} numberOfLines={1} />
                         {favorite && <ButtonComponent type={'link'} image={require('../assets/images/favoriteProduct/heart.png')} />}
                     </RowComponent>
-                    <RowComponent styles={{ marginTop: 8, marginBottom: 10 }}>
+                    <RowComponent styles={{ marginTop: 8, marginBottom: 8 }}>
                         <Image source={require('../assets/images/home/star.png')} style={{ marginRight: 5 }} />
-                        <TextComponent text={`${rate} | ${location}.0 km | ${time} phút`} fontsize={12} color={appColor.subText} />
+                        <TextComponent text={`${rate} | ${location && formatDistance(location)} | ${time && formatTime(time)}`} fontsize={12} color={appColor.subText} />
                     </RowComponent>
                     <View style={styles.viewDiscount}>
                         <TextComponent text={`Mã giảm: ${discount}%`} fontsize={12} fontFamily={fontFamilies.regular} color={appColor.primary} />

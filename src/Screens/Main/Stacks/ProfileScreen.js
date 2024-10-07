@@ -8,7 +8,7 @@ import SpaceComponent from '../../../components/SpaceComponent'
 import { globalStyle } from '../../../styles/globalStyle'
 import ProfileItem from '../../../components/ProfileItem'
 
-const ProfileScreen = () => {
+const ProfileScreen = ({navigation}) => {
     return (
         <ContainerComponent styles={globalStyle.container}>
             <RowComponent>
@@ -21,7 +21,8 @@ const ProfileScreen = () => {
             </RowComponent>
             <SpaceComponent height={40} />
             <ProfileItem text={'Thông tin cá nhân'} image={require('../../../assets/images/profile/user.png')} />
-            <ProfileItem text={'Địa chỉ'} image={require('../../../assets/images/profile/location.png')} />
+            <ProfileItem text={'Địa chỉ'} image={require('../../../assets/images/profile/location.png')}
+             onpress={()=>navigation.navigate('Address')}/>
             <ProfileItem text={'Đổi mật khẩu'} image={require('../../../assets/images/profile/password.png')} />
             <ProfileItem text={'Đăng xuất'} image={require('../../../assets/images/profile/logout.png')} />
         </ContainerComponent>
