@@ -42,7 +42,7 @@ const CheckOutScreen = () => {
     const handlePayment = async () => {
         try {
             if (indexPay == 0) {
-                const response = await AxiosInstance().post('/orders/order-zalopay', { money: 30000 });
+                const response = await AxiosInstance().post('/orders/order-zalopay', { money: 10000 });
                 // Handle response from server
                 const result = response.data;
                 if (result.return_code == 1) {
