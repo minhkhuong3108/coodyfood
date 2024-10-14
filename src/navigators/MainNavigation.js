@@ -18,6 +18,8 @@ import CheckOrderScreen from '../Screens/Main/Stacks/CheckOrderScreen'
 import AddressScreen from '../Screens/Main/Stacks/AddressScreen'
 import EditAddressScreen from '../Screens/Main/Stacks/EditAddressScreen'
 import AddAddressScreen from '../Screens/Main/Stacks/AddAddressScreen'
+import MyOrderScreen from '../Screens/MyOrder/MyOrderScreen'
+import DetailOrderScreen from '../Screens/MyOrder/DetailOrderScreen'
 
 const Stack = createStackNavigator()
 const Tab = createBottomTabNavigator()
@@ -41,6 +43,7 @@ const MainNavigation = () => {
             <Stack.Screen name="Address" component={AddressScreen} />
             <Stack.Screen name="EditAddress" component={EditAddressScreen} />
             <Stack.Screen name="AddAddress" component={AddAddressScreen} />
+            <Stack.Screen name="SearchAddress" component={SearchAddressScreen} />
         </Stack.Navigator>
     )
 }

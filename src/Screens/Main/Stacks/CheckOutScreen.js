@@ -1,4 +1,4 @@
-import { Alert, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Alert, FlatList, Image, NativeModules, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useState } from 'react'
 import ContainerComponent from '../../../components/ContainerComponent'
 import HeaderComponent from '../../../components/HeaderComponent'
@@ -14,6 +14,7 @@ import LineComponent from '../../../components/LineComponent'
 import NoteModel from '../../../modal/NoteModel'
 import AlertModel from '../../../modal/AlertModel'
 import AlertChoiceModal from '../../../modal/AlertChoiceModal'
+import AxiosInstance from '../../../helpers/AxiosInstance'
 
 const CheckOutScreen = () => {
     const [order, setOrder] = useState(ORDER)
@@ -21,6 +22,7 @@ const CheckOutScreen = () => {
     const [visible, setVisible] = useState(false)
     const [note, setNote] = useState('')
     console.log('indexPay', indexPay);
+
 
     const options = [
         {
@@ -36,6 +38,28 @@ const CheckOutScreen = () => {
             image: require('../../../assets/images/checkout/cash.png')
         },
     ]
+
+    const handlePayment = async () => {
+        try {
+            if (indexPay == 0) {
+                const response = await AxiosInstance().post('/orders/order-zalopay', { money: 10000 });
+                // Handle response from server
+                const result = response.data;
+                if (result.return_code == 1) {
+                    var ZaloPay = NativeModules.PayZaloBridge;
+                    ZaloPay.payOrder(result.zp_trans_token)
+                } else {
+                    Alert.alert('Error', 'Failed  to create order');
+                }
+            }
+            else {
+                setVisible(true)
+            }
+
+        } catch (error) {
+            console.log('error', error);
+        }
+    }
     return (
         <ContainerComponent styles={globalStyle.container} isScroll={true}>
             <HeaderComponent text='Thanh toán' isback />
@@ -104,7 +128,7 @@ const CheckOutScreen = () => {
                 <TextComponent text={'500.000 đ'} fontsize={14} fontFamily={fontFamilies.bold} />
             </RowComponent>
             <SpaceComponent height={15} />
-            <ButtonComponent text={'Đặt hàng'} height={60} color={appColor.white} onPress={() => setVisible(true)} />
+            <ButtonComponent text={'Đặt hàng'} height={60} color={appColor.white} onPress={handlePayment} />
             <SpaceComponent height={70} />
             <AlertChoiceModal visible={visible} title={'Xác nhận'} onClose={() => setVisible(false)} />
             {/* <AlertModel visible={visible} title={'Thành công'} fail onRequestClose={() => setVisible(false)}  description={'Thanh toán thành công'} /> */}

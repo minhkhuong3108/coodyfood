@@ -32,7 +32,7 @@ const LoginSlice = createSlice({
         builder.addCase(login.rejected, (state, action) => {
             state.status = 'failed'
             state.error = action.payload
-            console.log('Error');
+            console.log('Error', state.error);
         })
 
         builder.addCase(loginWithSocial.pending, (state, action) => {
