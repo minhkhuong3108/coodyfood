@@ -8,8 +8,13 @@ import ForgotPassword from '../Screens/Auth/ForgotPassword';
 import VerifyScreen from '../Screens/Auth/VerifyScreen';
 import ResetPasswordScreen from '../Screens/Auth/ResetPasswordScreen';
 import AddPhoneScreen from '../Screens/Auth/AddPhoneScreen';
-import Revenue from '../Screens/Shipper/RevenueScreen';
-import HomeScreen from '../Screens/Shipper/HomeScreen';
+import HomeShipperScreen from '../Screens/Shipper/HomeScreen';
+import ProfileScreen from '../Screens/Shipper/ProfileScreen';
+import TicketSaleScreen from '../Screens/Main/Stacks/TicketSaleScreen';
+import Account from '../Screens/Shipper/Account';
+import Message from '../Screens/Shipper/Message';
+import RevenueScreen from '../Screens/Shipper/RevenueScreen';
+
 
 const Stack = createStackNavigator();
 

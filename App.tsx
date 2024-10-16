@@ -12,15 +12,14 @@ import ZaloPay from './src/utils/ZaloPay'
 const App = () => {
   return (
     <>
-
       <Provider store={store}>
         <PersistGate persistor={persistor}>
           <StatusBar barStyle="dark-content" backgroundColor='transparent' translucent />
           {/* <AppNavigation /> */}
           {/* <MapScreen /> */}
-          <TestScreen />
+          <AppNavigation />
           {/* <ZaloPay /> */}
-
+          {/* <TestScreen /> */}
         </PersistGate>
       </Provider>
 
