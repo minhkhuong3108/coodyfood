@@ -20,6 +20,7 @@ import EditAddressScreen from '../Screens/Main/Stacks/EditAddressScreen'
 import AddAddressScreen from '../Screens/Main/Stacks/AddAddressScreen'
 import MyOrderScreen from '../Screens/MyOrder/MyOrderScreen'
 import DetailOrderScreen from '../Screens/MyOrder/DetailOrderScreen'
+import SearchAddressScreen from '../Screens/Main/Stacks/SearchAddressScreen'
 
 const Stack = createStackNavigator()
 const Tab = createBottomTabNavigator()

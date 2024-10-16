@@ -18,7 +18,7 @@ const App = () => {
           <StatusBar barStyle="dark-content" backgroundColor='transparent' translucent />
           {/* <AppNavigation /> */}
           {/* <MapScreen /> */}
-          <TestScreen />
+          <AppNavigation />
           {/* <ZaloPay /> */}
 
         </PersistGate>
