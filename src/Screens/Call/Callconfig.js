@@ -7,9 +7,8 @@ import ZegoUIKitPrebuiltCallService, {
 import * as ZIM from 'zego-zim-react-native';
 import * as ZPNs from 'zego-zpns-react-native';
 
-//call config
+//cấu hình cuộc gọi
 export const CallConfig = async (userID, userName) => {
-  console.log(userID, userName);
   try {
     await ZegoUIKitPrebuiltCallService.init(
       785543570,
@@ -46,6 +45,6 @@ export const CallConfig = async (userID, userName) => {
     );
     console.log('Đã bật Keepcall');
   } catch (error) {
-    console.error('Khởi tạo không thành công: ' + error.message);
+    console.error('Keepcall không thành công: ' + error.message);
   }
 };

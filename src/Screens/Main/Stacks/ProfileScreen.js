@@ -34,6 +34,7 @@ const ProfileScreen = ({navigation}) => {
       <ProfileItem
         text={'Thông tin cá nhân'}
         image={require('../../../assets/images/profile/user.png')}
+        onpress={() => navigation.navigate('EditProfile')}
       />
       <ProfileItem
         text={'Địa chỉ'}

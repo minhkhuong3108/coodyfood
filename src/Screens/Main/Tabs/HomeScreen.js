@@ -47,8 +47,6 @@ const HomeScreen = ({navigation}) => {
     CallConfig(user.email, 'user' + user.email);
   }, []);
 
-  // console.log('user', user);
-
   const groupedData = [];
   for (let i = 0; i < cate.length; i += 2) {
     groupedData.push(cate.slice(i, i + 2));
