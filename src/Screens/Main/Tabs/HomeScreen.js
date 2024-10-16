@@ -25,20 +25,27 @@ import ShopRecomendList from '../../../components/ShopRecomendList';
 import ShopAndProductComponent from '../../../components/ShopAndProductComponent';
 import Geolocation from 'react-native-geolocation-service';
 import MapAPI from '../../../core/apiMap/MapAPI';
+import {CallConfig} from '../../Call/Callconfig';
 
 const HomeScreen = ({navigation}) => {
+  const {user} = useSelector(state => state.login);
   const dispatch = useDispatch();
   const [search, setSearch] = useState('');
   const [cate, setCate] = useState(CATE);
   const [cate2, setCate2] = useState(CATE2);
   const [shopRecomend, setShopRecomend] = useState(FEATURE);
   const [shop, setShop] = useState(SHOP);
-  console.log('shop', shop);
+  //console.log('shop', shop);
 
   const [selectedCate, setSelectedCate] = useState(cate2[0].id);
   const [userLocation, setUserLocation] = useState(null);
   const [addressUser, setAddressUser] = useState('');
   // console.log('userlocation', userLocation);
+
+  useEffect(() => {
+    //callkeep
+    CallConfig(user.email, 'user' + user.email);
+  }, []);
 
   // console.log('user', user);
 

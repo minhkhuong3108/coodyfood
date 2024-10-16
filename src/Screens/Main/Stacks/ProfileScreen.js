@@ -20,9 +20,14 @@ const ProfileScreen = ({navigation}) => {
           source={require('../../../assets/images/profile/avatar.png')}
         />
         <View>
+          {/*Chỗ này là tên nhưng lúc đăng kí chưa có tên */}
           <TextComponent text={user.email} fontsize={18} />
           <SpaceComponent height={10} />
-          <TextComponent text={user.phone?? "Chưa có thấy sđt"} color={appColor.subText} />
+          {/*sđt chưa có trong reslut API */}
+          <TextComponent
+            text={user.phone ?? 'Chưa có thấy sđt'}
+            color={appColor.subText}
+          />
         </View>
       </RowComponent>
       <SpaceComponent height={40} />
