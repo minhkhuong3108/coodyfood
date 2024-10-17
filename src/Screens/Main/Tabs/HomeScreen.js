@@ -16,6 +16,7 @@ import ShopRecomendList from '../../../components/ShopRecomendList'
 import ShopAndProductComponent from '../../../components/ShopAndProductComponent'
 import Geolocation from 'react-native-geolocation-service'
 import MapAPI from '../../../core/apiMap/MapAPI'
+import AxiosInstance from '../../../helpers/AxiosInstance'
 
 
 const HomeScreen = ({ navigation }) => {
@@ -152,7 +153,10 @@ const HomeScreen = ({ navigation }) => {
   //   }
   // }
 
-
+const getShop = async () => {
+  const response = await AxiosInstance().get('/shop')
+  console.log('response', response.data);
+}
 
   useEffect(() => {
     requestLocationPermission().then((hasPermission) => {
@@ -160,6 +164,7 @@ const HomeScreen = ({ navigation }) => {
         getUserLocation();
       }
     });
+    // getShop()
   }, []);
 
   useEffect(() => {

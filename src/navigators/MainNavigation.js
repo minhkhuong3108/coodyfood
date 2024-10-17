@@ -21,6 +21,10 @@ import AddAddressScreen from '../Screens/Main/Stacks/AddAddressScreen'
 import MyOrderScreen from '../Screens/MyOrder/MyOrderScreen'
 import DetailOrderScreen from '../Screens/MyOrder/DetailOrderScreen'
 import SearchAddressScreen from '../Screens/Main/Stacks/SearchAddressScreen'
+import TestScreen from '../Screens/Main/Stacks/TestScreen'
+import PayOSPaymentScreen from '../Screens/Main/Stacks/PayOSPaymentScreen'
+import SuccessPaymentScreen from '../Screens/Main/Stacks/SuccessPaymentScreen'
+import FailedPaymentScreen from '../Screens/Main/Stacks/FailedPaymentScreen'
 
 const Stack = createStackNavigator()
 const Tab = createBottomTabNavigator()
@@ -45,13 +49,20 @@ const MainNavigation = () => {
             <Stack.Screen name="EditAddress" component={EditAddressScreen} />
             <Stack.Screen name="AddAddress" component={AddAddressScreen} />
             <Stack.Screen name="SearchAddress" component={SearchAddressScreen} />
+            <Stack.Screen name="PayOS" component={PayOSPaymentScreen} />
+            <Stack.Screen name="SuccessPayment" component={SuccessPaymentScreen} />
+            <Stack.Screen name="FailPayment" component={FailedPaymentScreen} />
         </Stack.Navigator>
     )
 }
 
 const TabNavigation = () => {
     return (
-        <Tab.Navigator screenOptions={{ headerShown: false, tabBarShowLabel: false, tabBarStyle: styles.tabBar }}>
+        <Tab.Navigator screenOptions={{
+            headerShown: false, tabBarShowLabel: false,
+            tabBarStyle: styles.tabBar, tabBarHideOnKeyboard: true
+        }}
+            initialRouteName='Home' >
             <Tab.Screen name='Home' component={HomeScreen}
                 options={{
                     tabBarIcon: ({ focused }) => (

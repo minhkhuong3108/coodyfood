@@ -10,6 +10,16 @@ const AppNavigation = () => {
     const { user } = useSelector(state => state.login)
     const [isShowSplash, setIsShowSplash] = useState(true)
 
+    const linking = {
+        prefixes: ['coodyfood://'],
+        config: {
+            screens: {
+                SuccessPayment: 'success-payment',
+                FailPayment: 'fail-payment',
+            },
+        },
+    }
+
     useEffect(() => {
         const timeOut = setTimeout(() => {
             setIsShowSplash(false)
@@ -17,7 +27,7 @@ const AppNavigation = () => {
         return () => clearTimeout(timeOut)
     }, [])
     return (
-        <NavigationContainer>
+        <NavigationContainer linking={linking}>
             {isShowSplash ? <SplashScreen /> : user ? <MainNavigation /> : <AuthNavigation />}
         </NavigationContainer>
     )

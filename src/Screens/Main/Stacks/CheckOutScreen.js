@@ -15,12 +15,17 @@ import NoteModel from '../../../modal/NoteModel'
 import AlertModel from '../../../modal/AlertModel'
 import AlertChoiceModal from '../../../modal/AlertChoiceModal'
 import AxiosInstance from '../../../helpers/AxiosInstance'
+import axios from 'axios'
+import moment from 'moment'
+import crypto from 'crypto-js'
+import LoadingModal from '../../../modal/LoadingModal'
 
-const CheckOutScreen = () => {
+const CheckOutScreen = ({ navigation }) => {
     const [order, setOrder] = useState(ORDER)
     const [indexPay, setIndexPay] = useState()
     const [visible, setVisible] = useState(false)
     const [note, setNote] = useState('')
+    const [isLoading, setIsLoading] = useState(false)
     console.log('indexPay', indexPay);
 
 
@@ -40,9 +45,40 @@ const CheckOutScreen = () => {
     ]
 
     const handlePayment = async () => {
+        setIsLoading(true)
         try {
             if (indexPay == 0) {
-                const response = await AxiosInstance().post('/orders/order-zalopay', { money: 10000 });
+                const config = {
+                    appid: 2554,
+                    key1: 'sdngKKJmqEMzvh5QQcdD2A9XBSKUNaYn',
+                    key2: 'trMrHtvjo6myautxDUiAcYsVtaeQ8nhf',
+                    endpoint: 'https://sb-openapi.zalopay.vn/v2/create'
+                }
+                const transID = Math.floor(Math.random() * 1000000);
+                let appid = config.appid
+                let app_trans_id = `${moment().format('YYMMDD')}_${transID}`
+                let amount = 10000
+                let appuser = "ZaloPayDemo"
+                let apptime = Date.now()
+                let embeddata = "{}"
+                let item = "[]"
+                let description = "Merchant description for order #" + app_trans_id
+                let hmacInput = appid + "|" + app_trans_id + "|" + appuser + "|" + amount + "|" + apptime + "|" + embeddata + "|" + item
+                let mac = crypto.HmacSHA256(hmacInput, config.key1).toString()
+                const order = {
+                    app_id: appid,
+                    app_trans_id: app_trans_id,
+                    app_user: appuser,
+                    amount: amount,
+                    app_time: apptime,
+                    item: item,
+                    embed_data: embeddata,
+                    description: description,
+                    mac: mac,
+                }
+
+                const response = await axios.post(config.endpoint, order);
+                setIsLoading(false)
                 // Handle response from server
                 const result = response.data;
                 if (result.return_code == 1) {
@@ -52,8 +88,58 @@ const CheckOutScreen = () => {
                     Alert.alert('Error', 'Failed  to create order');
                 }
             }
-            else {
-                setVisible(true)
+            else if (indexPay == 1) {
+                // Handle payment with PayOS
+                const urlPayOS = 'https://api-merchant.payos.vn/v2/payment-requests'
+                const data = {
+                    "orderCode": Number(String(Date.now()).slice(-6)),
+                    "amount": 1000,
+                    "description": "VQRIO123",
+                    "items": [
+                        {
+                            "name": "Iphone",
+                            "quantity": 1,
+                            "price": 1000
+                        }
+                    ],
+                    "cancelUrl": "coodyfood://fail-payment", // URL khi thanh toán thất bại
+                    "returnUrl": "coodyfood://success-payment",
+                    // "expiredAt": 1696559798,
+                }
+
+                const sortedData = `amount=${data.amount}&cancelUrl=${data.cancelUrl}&description=${data.description}&orderCode=${data.orderCode}&returnUrl=${data.returnUrl}`;
+
+                // Checksum key từ Kênh thanh toán
+                const checksumKey = 'afbd4ad1e5f608bba26bc0dd6b0e256b7424b91d955bf3dc9f470483f05a1200'; // Thay YOUR_CHECKSUM_KEY bằng checksum key thực tế của bạn
+
+                // Tạo chữ ký HMAC_SHA256
+                const signature = crypto.HmacSHA256(sortedData, checksumKey).toString();
+
+                try {
+                    const response = await axios.post(urlPayOS, {
+                        ...data,
+                        signature
+                    },
+                        {
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'x-client-id': 'd5aadfd7-2a34-43e0-9cbb-e580f986f144',
+                                'x-api-key': 'd3e8013a-1db0-429a-9159-36c152d26782'
+                            }
+                        }
+
+                    )
+                    console.log('response', response.data);
+                    setIsLoading(false)
+                    const checkoutUrl = response.data.data.checkoutUrl
+                    if (checkoutUrl) {
+                        navigation.navigate('PayOS', { checkoutUrl })
+                    }
+
+                } catch (error) {
+                    console.log(error);
+
+                }
             }
 
         } catch (error) {
@@ -131,6 +217,7 @@ const CheckOutScreen = () => {
             <ButtonComponent text={'Đặt hàng'} height={60} color={appColor.white} onPress={handlePayment} />
             <SpaceComponent height={70} />
             <AlertChoiceModal visible={visible} title={'Xác nhận'} onClose={() => setVisible(false)} />
+            <LoadingModal visible={isLoading} />
             {/* <AlertModel visible={visible} title={'Thành công'} fail onRequestClose={() => setVisible(false)}  description={'Thanh toán thành công'} /> */}
         </ContainerComponent>
     )
