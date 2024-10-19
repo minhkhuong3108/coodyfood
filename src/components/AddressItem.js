@@ -8,12 +8,12 @@ import ButtonComponent from './ButtonComponent'
 import { appColor } from '../constants/appColor'
 import { globalStyle } from '../styles/globalStyle'
 
-const AddressItem = ({ title, address, name, phone, save }) => {
+const AddressItem = ({ title, address, name, phone, save, onPressEdit }) => {
     return (
         <View style={[styles.viewAddress, globalStyle.shawdow]}>
             <RowComponent justifyContent={'space-between'}>
                 <TextComponent text={title} />
-                {save && <ButtonComponent text={'Chỉnh sửa'} type={'link'} color={appColor.primary} fontsize={12} />}
+                {save && <ButtonComponent text={'Chỉnh sửa'} type={'link'} color={appColor.primary} fontsize={12} onPress={onPressEdit} />}
             </RowComponent>
             <SpaceComponent height={10} />
             <LineComponent />

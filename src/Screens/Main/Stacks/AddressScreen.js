@@ -1,5 +1,5 @@
 import { FlatList, Image, StyleSheet, Text, View } from 'react-native'
-import React, { useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import ContainerComponent from '../../../components/ContainerComponent'
 import { globalStyle } from '../../../styles/globalStyle'
 import HeaderComponent from '../../../components/HeaderComponent'
@@ -11,10 +11,31 @@ import TextComponent from '../../../components/TextComponent'
 import { appColor } from '../../../constants/appColor'
 import ButtonComponent from '../../../components/ButtonComponent'
 import AddressItem from '../../../components/AddressItem'
+import { useSelector } from 'react-redux'
+import AxiosInstance from '../../../helpers/AxiosInstance'
+import { useFocusEffect } from '@react-navigation/native'
 
-const AddressScreen = ({navigation}) => {
-    const [search, setSearch] = useState('')
-    const [address, setAddress] = useState(ADDRESS)
+const AddressScreen = ({ navigation }) => {
+    const [address, setAddress] = useState()
+    const { user } = useSelector(state => state.login)
+    console.log('address', address);
+
+
+    const getAddressUser = async () => {
+        try {
+            const response = await AxiosInstance().get(`/userAddresses/${user._id}`)
+            setAddress(response.data)
+        } catch (error) {
+            console.log('error', error);
+        }
+    }
+
+    useFocusEffect(
+        useCallback(() => {
+            getAddressUser(); // Tải lại dữ liệu khi trang được focus
+        }, [])
+    );
+
     return (
         <ContainerComponent styles={globalStyle.container} isScroll>
             <HeaderComponent text={'Địa chỉ'} isback />
@@ -29,8 +50,8 @@ const AddressScreen = ({navigation}) => {
             </RowComponent>
             <SpaceComponent height={20} />
             <AddressItem title={'Nhà'}
-             address={'Công Viên Phần Mềm Quang Trung, Tân Chánh Hiệp, Quận 12, Hồ Chí Minh, Việt Nam'} 
-             name={'Nguyễn Văn A'} phone={'0123456789'} />
+                address={'Công Viên Phần Mềm Quang Trung, Tân Chánh Hiệp, Quận 12, Hồ Chí Minh, Việt Nam'}
+                name={'Nguyễn Văn A'} phone={'0123456789'} />
             <SpaceComponent height={10} />
             <LineComponent />
             <SpaceComponent height={10} />
@@ -48,11 +69,12 @@ const AddressScreen = ({navigation}) => {
             <AddressItem title={item.title} address={item.address} name={item.name} phone={item.phone} edit />}
             keyExtractor={item => item.id}
             /> */}
-            {address.map((item,index) => (
-                <AddressItem key={index} title={item.title} address={item.address} name={item.name} phone={item.phone} save />
+            {address && address.map((item, index) => (
+                <AddressItem key={index} title={item.label}
+                    address={item.address} name={item.recipientName} phone={item.phone} save onPressEdit={() => navigation.navigate('EditAddress')} />
             ))}
             <SpaceComponent height={20} />
-            <ButtonComponent text={'Thêm địa chỉ mới'} color={appColor.white}  onPress={()=>navigation.navigate('AddAddress')}/>
+            <ButtonComponent text={'Thêm địa chỉ mới'} color={appColor.white} onPress={() => navigation.navigate('AddAddress', { userId: user._id })} />
             <SpaceComponent height={70} />
         </ContainerComponent>
     )
@@ -61,28 +83,5 @@ const AddressScreen = ({navigation}) => {
 export default AddressScreen
 
 const styles = StyleSheet.create({
-    
+
 })
-var ADDRESS=[
-    {
-        id:1,
-        title:'Công ty',
-        address:'Công Viên Phần Mềm Quang Trung, Tân Chánh Hiệp, Quận 12, Hồ Chí Minh, Việt Nam',
-        name:'Nguyễn Văn A',
-        phone:'0123456789'
-    },
-    {
-        id:2,
-        title:'Nhà',
-        address:'Công Viên Phần Mềm Quang Trung, Tân Chánh Hiệp, Quận 12, Hồ Chí Minh, Việt Nam',
-        name:'Nguyễn Văn A',
-        phone:'0123456789'
-    },
-    {
-        id:3,
-        title:'Nhà',
-        address:'Công Viên Phần Mềm Quang Trung, Tân Chánh Hiệp, Quận 12, Hồ Chí Minh, Việt Nam',
-        name:'Nguyễn Văn A',
-        phone:'0123456789'
-    }
-]

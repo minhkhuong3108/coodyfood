@@ -32,6 +32,13 @@ class MapAPI {
             PREFIX,
         );
     };
+
+    getForwardGeocoding = body => {
+        return authorizedRequest.get(
+            API_LIST.ForwardGeocoding + body.description + '&api_key=' +
+            PREFIX,
+        );
+    };
 }
 
 export default new MapAPI();

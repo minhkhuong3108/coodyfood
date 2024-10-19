@@ -1,5 +1,5 @@
 import { FlatList, Image, PermissionsAndroid, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import ButtonComponent from '../../../components/ButtonComponent'
 import { useDispatch, useSelector } from 'react-redux'
 import { logout } from '../../../Redux/Reducers/LoginSlice'
@@ -17,22 +17,26 @@ import ShopAndProductComponent from '../../../components/ShopAndProductComponent
 import Geolocation from 'react-native-geolocation-service'
 import MapAPI from '../../../core/apiMap/MapAPI'
 import AxiosInstance from '../../../helpers/AxiosInstance'
+import _ from 'lodash'
 
 
 const HomeScreen = ({ navigation }) => {
   const dispatch = useDispatch()
   const { user } = useSelector(state => state.login)
   const [search, setSearch] = useState('')
-  const [cate, setCate] = useState(CATE)
+  const [cate, setCate] = useState([])
   const [cate2, setCate2] = useState(CATE2)
   const [shopRecomend, setShopRecomend] = useState(FEATURE)
-  const [shop, setShop] = useState(SHOP)
-  console.log('shop', shop);
-
-  const [selectedCate, setSelectedCate] = useState(cate2[0].id)
+  const [shop, setShop] = useState([])
+  const [shopView, setShopView] = useState([])
+  // console.log('shop', shop);
+  const [selectedCate, setSelectedCate] = useState(1)
   const [userLocation, setUserLocation] = useState(null);
   const [addressUser, setAddressUser] = useState('');
+
+  // console.log('shopView', shopView);
   // console.log('userlocation', userLocation);
+  // console.log('cate', cate);
 
 
   // console.log('user', user);
@@ -45,7 +49,7 @@ const HomeScreen = ({ navigation }) => {
   const renderGroupedItem = ({ item, index }) => (
     <View key={index}>
       {item.map((subItem) => (
-        <View key={subItem.id} style={styles.item}>
+        <View key={subItem._id} style={styles.item}>
           {renderCate({ item: subItem })}
         </View>
       ))}
@@ -53,15 +57,26 @@ const HomeScreen = ({ navigation }) => {
   );
 
   const renderCate = ({ item }) => {
-    const { id, name, image } = item
+    const { _id, name, image } = item
     return (
-      <TouchableOpacity key={id} style={styles.btnCate} onPress={() => navigation.navigate('CheckOut')}>
+      <TouchableOpacity key={_id} style={styles.btnCate} onPress={() => navigation.navigate('CheckOut')}>
         <View style={styles.viewImgCate}>
-          <Image source={image} />
+          {image && <Image source={{ uri: image }} style={{ width: 50, height: 50 }} />}
         </View>
         <TextComponent text={name} fontsize={14} styles={{ width: 63 }} textAlign={'center'} />
       </TouchableOpacity>
     )
+  }
+
+  const handleSelectCate = (id) => {
+    setSelectedCate(id)
+    if (id == 1) {
+      handleNearByShops()
+    } else if (id == 2) {
+      handleNewShop()
+    } else if (id == 3) {
+      handleRateShop()
+    }
   }
 
   const renderCate2 = ({ item, index }) => {
@@ -70,7 +85,7 @@ const HomeScreen = ({ navigation }) => {
       <TouchableOpacity
         key={id}
         style={[{ marginRight: 20 }, index == cate2.length - 1 && styles.itemLast]}
-        onPress={() => setSelectedCate(id)}
+        onPress={() => handleSelectCate(id)}
       >
         <TextComponent
           text={name}
@@ -92,13 +107,15 @@ const HomeScreen = ({ navigation }) => {
     return true;
   };
   const getGeocoding = async () => {
-    let geocoding = await MapAPI.getGeocoding({
-      description: encodeURIComponent(userLocation[1] + ',' + userLocation[0]),
-    });
-    console.log('geocoding', geocoding.results[0].formatted_address);
-
-    setAddressUser(geocoding.results[0].formatted_address);
+    if (userLocation) {
+      let geocoding = await MapAPI.getGeocoding({
+        description: encodeURIComponent(userLocation[1] + ',' + userLocation[0]),
+      });
+      // console.log('geocoding', geocoding.results[0].formatted_address);
+      setAddressUser(geocoding.results[0].formatted_address);
+    }
   }
+
   const getUserLocation = () => {
     Geolocation.getCurrentPosition(
       (position) => {
@@ -111,52 +128,64 @@ const HomeScreen = ({ navigation }) => {
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
     );
   };
-  const getDirections = async (lat, long) => {
-    const direction = await MapAPI.getDirections({
-      vehicle: 'bike',
-      origin: userLocation,
-      destination: [long, lat],
-    });
-    // console.log('direction', direction.routes[0].legs[0].distance.value);
-    return direction
-  }
 
-  const nearByShops = async () => {
-    if (shop) {
+  const getDirections = async (lat, long) => {
+    console.log('userLocation', userLocation);
+    try {
+      if (userLocation) {
+        const direction = await MapAPI.getDirections({
+          vehicle: 'bike',
+          origin: userLocation,
+          destination: [long, lat],
+        });
+        return direction;
+      }
+      return null;
+    } catch (error) {
+      console.log('error', error);
+    }
+  };
+
+  const handleNearByShops = async () => {
+    if (shop && userLocation) {
       const promises = shop.map(async (shop) => {
         const response = await getDirections(shop.latitude, shop.longitude)
-        const distance = response.routes[0].legs[0].distance.value
-        const location = await response.routes[0].legs[0].distance.value
-        const time = await response.routes[0].legs[0].duration.value
-        return { ...shop, location, time, distance }
+        console.log('response', response);
+
+        if (response) {
+          const distance = response.routes[0].legs[0].distance.value;
+          // const location = response.routes[0].legs[0].distance.value;
+          const time = response.routes[0].legs[0].duration.value;
+          return { ...shop, time, distance };
+        }
+        return shop;
       })
       const result = await Promise.all(promises)
       const filteredShops = result.filter((shop, index) => shop.distance <= 5000)
-      setShop(filteredShops)
+      setShopView(filteredShops)
     }
   }
 
-  // const calculatteDistanceDuration = async () => {
-  //   if (shop) {
-  //     const promises = shop.map(async (item) => {
-  //       const response = await getDirections(item.latitude, item.longitude)
-        
-  //       console.log('distance', location);
-  //       console.log('time', time);
+  const handleRateShop = async () => {
+    const shopRate = [...shop].sort((a, b) => b.rating - a.rating)
+    setShopView(shopRate)
+  }
 
-  //       return { ...item, time, location }
+  const handleNewShop = async () => {
+    const shopNew = [...shop].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+    setShopView(shopNew)
 
-  //     })
-  //     const results = await Promise.all(promises);
-  //     console.log('results', results);
-  //     setShop(results)
-  //   }
-  // }
+  }
 
-const getShop = async () => {
-  const response = await AxiosInstance().get('/shop')
-  console.log('response', response.data);
-}
+  const getShop = async () => {
+    const response = await AxiosInstance().get('/shopOwner')
+    setShop(response.data)
+  }
+
+  const getCategories = async () => {
+    const response = await AxiosInstance().get('/shopCategories')
+    setCate(response.data)
+  }
 
   useEffect(() => {
     requestLocationPermission().then((hasPermission) => {
@@ -164,16 +193,23 @@ const getShop = async () => {
         getUserLocation();
       }
     });
-    // getShop()
+    getShop()
+    getCategories()
   }, []);
 
-  useEffect(() => {
-    if (userLocation) {
-      getGeocoding();
-      nearByShops()
-      // calculatteDistanceDuration()
-    }
-  }, [userLocation]);
+  // useEffect(() => {
+  //   if (userLocation) {
+  //     getGeocoding();
+  //   }
+  // }, [userLocation]);
+
+
+  // useEffect(() => {
+  //   console.log('shop', shop);
+  //   if (shop.length > 0) {
+  //     handleNearByShops()
+  //   }
+  // }, [shop]);
 
 
   return (
@@ -223,7 +259,7 @@ const getShop = async () => {
           showsHorizontalScrollIndicator={false}
           data={shopRecomend}
           renderItem={({ item, index }) =>
-            <ShopRecomendList item={item} index={index} type={'large'} list={shopRecomend} onpress={() => navigation.navigate('Shop')} />
+            <ShopRecomendList item={item} index={index} type={'large'} list={shopRecomend} onpress={() => navigation.navigate('Address')} />
           }
           keyExtractor={item => item.id}
         />
@@ -255,9 +291,9 @@ const getShop = async () => {
       <SpaceComponent height={30} />
       <View>
         <FlatList
-          data={shop}
-          renderItem={({ item }) => <ShopAndProductComponent type={'shop'} item={item} />}
-          keyExtractor={item => item.id}
+          data={shopView}
+          renderItem={({ item }) => <ShopAndProductComponent type={'shop'} item={item} onPress={() => navigation.navigate('Shop', { id: item._id })} />}
+          keyExtractor={item => item._id}
           scrollEnabled={false}
         />
       </View>
@@ -303,6 +339,7 @@ const styles = StyleSheet.create({
   },
   item: {
     marginVertical: 15,
+    height:100
   },
   viewImgCate: {
     width: 63,

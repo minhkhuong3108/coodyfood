@@ -1,5 +1,5 @@
-import { Alert, FlatList, Image, NativeModules, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { useState } from 'react'
+import { Alert, FlatList, Image, NativeModules, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import React, { useCallback, useRef, useState } from 'react'
 import ContainerComponent from '../../../components/ContainerComponent'
 import HeaderComponent from '../../../components/HeaderComponent'
 import RowComponent from '../../../components/RowComponent'
@@ -19,6 +19,8 @@ import axios from 'axios'
 import moment from 'moment'
 import crypto from 'crypto-js'
 import LoadingModal from '../../../modal/LoadingModal'
+import BottomSheet, { BottomSheetBackdrop } from '@gorhom/bottom-sheet'
+import { appInfor } from '../../../constants/appInfor'
 
 const CheckOutScreen = ({ navigation }) => {
     const [order, setOrder] = useState(ORDER)
@@ -26,7 +28,36 @@ const CheckOutScreen = ({ navigation }) => {
     const [visible, setVisible] = useState(false)
     const [note, setNote] = useState('')
     const [isLoading, setIsLoading] = useState(false)
+    const snapPoint = ['50%']
+    const bottomSheetRef = useRef(null)
     console.log('indexPay', indexPay);
+    const [selectedOrderIndex, setSelectedOrderIndex] = useState(null);
+
+    const handleOpenBottomSheet = (index) => {
+        setSelectedOrderIndex(index);
+        setNote(order[index].note || '');
+        bottomSheetRef.current?.expand()
+    }
+    const handleCloseBottomSheet = () => {
+        bottomSheetRef.current?.close()
+    }
+
+    const renderBackdrop = useCallback(
+        (props) => (
+            <BottomSheetBackdrop appearsOnIndex={0} disappearsOnIndex={-1} {...props} />
+        )
+    )
+    const handleNote = () => {
+        const updatedOrder = order.map((item, index) => {
+            if (index === selectedOrderIndex) {
+                return { ...item, note: note };
+            }
+            return item;
+        });
+        setOrder(updatedOrder);
+        bottomSheetRef.current?.close()
+    }
+
 
 
     const options = [
@@ -35,8 +66,8 @@ const CheckOutScreen = ({ navigation }) => {
             image: require('../../../assets/images/checkout/zalo.png')
         },
         {
-            name: 'Visa',
-            image: require('../../../assets/images/checkout/visa.png')
+            name: 'PayOS',
+            image: require('../../../assets/images/checkout/payos.png')
         },
         {
             name: 'Tiền mặt',
@@ -140,85 +171,111 @@ const CheckOutScreen = ({ navigation }) => {
                     console.log(error);
 
                 }
+            } else if (indexPay == 2) {
+                setIsLoading(false)
+                navigation.navigate('SuccessPayment')
             }
 
         } catch (error) {
             console.log('error', error);
         }
     }
+    console.log('note', note);
+
     return (
-        <ContainerComponent styles={globalStyle.container} isScroll={true}>
-            <HeaderComponent text='Thanh toán' isback />
-            <View style={[styles.containerAddress, globalStyle.shawdow]}>
+        <ContainerComponent styles={{ flex: 1 }}>
+            <ContainerComponent styles={globalStyle.container} isScroll={true}>
+                <HeaderComponent text='Thanh toán' isback />
+                <View style={[styles.containerAddress, globalStyle.shawdow]}>
+                    <RowComponent justifyContent={'space-between'}>
+                        <TextComponent text={'Địa chỉ giao hàng'} fontsize={14} fontFamily={fontFamilies.bold} />
+                        <ButtonComponent type={'link'} text={'Sửa'} color={appColor.primary} fontsize={14} />
+                    </RowComponent>
+                    <SpaceComponent height={10} />
+                    <TextComponent text={`Olala | 0912345678`} fontsize={12} />
+                    <SpaceComponent height={10} />
+                    <TextComponent text={`26, Duong So 2, Thao Dien Ward, An Phu, District 2, Ho Chi Minh city`} fontsize={12} width={280} />
+                </View>
+                <SpaceComponent height={15} />
                 <RowComponent justifyContent={'space-between'}>
-                    <TextComponent text={'Địa chỉ giao hàng'} fontsize={14} fontFamily={fontFamilies.bold} />
-                    <ButtonComponent type={'link'} text={'Sửa'} color={appColor.primary} fontsize={14} />
+                    <TextComponent text={'Sản phẩm'} fontsize={20} fontFamily={fontFamilies.bold} />
+                    <ButtonComponent
+                        width={132} height={30} borderColor={appColor.subText} backgroundColor={appColor.white}
+                        text={'Thêm voucher'} fontsize={11}
+                    />
+                </RowComponent>
+                <SpaceComponent height={20} />
+                <RowComponent justifyContent={'space-between'}>
+                    <TextComponent text={'Tên cửa hàng'} fontsize={14} fontFamily={fontFamilies.bold} />
+                    <ButtonComponent type={'link'} text={'Thêm món'} fontsize={14} color={appColor.primary} />
                 </RowComponent>
                 <SpaceComponent height={10} />
-                <TextComponent text={`Olala | 0912345678`} fontsize={12} />
+                {order.map((item, index) =>
+                    <OrderItem key={index} item={item} onpress={() => handleOpenBottomSheet(index)} textNote={item.note} />
+                )}
+                <LineComponent />
+                <SpaceComponent height={15} />
+                <TextComponent text={'Phương thức thanh toán'} fontsize={20} fontFamily={fontFamilies.bold} />
+                <SpaceComponent height={15} />
+                {options.map((item, index) => (
+                    <TouchableOpacity key={index} style={styles.btnRow} onPress={() => setIndexPay(index)}>
+                        <View style={[styles.circle, index == indexPay && styles.activeCircle]} />
+                        <SpaceComponent width={20} />
+                        <Image source={item.image} />
+                        <SpaceComponent width={10} />
+                        <TextComponent text={item.name} />
+                    </TouchableOpacity>
+                ))}
                 <SpaceComponent height={10} />
-                <TextComponent text={`26, Duong So 2, Thao Dien Ward, An Phu, District 2, Ho Chi Minh city`} fontsize={12} width={280} />
-            </View>
-            <SpaceComponent height={15} />
-            <RowComponent justifyContent={'space-between'}>
-                <TextComponent text={'Sản phẩm'} fontsize={20} fontFamily={fontFamilies.bold} />
-                <ButtonComponent
-                    width={132} height={30} borderColor={appColor.subText} backgroundColor={appColor.white}
-                    text={'Thêm voucher'} fontsize={11}
-                />
-            </RowComponent>
-            <SpaceComponent height={20} />
-            <RowComponent justifyContent={'space-between'}>
-                <TextComponent text={'Tên cửa hàng'} fontsize={14} fontFamily={fontFamilies.bold} />
-                <ButtonComponent type={'link'} text={'Thêm món'} fontsize={14} color={appColor.primary} />
-            </RowComponent>
-            <SpaceComponent height={10} />
-            {order.map((item, index) =>
-                <OrderItem key={index} item={item} onpress={() => setVisible(true)} />
-            )}
-            <LineComponent />
-            <SpaceComponent height={15} />
-            <TextComponent text={'Phương thức thanh toán'} fontsize={20} fontFamily={fontFamilies.bold} />
-            <SpaceComponent height={15} />
-            {options.map((item, index) => (
-                <TouchableOpacity key={index} style={styles.btnRow} onPress={() => setIndexPay(index)}>
-                    <View style={[styles.circle, index == indexPay && styles.activeCircle]} />
-                    <SpaceComponent width={20} />
-                    <Image source={item.image} />
-                    <SpaceComponent width={10} />
-                    <TextComponent text={item.name} />
-                </TouchableOpacity>
-            ))}
-            <SpaceComponent height={10} />
-            <LineComponent />
-            <SpaceComponent height={10} />
-            <RowComponent justifyContent={'space-between'}>
-                <TextComponent text={'Tổng cộng'} fontsize={16} />
-                <TextComponent text={'500.000 đ'} fontsize={16} fontFamily={fontFamilies.bold} />
-            </RowComponent>
-            <SpaceComponent height={10} />
-            <RowComponent justifyContent={'space-between'}>
-                <TextComponent text={'Mã khuyến mãi'} fontsize={16} />
-                <TextComponent text={'0 đ'} fontsize={16} fontFamily={fontFamilies.bold} />
-            </RowComponent>
-            <SpaceComponent height={10} />
-            <RowComponent justifyContent={'space-between'}>
-                <TextComponent text={'Phí giao hàng'} fontsize={16} color={appColor.green} />
-                <TextComponent text={'0đ'} fontsize={16} fontFamily={fontFamilies.bold} color={appColor.green} />
-            </RowComponent>
-            <SpaceComponent height={15} />
-            <LineComponent />
-            <SpaceComponent height={20} />
-            <RowComponent justifyContent={'space-between'}>
-                <TextComponent text={'Tổng tiền'} fontsize={18} fontFamily={fontFamilies.bold} />
-                <TextComponent text={'500.000 đ'} fontsize={14} fontFamily={fontFamilies.bold} />
-            </RowComponent>
-            <SpaceComponent height={15} />
-            <ButtonComponent text={'Đặt hàng'} height={60} color={appColor.white} onPress={handlePayment} />
-            <SpaceComponent height={70} />
-            <AlertChoiceModal visible={visible} title={'Xác nhận'} onClose={() => setVisible(false)} />
-            <LoadingModal visible={isLoading} />
-            {/* <AlertModel visible={visible} title={'Thành công'} fail onRequestClose={() => setVisible(false)}  description={'Thanh toán thành công'} /> */}
+                <LineComponent />
+                <SpaceComponent height={10} />
+                <RowComponent justifyContent={'space-between'}>
+                    <TextComponent text={'Tổng cộng'} fontsize={16} />
+                    <TextComponent text={'500.000 đ'} fontsize={16} fontFamily={fontFamilies.bold} />
+                </RowComponent>
+                <SpaceComponent height={10} />
+                <RowComponent justifyContent={'space-between'}>
+                    <TextComponent text={'Mã khuyến mãi'} fontsize={16} />
+                    <TextComponent text={'0 đ'} fontsize={16} fontFamily={fontFamilies.bold} />
+                </RowComponent>
+                <SpaceComponent height={10} />
+                <RowComponent justifyContent={'space-between'}>
+                    <TextComponent text={'Phí giao hàng'} fontsize={16} color={appColor.green} />
+                    <TextComponent text={'0đ'} fontsize={16} fontFamily={fontFamilies.bold} color={appColor.green} />
+                </RowComponent>
+                <SpaceComponent height={15} />
+                <LineComponent />
+                <SpaceComponent height={20} />
+                <RowComponent justifyContent={'space-between'}>
+                    <TextComponent text={'Tổng tiền'} fontsize={18} fontFamily={fontFamilies.bold} />
+                    <TextComponent text={'500.000 đ'} fontsize={14} fontFamily={fontFamilies.bold} />
+                </RowComponent>
+                <SpaceComponent height={15} />
+                <ButtonComponent text={'Đặt hàng'} height={60} color={appColor.white} onPress={handlePayment} />
+                <SpaceComponent height={70} />
+                {/* <AlertChoiceModal visible={visible} title={'Xác nhận'} onClose={() => setVisible(false)} /> */}
+                <LoadingModal visible={isLoading} />
+                {/* <AlertModel visible={visible} title={'Thành công'} fail onRequestClose={() => setVisible(false)}  description={'Thanh toán thành công'} /> */}
+            </ContainerComponent>
+            <BottomSheet
+                enablePanDownToClose
+                ref={bottomSheetRef}
+                snapPoints={snapPoint}
+                backdropComponent={renderBackdrop}
+                handleComponent={null}
+                index={-1}>
+                <RowComponent styles={styles.headerBottomSheet} justifyContent={'space-between'}>
+                    <ButtonComponent type={'link'} text={'Đóng'} color={appColor.white} onPress={handleCloseBottomSheet} />
+                    <TextComponent text={'Ghi chú'} color={appColor.white} />
+                    <ButtonComponent type={'link'} text={'Xong'} color={appColor.white} onPress={handleNote} />
+                </RowComponent>
+                <SpaceComponent height={20} />
+                <View style={{ paddingHorizontal: 16 }}>
+                    <TextComponent text={'Thêm ghi chú:'} />
+                    <SpaceComponent height={20} />
+                    <TextInput placeholder={'Nhập ghi chú...'} style={styles.inputNote} value={note} onChangeText={text => setNote(text)} />
+                </View>
+            </BottomSheet>
         </ContainerComponent>
     )
 }
@@ -226,6 +283,21 @@ const CheckOutScreen = ({ navigation }) => {
 export default CheckOutScreen
 
 const styles = StyleSheet.create({
+    inputNote: {
+        height: 140,
+        borderRadius: 10,
+        backgroundColor: appColor.opacity,
+        paddingHorizontal: 16,
+        textAlignVertical: 'top',
+        paddingTop: 10
+    },
+    headerBottomSheet: {
+        backgroundColor: appColor.primary,
+        height: 50,
+        paddingHorizontal: 16,
+        borderTopLeftRadius: 15,
+        borderTopRightRadius: 15,
+    },
     activeCircle: {
         backgroundColor: appColor.primary,
         borderColor: appColor.primary,
@@ -258,7 +330,7 @@ var ORDER = [
         quantity: 1,
         sold: 999,
         image: require('../../../assets/images/checkout/p1.png'),
-        note: 'Không ớt'
+        // note: 'Không ớt'
     },
     {
         _id: 2,
@@ -267,7 +339,7 @@ var ORDER = [
         quantity: 2,
         sold: 999,
         image: require('../../../assets/images/checkout/p1.png'),
-        note: 'Không ớt'
+        // note: 'Không ớt'
     },
 ]
 

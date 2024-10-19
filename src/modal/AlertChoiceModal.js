@@ -13,8 +13,10 @@ const AlertChoiceModal = ({ title, onClose, visible, onPress }) => {
             <TouchableWithoutFeedback onPress={onClose}>
                 <View style={styles.container}>
                     <TouchableOpacity style={styles.body} activeOpacity={1}>
-                        <TextComponent text={title} fontsize={24} fontFamily={fontFamilies.bold} textAlign={'center'} />
-                        <SpaceComponent height={60} />
+                        <TextComponent text={'Thông báo'} fontsize={24} fontFamily={fontFamilies.bold} textAlign={'center'} />
+                        <SpaceComponent height={20} />
+                        <TextComponent text={title} fontsize={18} fontFamily={fontFamilies.medium} textAlign={'center'} />
+                        <SpaceComponent height={40} />
                         <RowComponent justifyContent={'space-between'}>
                             <ButtonComponent text={'Hủy'} width={'48%'} backgroundColor={appColor.white}
                                 borderColor={appColor.white}

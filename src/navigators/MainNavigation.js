@@ -67,31 +67,43 @@ const TabNavigation = () => {
                 options={{
                     tabBarIcon: ({ focused }) => (
                         <View style={styles.viewTabItem}>
-                            <Image source={require('../assets/images/tabBar/home.png')}
-                                style={styles.imgTab}
-                                resizeMode='contain'
-                                tintColor={focused ? appColor.primary : appColor.text}
-                            />
+                            {focused ?
+                                <Image source={require('../assets/images/tabBar/homed.png')}
+                                    style={styles.imgTab}
+                                    resizeMode='contain'
+                                /> :
+                                <Image source={require('../assets/images/tabBar/home.png')}
+                                    style={styles.imgTab}
+                                    resizeMode='contain'
+                                    tintColor={appColor.text}
+                                />
+                            }
                             <TextComponent text={'Trang chủ'} fontsize={10} color={focused ? appColor.primary : appColor.text} styles={{ marginTop: 5 }} />
                         </View>
                     )
                 }}
             />
-            <Tab.Screen name='Cart' component={CheckOrderScreen}
+            <Tab.Screen name='Cart' component={MyOrderScreen}
                 options={{
                     tabBarIcon: ({ focused }) => (
                         <View style={styles.viewTabItem}>
-                            <Image source={require('../assets/images/tabBar/cart.png')}
-                                style={styles.imgTab}
-                                resizeMode='contain'
-                                tintColor={focused ? appColor.primary : appColor.text}
-                            />
+                            {focused ?
+                                <Image source={require('../assets/images/tabBar/carted.png')}
+                                    style={styles.imgTab}
+                                    resizeMode='contain'
+                                /> :
+                                <Image source={require('../assets/images/tabBar/cart.png')}
+                                    style={styles.imgTab}
+                                    resizeMode='contain'
+                                    tintColor={appColor.text}
+                                />
+                            }
                             <TextComponent text={'Đơn hàng'} fontsize={10} color={focused ? appColor.primary : appColor.text} styles={{ marginTop: 5 }} />
                         </View>
                     )
                 }}
             />
-            <Tab.Screen name='Favorite' component={ShopDetailScreen}
+            {/* <Tab.Screen name='Favorite' component={ShopDetailScreen}
                 options={{
                     tabBarIcon: ({ focused }) => (
                         <View style={styles.containerFavor}>
@@ -105,17 +117,23 @@ const TabNavigation = () => {
                         </View>
                     )
                 }}
-            />
-            <Tab.Screen name='Notify' component={MyOrderScreen}
+            /> */}
+            <Tab.Screen name='Favorite' component={AddressScreen}
                 options={{
                     tabBarIcon: ({ focused }) => (
                         <View style={styles.viewTabItem}>
-                            <Image source={require('../assets/images/tabBar/notification.png')}
-                                style={styles.imgTab}
-                                resizeMode='contain'
-                                tintColor={focused ? appColor.primary : appColor.text}
-                            />
-                            <TextComponent text={'Thông báo'} fontsize={10} color={focused ? appColor.primary : appColor.text} styles={{ marginTop: 5 }} />
+                            {focused ?
+                                <Image source={require('../assets/images/tabBar/hearted.png')}
+                                    style={styles.imgTab}
+                                    resizeMode='contain'
+                                /> :
+                                <Image source={require('../assets/images/tabBar/heart.png')}
+                                    style={styles.imgTab}
+                                    resizeMode='contain'
+                                // tintColor={appColor.text}
+                                />
+                            }
+                            <TextComponent text={'Yêu thích'} fontsize={10} color={focused ? appColor.primary : appColor.text} styles={{ marginTop: 5 }} />
                         </View>
                     )
                 }}
@@ -124,11 +142,17 @@ const TabNavigation = () => {
                 options={{
                     tabBarIcon: ({ focused }) => (
                         <View style={styles.viewTabItem}>
-                            <Image source={require('../assets/images/tabBar/profile.png')}
-                                style={styles.imgTab}
-                                resizeMode='contain'
-                                tintColor={focused ? appColor.primary : appColor.text}
-                            />
+                            {focused ?
+                                <Image source={require('../assets/images/tabBar/profiled.png')}
+                                    style={styles.imgTab}
+                                    resizeMode='contain'
+                                /> :
+                                <Image source={require('../assets/images/tabBar/profile.png')}
+                                    style={styles.imgTab}
+                                    resizeMode='contain'
+                                    tintColor={focused ? appColor.primary : appColor.text}
+                                />
+                            }
                             <TextComponent text={'Tài khoản'} fontsize={10} color={focused ? appColor.primary : appColor.text} styles={{ marginTop: 5 }} />
                         </View>
                     )
