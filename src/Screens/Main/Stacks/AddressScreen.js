@@ -18,7 +18,7 @@ import { useFocusEffect } from '@react-navigation/native'
 const AddressScreen = ({ navigation }) => {
     const [address, setAddress] = useState()
     const { user } = useSelector(state => state.login)
-    console.log('address', address);
+    // console.log('address', address);
 
 
     const getAddressUser = async () => {
