@@ -3,7 +3,6 @@ import React from 'react';
 
 import TextComponent from '../../../components/TextComponent';
 import {appColor} from '../../../constants/appColor';
-import { fontFamilies } from '../../../constants/fontFamilies';
 
 const BtnComponent = ({
   text,
@@ -16,7 +15,7 @@ const BtnComponent = ({
   onPress,
   width,
   height,
-  fontFamily
+  fontFamily,
 }) => {
   return (
     <TouchableOpacity
@@ -30,7 +29,8 @@ const BtnComponent = ({
           ...styles,
         },
       ]}
-      onPress={onPress}>
+      onPress={onPress}
+      activeOpacity={0.8}>
       <TextComponent
         text={text}
         color={color ?? appColor.text}

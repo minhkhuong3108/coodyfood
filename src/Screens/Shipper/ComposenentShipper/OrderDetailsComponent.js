@@ -90,14 +90,12 @@ const OrderDetailsComponent = () => {
         <BottomSheetScrollView>
           {/*info1: thông tin quán ăn*/}
           <View style={styles.info1}>
-            <View style={styles.img}>
-              <Image
-                style={{flex: 1}}
-                source={{
-                  uri: 'https://res.cloudinary.com/djywo5wza/image/upload/v1726318386/Rectangle_175_xzn14n.jpg',
-                }}
-              />
-            </View>
+            <Image
+              style={styles.img}
+              source={{
+                uri: 'https://res.cloudinary.com/djywo5wza/image/upload/v1726318386/Rectangle_175_xzn14n.jpg',
+              }}
+            />
             <View style={styles.detail1}>
               <TextComponent
                 text={'Đồ Ăn Chay Thanh Đạm'}
@@ -152,23 +150,16 @@ const OrderDetailsComponent = () => {
             </View>
             {/*các vòng tròn check gồm start(bắt đầu) và check(đã thực hiện hay chưa)*/}
             <View style={styles.check}>
+              <Check start={true} checked={item1 ? true : false} />
               <Check
-                height={'7%'}
-                start={true}
-                checked={item1 ? true : false}
-              />
-              <Check
-                height={'9%'}
                 start={item1 ? true : false}
                 checked={item2 ? true : false}
               />
               <Check
-                height={'10%'}
                 start={item2 ? true : false}
                 checked={item3 ? true : false}
               />
               <Check
-                height={'12%'}
                 start={item2 ? true : false}
                 checked={item3 ? true : false}
               />
@@ -303,12 +294,13 @@ const styles = StyleSheet.create({
     height: '90%',
   },
   img: {
-    width: 87,
+    width: 86,
     aspectRatio: 1,
     borderRadius: 15,
     marginRight: '2%',
+    backgroundColor: appColor.gray,
   },
-  star: {width: '4%', aspectRatio: 1},
+  star: {width: '5%', aspectRatio: 1},
   info2: {
     marginTop: '3%',
   },
@@ -325,7 +317,7 @@ const styles = StyleSheet.create({
     margin: '6%',
   },
   bodership: {
-    width: '7.6%',
+    width: '7.7%',
     height: '100%',
     resizeMode: 'contain',
   },
@@ -335,8 +327,11 @@ const styles = StyleSheet.create({
   },
   check: {
     position: 'absolute',
-    width: '100%',
-    height: '100%',
+    top: '7%',
+    bottom: '7%',
+    left: '0%',
+    right: '0%',
+    justifyContent: 'space-between',
   },
   item: {
     width: '100%',
