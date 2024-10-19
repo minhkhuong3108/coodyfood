@@ -18,7 +18,7 @@ import Geolocation from 'react-native-geolocation-service'
 import MapAPI from '../../../core/apiMap/MapAPI'
 import AxiosInstance from '../../../helpers/AxiosInstance'
 import _ from 'lodash'
-import {CallConfig} from '../../Call/Callconfig';
+import { CallConfig } from '../../Call/Callconfig';
 
 
 
@@ -50,11 +50,11 @@ const HomeScreen = ({ navigation }) => {
     groupedData.push(cate.slice(i, i + 2));
   }
 
-  const renderGroupedItem = ({item, index}) => (
+  const renderGroupedItem = ({ item, index }) => (
     <View key={index}>
       {item.map(subItem => (
-        <View key={subItem.id} style={styles.item}>
-          {renderCate({item: subItem})}
+        <View key={subItem._id} style={styles.item}>
+          {renderCate({ item: subItem })}
         </View>
       ))}
     </View>
@@ -93,8 +93,9 @@ const HomeScreen = ({ navigation }) => {
       >
         <TextComponent
           text={name}
-          fontsize={14}
-          styles={{width: 63}}
+          fontsize={16}
+          styles={id == selectedCate && styles.activeCate}
+          color={id == selectedCate ? appColor.primary : appColor.text}
           textAlign={'center'}
         />
       </TouchableOpacity>
@@ -123,13 +124,13 @@ const HomeScreen = ({ navigation }) => {
   const getUserLocation = () => {
     Geolocation.getCurrentPosition(
       position => {
-        const {latitude, longitude} = position.coords;
+        const { latitude, longitude } = position.coords;
         setUserLocation([longitude, latitude]);
       },
       error => {
         console.error(error);
       },
-      {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
     );
   };
 
@@ -219,7 +220,7 @@ const HomeScreen = ({ navigation }) => {
   return (
     <ContainerComponent styles={globalStyle.container} isScroll>
       <RowComponent justifyContent={'space-between'}>
-        <View style={{flex: 1}}>
+        <View style={{ flex: 1 }}>
           <TextComponent
             text={'Giao đến'}
             fontsize={16}
@@ -229,11 +230,11 @@ const HomeScreen = ({ navigation }) => {
           <RowComponent
             button
             onPress={() =>
-              navigation.navigate('EditAddress', {item: addressUser})
+              navigation.navigate('EditAddress', { item: addressUser })
             }>
             <Image
               source={require('../../../assets/images/home/location.png')}
-              style={{marginRight: 10}}
+              style={{ marginRight: 10 }}
             />
             <TextComponent
               text={`${addressUser}`}
@@ -311,7 +312,7 @@ const HomeScreen = ({ navigation }) => {
           horizontal
           showsHorizontalScrollIndicator={false}
           data={shopRecomend}
-          renderItem={({item, index}) => (
+          renderItem={({ item, index }) => (
             <ShopRecomendList item={item} index={index} list={shopRecomend} />
           )}
           key={item => item.id}
@@ -378,7 +379,7 @@ const styles = StyleSheet.create({
   },
   item: {
     marginVertical: 15,
-    height:100
+    height: 100
   },
   viewImgCate: {
     width: 63,

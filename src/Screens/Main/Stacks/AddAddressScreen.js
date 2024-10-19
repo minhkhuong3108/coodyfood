@@ -96,6 +96,7 @@ const AddAddressScreen = ({ navigation, route }) => {
             const response = await AxiosInstance().post('/userAddresses/add', data)
             console.log('response', response);
             if (response.status == true) {
+                setVisible(false)
                 ToastAndroid.show('Thêm địa chỉ thành công', ToastAndroid.SHORT)
                 navigation.goBack()
                 // navigation.navigate('Address')
