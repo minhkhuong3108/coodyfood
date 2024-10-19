@@ -1,46 +1,44 @@
-import {
-  FlatList,
-  Image,
-  PermissionsAndroid,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import React, {useEffect, useState} from 'react';
-import ButtonComponent from '../../../components/ButtonComponent';
-import {useDispatch, useSelector} from 'react-redux';
-import {logout} from '../../../Redux/Reducers/LoginSlice';
-import ContainerComponent from '../../../components/ContainerComponent';
-import {globalStyle} from '../../../styles/globalStyle';
-import SpaceComponent from '../../../components/SpaceComponent';
-import RowComponent from '../../../components/RowComponent';
-import TextComponent from '../../../components/TextComponent';
-import {appColor} from '../../../constants/appColor';
-import SearchComponent from '../../../components/SearchComponent';
-import {fontFamilies} from '../../../constants/fontFamilies';
-import Swiper from 'react-native-swiper';
-import ShopRecomendList from '../../../components/ShopRecomendList';
-import ShopAndProductComponent from '../../../components/ShopAndProductComponent';
-import Geolocation from 'react-native-geolocation-service';
-import MapAPI from '../../../core/apiMap/MapAPI';
-import {CallConfig} from '../../Call/Callconfig';
+import { FlatList, Image, PermissionsAndroid, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import React, { useCallback, useEffect, useState } from 'react'
+import ButtonComponent from '../../../components/ButtonComponent'
+import { useDispatch, useSelector } from 'react-redux'
+import { logout } from '../../../Redux/Reducers/LoginSlice'
+import ContainerComponent from '../../../components/ContainerComponent'
+import { globalStyle } from '../../../styles/globalStyle'
+import SpaceComponent from '../../../components/SpaceComponent'
+import RowComponent from '../../../components/RowComponent'
+import TextComponent from '../../../components/TextComponent'
+import { appColor } from '../../../constants/appColor'
+import SearchComponent from '../../../components/SearchComponent'
+import { fontFamilies } from '../../../constants/fontFamilies'
+import Swiper from 'react-native-swiper'
+import ShopRecomendList from '../../../components/ShopRecomendList'
+import ShopAndProductComponent from '../../../components/ShopAndProductComponent'
+import Geolocation from 'react-native-geolocation-service'
+import MapAPI from '../../../core/apiMap/MapAPI'
+import AxiosInstance from '../../../helpers/AxiosInstance'
+import _ from 'lodash'
+import { CallConfig } from '../../Call/Callconfig';
 
-const HomeScreen = ({navigation}) => {
-  const {user} = useSelector(state => state.login);
-  const dispatch = useDispatch();
-  const [search, setSearch] = useState('');
-  const [cate, setCate] = useState(CATE);
-  const [cate2, setCate2] = useState(CATE2);
-  const [shopRecomend, setShopRecomend] = useState(FEATURE);
-  const [shop, setShop] = useState(SHOP);
-  //console.log('shop', shop);
 
-  const [selectedCate, setSelectedCate] = useState(cate2[0].id);
+
+const HomeScreen = ({ navigation }) => {
+  const dispatch = useDispatch()
+  const { user } = useSelector(state => state.login)
+  const [search, setSearch] = useState('')
+  const [cate, setCate] = useState([])
+  const [cate2, setCate2] = useState(CATE2)
+  const [shopRecomend, setShopRecomend] = useState(FEATURE)
+  const [shop, setShop] = useState([])
+  const [shopView, setShopView] = useState([])
+  // console.log('shop', shop);
+  const [selectedCate, setSelectedCate] = useState(1)
   const [userLocation, setUserLocation] = useState(null);
   const [addressUser, setAddressUser] = useState('');
+
+  // console.log('shopView', shopView);
   // console.log('userlocation', userLocation);
+  // console.log('cate', cate);
 
   useEffect(() => {
     //callkeep
@@ -52,51 +50,53 @@ const HomeScreen = ({navigation}) => {
     groupedData.push(cate.slice(i, i + 2));
   }
 
-  const renderGroupedItem = ({item, index}) => (
+  const renderGroupedItem = ({ item, index }) => (
     <View key={index}>
       {item.map(subItem => (
-        <View key={subItem.id} style={styles.item}>
-          {renderCate({item: subItem})}
+        <View key={subItem._id} style={styles.item}>
+          {renderCate({ item: subItem })}
         </View>
       ))}
     </View>
   );
 
-  const renderCate = ({item}) => {
-    const {id, name, image} = item;
+  const renderCate = ({ item }) => {
+    const { _id, name, image } = item
     return (
-      <TouchableOpacity
-        key={id}
-        style={styles.btnCate}
-        onPress={() => navigation.navigate('CheckOut')}>
+      <TouchableOpacity key={_id} style={styles.btnCate} onPress={() => navigation.navigate('CheckOut')}>
         <View style={styles.viewImgCate}>
-          <Image source={image} />
+          {image && <Image source={{ uri: image }} style={{ width: 50, height: 50 }} />}
         </View>
-        <TextComponent
-          text={name}
-          fontsize={14}
-          styles={{width: 63}}
-          textAlign={'center'}
-        />
+        <TextComponent text={name} fontsize={14} styles={{ width: 63 }} textAlign={'center'} />
       </TouchableOpacity>
-    );
-  };
+    )
+  }
 
-  const renderCate2 = ({item, index}) => {
-    const {id, name} = item;
+  const handleSelectCate = (id) => {
+    setSelectedCate(id)
+    if (id == 1) {
+      handleNearByShops()
+    } else if (id == 2) {
+      handleNewShop()
+    } else if (id == 3) {
+      handleRateShop()
+    }
+  }
+
+  const renderCate2 = ({ item, index }) => {
+    const { id, name } = item
     return (
       <TouchableOpacity
         key={id}
-        style={[
-          {marginRight: 20},
-          index == cate2.length - 1 && styles.itemLast,
-        ]}
-        onPress={() => setSelectedCate(id)}>
+        style={[{ marginRight: 20 }, index == cate2.length - 1 && styles.itemLast]}
+        onPress={() => handleSelectCate(id)}
+      >
         <TextComponent
           text={name}
-          fontsize={18}
+          fontsize={16}
           styles={id == selectedCate && styles.activeCate}
           color={id == selectedCate ? appColor.primary : appColor.text}
+          textAlign={'center'}
         />
       </TouchableOpacity>
     );
@@ -112,68 +112,86 @@ const HomeScreen = ({navigation}) => {
     return true;
   };
   const getGeocoding = async () => {
-    let geocoding = await MapAPI.getGeocoding({
-      description: encodeURIComponent(userLocation[1] + ',' + userLocation[0]),
-    });
-    console.log('geocoding', geocoding.results[0].formatted_address);
+    if (userLocation) {
+      let geocoding = await MapAPI.getGeocoding({
+        description: encodeURIComponent(userLocation[1] + ',' + userLocation[0]),
+      });
+      // console.log('geocoding', geocoding.results[0].formatted_address);
+      setAddressUser(geocoding.results[0].formatted_address);
+    }
+  }
 
-    setAddressUser(geocoding.results[0].formatted_address);
-  };
   const getUserLocation = () => {
     Geolocation.getCurrentPosition(
       position => {
-        const {latitude, longitude} = position.coords;
+        const { latitude, longitude } = position.coords;
         setUserLocation([longitude, latitude]);
       },
       error => {
         console.error(error);
       },
-      {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
     );
   };
-  const getDirections = async (lat, long) => {
-    const direction = await MapAPI.getDirections({
-      vehicle: 'bike',
-      origin: userLocation,
-      destination: [long, lat],
-    });
-    // console.log('direction', direction.routes[0].legs[0].distance.value);
-    return direction;
-  };
 
-  const nearByShops = async () => {
-    if (shop) {
-      const promises = shop.map(async shop => {
-        const response = await getDirections(shop.latitude, shop.longitude);
-        const distance = response.routes[0].legs[0].distance.value;
-        const location = await response.routes[0].legs[0].distance.value;
-        const time = await response.routes[0].legs[0].duration.value;
-        return {...shop, location, time, distance};
-      });
-      const result = await Promise.all(promises);
-      const filteredShops = result.filter(
-        (shop, index) => shop.distance <= 5000,
-      );
-      setShop(filteredShops);
+  const getDirections = async (lat, long) => {
+    console.log('userLocation', userLocation);
+    try {
+      if (userLocation) {
+        const direction = await MapAPI.getDirections({
+          vehicle: 'bike',
+          origin: userLocation,
+          destination: [long, lat],
+        });
+        return direction;
+      }
+      return null;
+    } catch (error) {
+      console.log('error', error);
     }
   };
 
-  // const calculatteDistanceDuration = async () => {
-  //   if (shop) {
-  //     const promises = shop.map(async (item) => {
-  //       const response = await getDirections(item.latitude, item.longitude)
+  const handleNearByShops = async () => {
+    if (shop && userLocation) {
+      const promises = shop.map(async (shop) => {
+        const response = await getDirections(shop.latitude, shop.longitude)
+        console.log('response', response);
 
-  //       console.log('distance', location);
-  //       console.log('time', time);
+        if (response) {
+          const distance = response.routes[0].legs[0].distance.value;
+          // const location = response.routes[0].legs[0].distance.value;
+          const time = response.routes[0].legs[0].duration.value;
+          return { ...shop, time, distance };
+        }
+        return shop;
+      })
+      const result = await Promise.all(promises)
+      const filteredShops = result.filter((shop, index) => shop.distance <= 5000)
+      setShopView(filteredShops)
 
-  //       return { ...item, time, location }
+    }
+  };
 
-  //     })
-  //     const results = await Promise.all(promises);
-  //     console.log('results', results);
-  //     setShop(results)
-  //   }
-  // }
+  const handleRateShop = async () => {
+    const shopRate = [...shop].sort((a, b) => b.rating - a.rating)
+    setShopView(shopRate)
+  }
+
+  const handleNewShop = async () => {
+    const shopNew = [...shop].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+    setShopView(shopNew)
+
+  }
+
+  const getShop = async () => {
+    const response = await AxiosInstance().get('/shopOwner')
+    setShop(response.data)
+  }
+
+  const getCategories = async () => {
+    const response = await AxiosInstance().get('/shopCategories')
+    setCate(response.data)
+  }
 
   useEffect(() => {
     requestLocationPermission().then(hasPermission => {
@@ -181,20 +199,28 @@ const HomeScreen = ({navigation}) => {
         getUserLocation();
       }
     });
+    getShop()
+    getCategories()
   }, []);
 
-  useEffect(() => {
-    if (userLocation) {
-      getGeocoding();
-      nearByShops();
-      // calculatteDistanceDuration()
-    }
-  }, [userLocation]);
+  // useEffect(() => {
+  //   if (userLocation) {
+  //     getGeocoding();
+  //   }
+  // }, [userLocation]);
+
+
+  // useEffect(() => {
+  //   console.log('shop', shop);
+  //   if (shop.length > 0) {
+  //     handleNearByShops()
+  //   }
+  // }, [shop]);
 
   return (
     <ContainerComponent styles={globalStyle.container} isScroll>
       <RowComponent justifyContent={'space-between'}>
-        <View style={{flex: 1}}>
+        <View style={{ flex: 1 }}>
           <TextComponent
             text={'Giao đến'}
             fontsize={16}
@@ -204,11 +230,11 @@ const HomeScreen = ({navigation}) => {
           <RowComponent
             button
             onPress={() =>
-              navigation.navigate('EditAddress', {item: addressUser})
+              navigation.navigate('EditAddress', { item: addressUser })
             }>
             <Image
               source={require('../../../assets/images/home/location.png')}
-              style={{marginRight: 10}}
+              style={{ marginRight: 10 }}
             />
             <TextComponent
               text={`${addressUser}`}
@@ -272,15 +298,9 @@ const HomeScreen = ({navigation}) => {
           horizontal
           showsHorizontalScrollIndicator={false}
           data={shopRecomend}
-          renderItem={({item, index}) => (
-            <ShopRecomendList
-              item={item}
-              index={index}
-              type={'large'}
-              list={shopRecomend}
-              onpress={() => navigation.navigate('Shop')}
-            />
-          )}
+          renderItem={({ item, index }) =>
+            <ShopRecomendList item={item} index={index} type={'large'} list={shopRecomend} onpress={() => navigation.navigate('Address')} />
+          }
           keyExtractor={item => item.id}
         />
       </View>
@@ -292,7 +312,7 @@ const HomeScreen = ({navigation}) => {
           horizontal
           showsHorizontalScrollIndicator={false}
           data={shopRecomend}
-          renderItem={({item, index}) => (
+          renderItem={({ item, index }) => (
             <ShopRecomendList item={item} index={index} list={shopRecomend} />
           )}
           key={item => item.id}
@@ -311,11 +331,9 @@ const HomeScreen = ({navigation}) => {
       <SpaceComponent height={30} />
       <View>
         <FlatList
-          data={shop}
-          renderItem={({item}) => (
-            <ShopAndProductComponent type={'shop'} item={item} />
-          )}
-          keyExtractor={item => item.id}
+          data={shopView}
+          renderItem={({ item }) => <ShopAndProductComponent type={'shop'} item={item} onPress={() => navigation.navigate('Shop', { id: item._id })} />}
+          keyExtractor={item => item._id}
           scrollEnabled={false}
         />
       </View>
@@ -361,6 +379,7 @@ const styles = StyleSheet.create({
   },
   item: {
     marginVertical: 15,
+    height: 100
   },
   viewImgCate: {
     width: 63,

@@ -11,7 +11,8 @@ import NoteModel from '../modal/NoteModel'
 const OrderItem = ({ item, onpress, noTouch }) => {
     const { _id, name, price, quantity, image, note } = item
     const [visible, setVisible] = useState(false)
-    const [noteItem, setNoteItem] = useState(note)
+
+    // const [noteItem, setNoteItem] = useState(note)
     return (
         <RowComponent styles={[styles.containerProduct, globalStyle.shawdow]}>
             <Image source={image} style={styles.imgProduct} />
@@ -27,18 +28,18 @@ const OrderItem = ({ item, onpress, noTouch }) => {
                 {noTouch ? <View style={styles.btnNote}>
                     <Image source={require('../assets/images/checkout/note.png')} />
                     <SpaceComponent width={8} />
-                    <TextComponent text={'Ghi chú'} fontsize={10} />
+                    <TextComponent text={note.length > 0 ? note : 'Ghi chú'} fontsize={10} />
                 </View> :
-                    <TouchableOpacity style={styles.btnNote} onPress={() => setVisible(true)}>
+                    <TouchableOpacity style={styles.btnNote} onPress={onpress}>
                         <Image source={require('../assets/images/checkout/note.png')} />
                         <SpaceComponent width={8} />
-                        <TextComponent text={'Ghi chú'} fontsize={10} />
+                        <TextComponent text={note || 'Ghi chú'} fontsize={10} />
                     </TouchableOpacity>
 
                 }
             </View>
-            <NoteModel visible={visible} product={true} item={item} title={'Ghi chú'}
-                value={noteItem} onchangeText={text => setNoteItem(text)} onClose={()=>setVisible(false)} />
+            {/* <NoteModel visible={visible} product={true} item={item} title={'Ghi chú'}
+                value={noteItem} onchangeText={text => setNoteItem(text)} onClose={() => setVisible(false)} /> */}
         </RowComponent>
     )
 }

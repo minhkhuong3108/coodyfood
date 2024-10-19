@@ -1,16 +1,20 @@
-import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import React from 'react';
 import ContainerComponent from '../../../components/ContainerComponent';
 import RowComponent from '../../../components/RowComponent';
 import TextComponent from '../../../components/TextComponent';
-import {appColor} from '../../../constants/appColor';
+import { appColor } from '../../../constants/appColor';
 import SpaceComponent from '../../../components/SpaceComponent';
-import {globalStyle} from '../../../styles/globalStyle';
+import { globalStyle } from '../../../styles/globalStyle';
 import ProfileItem from '../../../components/ProfileItem';
-import {useSelector} from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { logout } from '../../../Redux/Reducers/LoginSlice'
 
-const ProfileScreen = ({navigation}) => {
-  const {user} = useSelector(state => state.login);
+
+const ProfileScreen = ({ navigation }) => {
+  const { user } = useSelector(state => state.login);
+  const dispatch = useDispatch()
   console.log(user);
   return (
     <ContainerComponent styles={globalStyle.container}>
@@ -21,7 +25,7 @@ const ProfileScreen = ({navigation}) => {
         />
         <View>
           {/*Chỗ này là tên nhưng lúc đăng kí chưa có tên */}
-          <TextComponent text={user.email} fontsize={18} />
+          <TextComponent text={user.name} fontsize={18} />
           <SpaceComponent height={10} />
           {/*sđt chưa có trong reslut API */}
           <TextComponent
@@ -48,6 +52,7 @@ const ProfileScreen = ({navigation}) => {
       <ProfileItem
         text={'Đăng xuất'}
         image={require('../../../assets/images/profile/logout.png')}
+        onpress={() => dispatch(logout())}
       />
     </ContainerComponent>
   );

@@ -10,15 +10,16 @@ import { globalStyle } from '../styles/globalStyle'
 import ButtonComponent from './ButtonComponent'
 import { formatDistance } from './format/FormatDistance'
 import formatTime from './format/FormatTime'
+import { formatRating } from './format/FormatRate'
 
 const ShopAndProductComponent = ({ item, onPress, type, favorite, quantity }) => {
-    const { _id, name, image, discount, rate, distance, time, sold, price, oldPrice, location } = item
+    const { _id, name, images, discount, rating, distance, time, sold, price, oldPrice, location } = item
     // console.log('item', item);
 
     return (
         type == 'shop' ?
-            <TouchableOpacity style={[styles.container, globalStyle.shawdow]}>
-                <Image source={image} style={styles.img} />
+            <TouchableOpacity style={[styles.container, globalStyle.shawdow]} onPress={onPress}>
+                <Image source={{ uri: images[0] }} style={styles.img} />
                 <View style={{ flex: 1 }}>
                     <RowComponent>
                         <TextComponent text={name} fontsize={16} styles={{ flex: 1 }} ellipsizeMode={'tail'} numberOfLines={1} />
@@ -26,15 +27,17 @@ const ShopAndProductComponent = ({ item, onPress, type, favorite, quantity }) =>
                     </RowComponent>
                     <RowComponent styles={{ marginTop: 8, marginBottom: 8 }}>
                         <Image source={require('../assets/images/home/star.png')} style={{ marginRight: 5 }} />
-                        <TextComponent text={`${rate} | ${location && formatDistance(location)} | ${time && formatTime(time)}`} fontsize={12} color={appColor.subText} />
+                        <TextComponent
+                            text={`${rating && formatRating(rating)} | ${distance && formatDistance(distance)} | ${time && formatTime(time)}`}
+                            fontsize={12} color={appColor.subText} />
                     </RowComponent>
                     <View style={styles.viewDiscount}>
-                        <TextComponent text={`Mã giảm: ${discount}%`} fontsize={12} fontFamily={fontFamilies.regular} color={appColor.primary} />
+                        <TextComponent text={`Mã giảm: ${20}%`} fontsize={12} fontFamily={fontFamilies.regular} color={appColor.primary} />
                     </View>
                 </View>
             </TouchableOpacity> :
-            <TouchableOpacity style={[styles.container, globalStyle.shawdow]}>
-                <Image source={image} style={styles.img} />
+            <TouchableOpacity style={[styles.container, globalStyle.shawdow]} onPress={onPress}>
+                {images && <Image source={{ uri: images[0] }} style={styles.img} />}
                 <View style={{ flex: 1 }}>
                     <TextComponent text={name} fontsize={16} />
                     <TextComponent text={`${sold} đã bán`} fontsize={12} color={appColor.subText} styles={{ marginTop: 8, marginBottom: 10 }} />

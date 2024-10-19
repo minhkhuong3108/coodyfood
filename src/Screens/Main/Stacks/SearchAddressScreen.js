@@ -9,10 +9,11 @@ import TextComponent from '../../../components/TextComponent'
 import { globalStyle } from '../../../styles/globalStyle'
 import LineComponent from '../../../components/LineComponent'
 
-const SearchAddressScreen = ({ navigation }) => {
+const SearchAddressScreen = ({ navigation, route }) => {
     const [search, setSearch] = useState('')
     const [description, setDescription] = useState([]);
     const [isShowLocation, setIsShowLocation] = useState(true);
+    const { targetScreen } = route.params;
     console.log('description', description);
 
 
@@ -48,11 +49,14 @@ const SearchAddressScreen = ({ navigation }) => {
         console.log('item', item);
 
         return (
-            <TouchableOpacity style={{ paddingTop: 10 }} onPress={() => navigation.navigate('AddAddress', { item: item.description })}>
+            <TouchableOpacity style={{ paddingTop: 10 }} onPress={() => {
+                navigation.goBack()
+                navigation.navigate(targetScreen, { item: item.description })
+            }}>
                 <TextComponent text={item.description} />
                 <SpaceComponent height={10} />
                 <LineComponent />
-            </TouchableOpacity>
+            </TouchableOpacity >
         )
     }
     return (

@@ -1,5 +1,5 @@
 import { FlatList, Image, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { act, useCallback, useRef, useState } from 'react'
+import React, { act, useCallback, useEffect, useRef, useState } from 'react'
 import ButtonComponent from '../../../components/ButtonComponent'
 import SpaceComponent from '../../../components/SpaceComponent'
 import TextComponent from '../../../components/TextComponent'
@@ -11,11 +11,69 @@ import { globalStyle } from '../../../styles/globalStyle'
 import LineComponent from '../../../components/LineComponent'
 import ShopAndProductComponent from '../../../components/ShopAndProductComponent'
 import BottomSheet, { BottomSheetBackdrop, BottomSheetFlatList, BottomSheetModal, BottomSheetView } from '@gorhom/bottom-sheet'
+import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry'
+import AxiosInstance from '../../../helpers/AxiosInstance'
+import { formatRating } from '../../../components/format/FormatRate'
 
-const ShopDetailScreen = ({ navigation }) => {
+const ShopDetailScreen = ({ navigation, route }) => {
+    const { id } = route.params
     const [popularFood, setPopularFood] = useState(POPULARFOOD)
-    const [category, setCategory] = useState(CATEGORY)
-    const [selectedCategory, setSelectedCategory] = useState(category[0]._id)
+    const [products, setProducts] = useState([])
+    const [category, setCategory] = useState([])
+    const [selectedCategory, setSelectedCategory] = useState(null)
+    const [cart, setCart] = useState([])
+    console.log('selectedCategory', selectedCategory);
+
+    const [shopDetail, setShopDetail] = useState({})
+    console.log('category', category);
+
+
+    const getShopDetail = async () => {
+        try {
+            const response = await AxiosInstance().get(`/shopOwner/${id}`)
+            setShopDetail(response.data)
+        } catch (error) {
+            console.log('error', error);
+        }
+    }
+
+    const getCategoriesProduct = async () => {
+        try {
+            const response = await AxiosInstance().get(`/productCategories/shopOwner/${id}`)
+            setCategory(response.data)
+        } catch (error) {
+            console.log('error', error);
+        }
+    }
+    const getProducts = async () => {
+        try {
+            const response = await AxiosInstance().get(`/products/category/${selectedCategory}`)
+            setProducts(response.data)
+        } catch (error) {
+            console.log('error', error);
+        }
+    }
+
+    useEffect(() => {
+        getShopDetail()
+        // getCart()
+    }, [])
+
+    useEffect(() => {
+        if (shopDetail) {
+            getCategoriesProduct()
+        }
+    }, [shopDetail])
+
+    useEffect(() => {
+        if (category.length > 0) {
+            setSelectedCategory(category[0]._id);
+            getProducts()
+        }
+    }, [category]);
+
+    const { name, images, rating, distance, time, sold, price, oldPrice } = shopDetail
+
     const snapPoint = ['80%']
     const bottomSheetRef = useRef(null)
     const handleOpenBottomSheet = () => {
@@ -38,10 +96,10 @@ const ShopDetailScreen = ({ navigation }) => {
     };
 
     const renderPopularFood = ({ item }) => {
-        const { name, price, sold, image } = item
+        const { name, price, sold, images } = item
         return (
             <TouchableOpacity style={styles.containerPopularFood} onPress={() => navigation.navigate('Product')}>
-                <ImageBackground source={image} style={styles.imgProduct}>
+                <ImageBackground source={{ uri: images[0] }} style={styles.imgProduct}>
                     <View style={styles.viewSold}>
                         <TextComponent text={`${formatSold(sold)} đã bán`} color={appColor.white} fontsize={10} />
                     </View>
@@ -68,10 +126,14 @@ const ShopDetailScreen = ({ navigation }) => {
             </TouchableOpacity >
         )
     }
+    console.log('cart', cart.length);
+
+    
+
     return (
         <ContainerComponent styles={{ flex: 1, backgroundColor: appColor.white }}>
             <ContainerComponent styles={{ flex: 1, backgroundColor: appColor.white }} isScroll>
-                <ImageBackground style={styles.imageBackground} source={require('../../../assets/images/shopDetail/p1.png')}>
+                {images && <ImageBackground style={styles.imageBackground} source={{ uri: images[0] }}>
                     <RowComponent justifyContent={'space-between'} styles={styles.containerHead}>
                         <ButtonComponent
                             image={require('../../../assets/images/shopDetail/back.png')}
@@ -86,16 +148,16 @@ const ShopDetailScreen = ({ navigation }) => {
                         />
 
                     </RowComponent>
-                </ImageBackground>
+                </ImageBackground>}
                 <SpaceComponent height={20} />
                 <ContainerComponent styles={[globalStyle.container, { paddingTop: 0 }]}>
                     <RowComponent justifyContent={'space-between'}>
                         <View>
-                            <TextComponent text={'Nhà hàng'} fontsize={18} fontFamily={fontFamilies.bold} />
+                            <TextComponent text={name} fontsize={18} fontFamily={fontFamilies.bold} />
                             <SpaceComponent height={15} />
                             <RowComponent>
                                 <Image source={require('../../../assets/images/shopDetail/star.png')} />
-                                <TextComponent text={'4.5'} fontsize={14} styles={{ marginHorizontal: 5 }} />
+                                {rating && <TextComponent text={formatRating(rating)} fontsize={14} styles={{ marginHorizontal: 5 }} />}
                                 <TextComponent text={'(99+ đánh giá)'} fontsize={12} color={appColor.subText} />
                             </RowComponent>
                             <SpaceComponent height={15} />
@@ -146,15 +208,15 @@ const ShopDetailScreen = ({ navigation }) => {
                     <SpaceComponent height={20} />
                     <FlatList
                         showsVerticalScrollIndicator={false}
-                        data={popularFood}
+                        data={products}
                         renderItem={({ item }) => <ShopAndProductComponent item={item} />}
-                        keyExtractor={item => item.id}
+                        keyExtractor={item => item._id}
                         scrollEnabled={false}
                     />
                     <SpaceComponent height={60} />
                 </ContainerComponent>
             </ContainerComponent>
-            <RowComponent onPress={handleOpenBottomSheet} activeOpacity={1} button justifyContent={'space-between'} styles={styles.containerCart}>
+            {cart.length == 0 && <RowComponent onPress={handleOpenBottomSheet} activeOpacity={1} button justifyContent={'space-between'} styles={styles.containerCart}>
                 <View style={styles.viewCart}>
                     <View style={styles.viewQuantity}>
                         <TextComponent text={'1'} color={appColor.white} fontsize={10} />
@@ -164,10 +226,10 @@ const ShopDetailScreen = ({ navigation }) => {
                 <RowComponent>
                     <TextComponent text={'100.000đ'} />
                     <SpaceComponent width={10} />
-                    <ButtonComponent text={'Giao hàng'} color={appColor.white} height={70} width={150} borderRadius={0} 
-                    onPress={()=>navigation.navigate('CheckOut')} />
+                    <ButtonComponent text={'Giao hàng'} color={appColor.white} height={70} width={150} borderRadius={0}
+                        onPress={() => navigation.navigate('CheckOut')} />
                 </RowComponent>
-            </RowComponent>
+            </RowComponent>}
             <BottomSheet
                 enablePanDownToClose
                 ref={bottomSheetRef}
@@ -183,11 +245,11 @@ const ShopDetailScreen = ({ navigation }) => {
                 </RowComponent>
                 <SpaceComponent height={20} />
                 <BottomSheetFlatList
-                showsVerticalScrollIndicator={false}
-                data={popularFood}
-                renderItem={({item})=><ShopAndProductComponent item={item}  quantity/>}
-                keyExtractor={item=>item.id}
-                contentContainerStyle={{paddingHorizontal:16}}
+                    showsVerticalScrollIndicator={false}
+                    data={popularFood}
+                    renderItem={({ item }) => <ShopAndProductComponent item={item} quantity />}
+                    keyExtractor={item => item.id}
+                    contentContainerStyle={{ paddingHorizontal: 16 }}
                 />
             </BottomSheet>
         </ContainerComponent>
@@ -302,7 +364,7 @@ var POPULARFOOD = [
         name: 'Berry Toast',
         price: 40,
         sold: 999,
-        image: require('../../../assets/images/shopDetail/p2.png'),
+        images: ['https://mcdonalds.vn/uploads/2018/food/burgers/xbigmac_bb.png.pagespeed.ic.t-4L-nzxfN.webp'],
         oldPrice: 50
     },
     {
@@ -310,19 +372,19 @@ var POPULARFOOD = [
         name: 'Berry Toast',
         price: 40,
         sold: 1040,
-        image: require('../../../assets/images/shopDetail/p2.png'),
+        images: ['https://mcdonalds.vn/uploads/2018/food/burgers/xbigmac_bb.png.pagespeed.ic.t-4L-nzxfN.webp'],
         oldPrice: 50
     },
-    
+
     {
         id: 3,
         name: 'Berry Toast',
         price: 40,
         sold: 1755,
-        image: require('../../../assets/images/shopDetail/p2.png'),
+        images: ['https://mcdonalds.vn/uploads/2018/food/burgers/xbigmac_bb.png.pagespeed.ic.t-4L-nzxfN.webp'],
         oldPrice: 50
     },
-    
+
 ]
 
 var CATEGORY = [

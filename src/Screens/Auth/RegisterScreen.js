@@ -19,10 +19,12 @@ const RegisterScreen = ({ navigation }) => {
     const [password, setPassword] = useState('')
     const [rePassword, setRePassword] = useState('')
     const [phone, setPhone] = useState('')
+    const [name, setName] = useState('')
     const [errorEmail, setErrorEmail] = useState(null)
     const [errorPass, setErrorPass] = useState(null)
     const [errorRePass, setErrorRePass] = useState(null)
     const [errorPhone, setErrorPhone] = useState(null)
+    const [errorName, setErrorName] = useState(null)
     const [isLoading, setIsLoading] = useState(false)
 
     const changeEmail = (data) => {
@@ -45,8 +47,13 @@ const RegisterScreen = ({ navigation }) => {
         setErrorRePass('')
     }
 
+    const changeName = (data) => {
+        setName(data)
+        setErrorName('')
+    }
+
     const handleRegister = async () => {
-        if (!email && !password && !name) {
+        if (!email && !password && !name && !phone) {
             setErrorEmail('Email không được để trống')
             setErrorPass('Password không được để trống')
             setErrorPhone('Số điện thoại không được để trống')
@@ -62,6 +69,10 @@ const RegisterScreen = ({ navigation }) => {
         }
         if (!phone) {
             setErrorPhone('Name không được để trống')
+            return
+        }
+        if (!name) {
+            setErrorName('Name không được để trống')
             return
         }
         if (!validateEmail(email)) {
@@ -106,6 +117,11 @@ const RegisterScreen = ({ navigation }) => {
             <SpaceComponent height={10} />
             <TextComponent text={'Vui lòng nhập thông tin của bạn'} fontFamily={fontFamilies.bold} color={appColor.subText} />
             <SpaceComponent height={30} />
+            <InputComponent label={'Họ và tên'} placeholder={'Nhập họ và tên'} value={name} onChangeText={text => changeName(text)} error={errorName} />
+            {
+                errorName && <View style={{ marginTop: 5 }}><TextComponent text={errorName} color={'red'} fontsize={11} /></View>
+            }
+            <SpaceComponent height={20} />
             <InputComponent label={'Email'} placeholder={'Nhập email'} value={email} onChangeText={text => changeEmail(text)} error={errorEmail} />
             {
                 errorEmail && <View style={{ marginTop: 5 }}><TextComponent text={errorEmail} color={'red'} fontsize={11} /></View>
@@ -129,27 +145,6 @@ const RegisterScreen = ({ navigation }) => {
             <ButtonComponent text={'Đăng ký'} color={appColor.white} onPress={handleRegister} />
             <SpaceComponent height={20} />
             <ButtonComponent text={'Đăng nhập'} color={appColor.primary} backgroundColor={appColor.white} onPress={() => navigation.navigate('Login')} />
-            <SpaceComponent height={30} />
-            <TextComponent text={'Hoặc đăng nhập bằng'} color={appColor.subText} textAlign='center' />
-            <SpaceComponent height={30} />
-            <RowComponent justifyContent='space-between'>
-                <ButtonComponent
-                    width={appInfor.sizes.width * 0.37}
-                    height={51}
-                    icon={<Image source={require('../../assets/images/auth/login-regis/gg.png')} />}
-                    text={'Google'}
-                    backgroundColor={appColor.white}
-                    borderColor={appColor.subText}
-                />
-                <ButtonComponent
-                    width={appInfor.sizes.width * 0.37}
-                    height={51}
-                    icon={<Image source={require('../../assets/images/auth/login-regis/fb.png')} />}
-                    text={'Facebook'}
-                    backgroundColor={appColor.white}
-                    borderColor={appColor.subText}
-                />
-            </RowComponent>
             <SpaceComponent height={50} />
             <LoadingModal visible={isLoading} />
         </ContainerComponent>

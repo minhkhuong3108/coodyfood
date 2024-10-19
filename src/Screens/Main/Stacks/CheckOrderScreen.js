@@ -15,6 +15,7 @@ import LineComponent from '../../../components/LineComponent'
 const CheckOrderScreen = () => {
     const [order, setOrder] = useState(ORDER)
     const [status, setStatus] = useState(true)
+    
     return (
         <ContainerComponent styles={globalStyle.container} isScroll>
             <HeaderComponent text={'Đơn hàng chi tiết'} isback />

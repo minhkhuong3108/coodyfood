@@ -1,15 +1,26 @@
-import {StyleSheet, Text, View} from 'react-native';
-import React, {useEffect, useState} from 'react';
-import {useSelector} from 'react-redux';
-import {NavigationContainer} from '@react-navigation/native';
+import { StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { NavigationContainer } from '@react-navigation/native';
 import SplashScreen from '../Screens/SplashScreen';
 import MainNavigation from './MainNavigation';
 import AuthNavigation from './AuthNavigation';
-import {ZegoCallInvitationDialog} from '@zegocloud/zego-uikit-prebuilt-call-rn';
+import { ZegoCallInvitationDialog } from '@zegocloud/zego-uikit-prebuilt-call-rn';
 
 const AppNavigation = () => {
-  const {user} = useSelector(state => state.login);
+  const { user } = useSelector(state => state.login);
   const [isShowSplash, setIsShowSplash] = useState(true);
+
+  const linking = {
+    prefixes: ['coodyfood://'],
+    config: {
+      screens: {
+        SuccessPayment: 'success-payment',
+        FailPayment: 'fail-payment',
+      },
+    },
+  }
+
 
   useEffect(() => {
     const timeOut = setTimeout(() => {
@@ -18,7 +29,7 @@ const AppNavigation = () => {
     return () => clearTimeout(timeOut);
   }, []);
   return (
-    <NavigationContainer>
+    <NavigationContainer linking={linking}>
       <ZegoCallInvitationDialog />
       {isShowSplash ? (
         <SplashScreen />
@@ -31,6 +42,6 @@ const AppNavigation = () => {
   );
 };
 
-export default AppNavigation;
+  export default AppNavigation;
 
-const styles = StyleSheet.create({});
+  const styles = StyleSheet.create({});
