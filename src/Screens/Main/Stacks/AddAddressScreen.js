@@ -15,6 +15,7 @@ import { validatePhone } from '../../../utils/Validators'
 import AlertChoiceModal from '../../../modal/AlertChoiceModal'
 import AxiosInstance from '../../../helpers/AxiosInstance'
 import MapAPI from '../../../core/apiMap/MapAPI'
+import LoadingModal from '../../../modal/LoadingModal'
 
 const AddAddressScreen = ({ navigation, route }) => {
     const { item } = route.params || {}
@@ -29,6 +30,7 @@ const AddAddressScreen = ({ navigation, route }) => {
     const [visible, setVisible] = useState(false)
     const [latitude, setLatitude] = useState()
     const [longitude, setLongitude] = useState()
+    const [isLoading, setIsLoading] = useState(false)
 
     const { user } = useSelector(state => state.login)
 
@@ -83,6 +85,7 @@ const AddAddressScreen = ({ navigation, route }) => {
         setVisible(true)
     }
     const handleAddAddress = async () => {
+        setIsLoading(true)
         const data = {
             userId: user._id,
             recipientName: name,
@@ -96,15 +99,15 @@ const AddAddressScreen = ({ navigation, route }) => {
             const response = await AxiosInstance().post('/userAddresses/add', data)
             console.log('response', response);
             if (response.status == true) {
+                setIsLoading(false)
                 setVisible(false)
                 ToastAndroid.show('Thêm địa chỉ thành công', ToastAndroid.SHORT)
                 navigation.goBack()
-                // navigation.navigate('Address')
-            }else{
-                ToastAndroid.show('Thêm địa chỉ thất bại', ToastAndroid.SHORT)
-                setVisible(false)
             }
         } catch (error) {
+            setIsLoading(false)
+            ToastAndroid.show('Thêm địa chỉ thất bại', ToastAndroid.SHORT)
+            setVisible(false)
             console.log('error', error);
         }
     }
@@ -152,6 +155,7 @@ const AddAddressScreen = ({ navigation, route }) => {
             </View>
             <AlertChoiceModal title={'Bạn có muốn thêm địa chỉ mới không?'}
                 visible={visible} onClose={() => setVisible(false)} onPress={handleAddAddress} />
+            <LoadingModal visible={isLoading} />
         </ContainerComponent>
     )
 }
