@@ -8,7 +8,7 @@ import ButtonComponent from './ButtonComponent'
 import { appColor } from '../constants/appColor'
 import { globalStyle } from '../styles/globalStyle'
 
-const AddressItem = ({ title, address, name, phone, save, onPressEdit }) => {
+const AddressItem = ({ title, address, name, phone, save, onPressEdit, onPress }) => {
     return (
         <View style={[styles.viewAddress, globalStyle.shawdow]}>
             <RowComponent justifyContent={'space-between'}>
@@ -23,7 +23,10 @@ const AddressItem = ({ title, address, name, phone, save, onPressEdit }) => {
             <RowComponent justifyContent={'space-between'}>
                 <TextComponent text={`${name} | ${phone}`} fontsize={14} />
                 {save &&
-                    <ButtonComponent text={'Chọn'} color={appColor.white} fontsize={12} width={74} height={25} borderRadius={6} />
+                    <ButtonComponent text={'Chọn'}
+                        color={appColor.white} fontsize={12}
+                        width={74} height={25} borderRadius={6}
+                        onPress={onPress} />
                 }
             </RowComponent>
         </View>
