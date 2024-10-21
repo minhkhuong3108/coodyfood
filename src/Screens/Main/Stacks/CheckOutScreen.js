@@ -1,5 +1,5 @@
 import { Alert, FlatList, Image, NativeModules, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import React, { useCallback, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import ContainerComponent from '../../../components/ContainerComponent'
 import HeaderComponent from '../../../components/HeaderComponent'
 import RowComponent from '../../../components/RowComponent'
@@ -21,6 +21,7 @@ import crypto from 'crypto-js'
 import LoadingModal from '../../../modal/LoadingModal'
 import BottomSheet, { BottomSheetBackdrop } from '@gorhom/bottom-sheet'
 import { appInfor } from '../../../constants/appInfor'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 const CheckOutScreen = ({ navigation }) => {
     const [order, setOrder] = useState(ORDER)
@@ -28,6 +29,7 @@ const CheckOutScreen = ({ navigation }) => {
     const [visible, setVisible] = useState(false)
     const [note, setNote] = useState('')
     const [isLoading, setIsLoading] = useState(false)
+    const [currentAddress, setCurrentAddress] = useState({})
     const snapPoint = ['50%']
     const bottomSheetRef = useRef(null)
     console.log('indexPay', indexPay);
@@ -180,8 +182,19 @@ const CheckOutScreen = ({ navigation }) => {
             console.log('error', error);
         }
     }
-    console.log('note', note);
-
+    const loadCurrentAddress = async () => {
+        try {
+            const jsonValue = await AsyncStorage.getItem('@current_address');
+            if (jsonValue != null) {
+                setCurrentAddress(JSON.parse(jsonValue));
+            }
+        } catch (error) {
+            console.log('Error loading current address:', error);
+        }
+    }
+    useEffect(() => {
+        loadCurrentAddress()
+    }, [])
     return (
         <ContainerComponent styles={{ flex: 1 }}>
             <ContainerComponent styles={globalStyle.container} isScroll={true}>
@@ -192,9 +205,9 @@ const CheckOutScreen = ({ navigation }) => {
                         <ButtonComponent type={'link'} text={'Sửa'} color={appColor.primary} fontsize={14} />
                     </RowComponent>
                     <SpaceComponent height={10} />
-                    <TextComponent text={`Olala | 0912345678`} fontsize={12} />
+                    <TextComponent text={`${currentAddress.name} | ${currentAddress.phone}`} fontsize={12} />
                     <SpaceComponent height={10} />
-                    <TextComponent text={`26, Duong So 2, Thao Dien Ward, An Phu, District 2, Ho Chi Minh city`} fontsize={12} width={280} />
+                    <TextComponent text={currentAddress.address} fontsize={12} width={280} />
                 </View>
                 <SpaceComponent height={15} />
                 <RowComponent justifyContent={'space-between'}>

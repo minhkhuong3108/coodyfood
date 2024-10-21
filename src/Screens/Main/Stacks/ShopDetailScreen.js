@@ -14,19 +14,42 @@ import BottomSheet, { BottomSheetBackdrop, BottomSheetFlatList, BottomSheetModal
 import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry'
 import AxiosInstance from '../../../helpers/AxiosInstance'
 import { formatRating } from '../../../components/format/FormatRate'
+import { formatSold } from '../../../components/format/FormatSold'
+import { useSelector } from 'react-redux'
+import LoadingModal from '../../../modal/LoadingModal'
 
 const ShopDetailScreen = ({ navigation, route }) => {
     const { id } = route.params
+    const { user } = useSelector(state => state.login)
     const [popularFood, setPopularFood] = useState(POPULARFOOD)
     const [products, setProducts] = useState([])
     const [category, setCategory] = useState([])
     const [selectedCategory, setSelectedCategory] = useState(null)
-    const [cart, setCart] = useState([])
-    console.log('selectedCategory', selectedCategory);
+    const [data, setData] = useState()
+    const [cart, setCart] = useState()
+    const [isLoading, setIsLoading] = useState(false)
+
+    console.log('cart', cart);
+
+
+    // console.log('selectedCategory', selectedCategory);
+
+    const snapPoint = ['80%']
+    const bottomSheetRef = useRef(null)
+    const handleOpenBottomSheet = () => {
+        bottomSheetRef.current?.expand()
+    }
+    const handleCloseBottomSheet = () => {
+        bottomSheetRef.current?.close()
+    }
+
+    const renderBackdrop = useCallback(
+        (props) => (
+            <BottomSheetBackdrop appearsOnIndex={0} disappearsOnIndex={-1} {...props} />
+        )
+    )
 
     const [shopDetail, setShopDetail] = useState({})
-    console.log('category', category);
-
 
     const getShopDetail = async () => {
         try {
@@ -45,6 +68,43 @@ const ShopDetailScreen = ({ navigation, route }) => {
             console.log('error', error);
         }
     }
+    const getCart = async () => {
+        setIsLoading(true);
+        try {
+            const response = await AxiosInstance().get(`/carts/${user._id}/${id}`)
+            console.log('getcart', response);
+            // console.log('response.data == null', response.data == null);
+            if (response.status == true && response.data != null) {
+                const product = response.data.products
+                setCart(product)
+            }
+            if (response.status == true && response.data == null) {
+                setCart(null)
+            }
+
+        } catch (error) {
+            console.log('error', error);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    const handleAddToCart = async (item) => {
+        const data = {
+            user: user._id,
+            shopOwner: id,
+            products: item._id,
+        }
+        try {
+            const response = await AxiosInstance().post('/carts/add', data)
+            console.log('response', response);
+            if (response.status == true) {
+                getCart()
+            }
+        } catch (error) {
+            console.log('error', error);
+        }
+    }
     const getProducts = async () => {
         try {
             const response = await AxiosInstance().get(`/products/category/${selectedCategory}`)
@@ -54,9 +114,55 @@ const ShopDetailScreen = ({ navigation, route }) => {
         }
     }
 
+    const handleIncreaseProduct = async (item) => {
+        const cartItem = cart && cart.find(cartItem => cartItem._id === item._id);
+        const quantity = cartItem && cartItem.quantity;
+        const data = {
+            user: user._id,
+            shopOwner: id,
+            product: item._id,
+            quantity: quantity + 1
+        }
+        setIsLoading(true);
+        try {
+            const response = await AxiosInstance().put('/carts/update', data)
+            console.log('response', response);
+            if (response.status == true) {
+                getCart()
+            }
+        } catch (error) {
+            console.log('error', error);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    const handleReduceProduct = async (item) => {
+        const cartItem = cart && cart.find(cartItem => cartItem._id === item._id);
+        const quantity = cartItem && cartItem.quantity;
+        const data = {
+            user: user._id,
+            shopOwner: id,
+            product: item._id,
+            // quantity: quantity - 1
+        }
+        setIsLoading(true);
+        try {
+            const response = await AxiosInstance().put('/carts/delete', data)
+            console.log('response', response);
+            if (response.status == true) {
+                getCart()
+            }
+        } catch (error) {
+            console.log('error', error);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
     useEffect(() => {
         getShopDetail()
-        // getCart()
+        getCart()
     }, [])
 
     useEffect(() => {
@@ -74,26 +180,22 @@ const ShopDetailScreen = ({ navigation, route }) => {
 
     const { name, images, rating, distance, time, sold, price, oldPrice } = shopDetail
 
-    const snapPoint = ['80%']
-    const bottomSheetRef = useRef(null)
-    const handleOpenBottomSheet = () => {
-        bottomSheetRef.current?.expand()
-    }
-    const handleCloseBottomSheet = () => {
-        bottomSheetRef.current?.close()
-    }
-
-    const renderBackdrop = useCallback(
-        (props) => (
-            <BottomSheetBackdrop appearsOnIndex={0} disappearsOnIndex={-1} {...props} />
-        )
-    )
-
-    const formatSold = (sold) => {
-        if (sold < 1000) return sold.toString();
-        if (sold < 1000000) return (sold / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
-        return (sold / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+    const isProductInCart = (productId) => {
+        return cart && cart.some(item => item._id === productId);
     };
+
+    const renderItem = ({ item }) => {
+        const inCart = isProductInCart(item._id);
+        const cartItem = cart && cart.find(cartItem => cartItem._id == item._id)
+        const quantity = cartItem && cartItem.quantity
+        return (
+            <ShopAndProductComponent item={item}
+                onPressAdd={() => handleAddToCart(item)} inCart={inCart}
+                onPressReduce={() => handleReduceProduct(item)}
+                onPressIncrease={() => handleIncreaseProduct(item)}
+                quantity={quantity} />
+        )
+    }
 
     const renderPopularFood = ({ item }) => {
         const { name, price, sold, images } = item
@@ -126,9 +228,15 @@ const ShopDetailScreen = ({ navigation, route }) => {
             </TouchableOpacity >
         )
     }
-    console.log('cart', cart.length);
 
-    
+    useEffect(() => {
+        const fetchData = async () => {
+            setIsLoading(true);
+            await Promise.all([getShopDetail(), getCart(), getCategoriesProduct(), getProducts()]);
+            setIsLoading(false);
+        };
+        fetchData();
+    }, []);
 
     return (
         <ContainerComponent styles={{ flex: 1, backgroundColor: appColor.white }}>
@@ -209,14 +317,14 @@ const ShopDetailScreen = ({ navigation, route }) => {
                     <FlatList
                         showsVerticalScrollIndicator={false}
                         data={products}
-                        renderItem={({ item }) => <ShopAndProductComponent item={item} />}
+                        renderItem={renderItem}
                         keyExtractor={item => item._id}
                         scrollEnabled={false}
                     />
                     <SpaceComponent height={60} />
                 </ContainerComponent>
             </ContainerComponent>
-            {cart.length == 0 && <RowComponent onPress={handleOpenBottomSheet} activeOpacity={1} button justifyContent={'space-between'} styles={styles.containerCart}>
+            {cart && <RowComponent onPress={handleOpenBottomSheet} activeOpacity={1} button justifyContent={'space-between'} styles={styles.containerCart}>
                 <View style={styles.viewCart}>
                     <View style={styles.viewQuantity}>
                         <TextComponent text={'1'} color={appColor.white} fontsize={10} />
@@ -246,12 +354,13 @@ const ShopDetailScreen = ({ navigation, route }) => {
                 <SpaceComponent height={20} />
                 <BottomSheetFlatList
                     showsVerticalScrollIndicator={false}
-                    data={popularFood}
-                    renderItem={({ item }) => <ShopAndProductComponent item={item} quantity />}
-                    keyExtractor={item => item.id}
+                    data={cart}
+                    renderItem={({ item }) => <ShopAndProductComponent item={item} quantity={item.quantity} inCart />}
+                    keyExtractor={item => item._id}
                     contentContainerStyle={{ paddingHorizontal: 16 }}
                 />
             </BottomSheet>
+            <LoadingModal visible={isLoading} />
         </ContainerComponent>
     )
 }
@@ -383,26 +492,6 @@ var POPULARFOOD = [
         sold: 1755,
         images: ['https://mcdonalds.vn/uploads/2018/food/burgers/xbigmac_bb.png.pagespeed.ic.t-4L-nzxfN.webp'],
         oldPrice: 50
-    },
-
-]
-
-var CATEGORY = [
-    {
-        _id: 1,
-        name: 'Tất cả',
-    },
-    {
-        _id: 2,
-        name: 'Món chính',
-    },
-    {
-        _id: 3,
-        name: 'Món phụ',
-    },
-    {
-        _id: 4,
-        name: 'Đồ uống',
     },
 
 ]

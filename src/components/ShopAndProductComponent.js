@@ -12,8 +12,8 @@ import { formatDistance } from './format/FormatDistance'
 import formatTime from './format/FormatTime'
 import { formatRating } from './format/FormatRate'
 
-const ShopAndProductComponent = ({ item, onPress, type, favorite, quantity }) => {
-    const { _id, name, images, discount, rating, distance, time, sold, price, oldPrice, location } = item
+const ShopAndProductComponent = ({ item, onPress, type, favorite, inCart, order, onPressAdd, onPressReduce, onPressIncrease,quantity }) => {
+    const { _id, name, images, discount, rating, distance, time, sold, price, oldPrice, location, address } = item
     // console.log('item', item);
 
     return (
@@ -25,15 +25,27 @@ const ShopAndProductComponent = ({ item, onPress, type, favorite, quantity }) =>
                         <TextComponent text={name} fontsize={16} styles={{ flex: 1 }} ellipsizeMode={'tail'} numberOfLines={1} />
                         {favorite && <ButtonComponent type={'link'} image={require('../assets/images/favoriteProduct/heart.png')} />}
                     </RowComponent>
-                    <RowComponent styles={{ marginTop: 8, marginBottom: 8 }}>
-                        <Image source={require('../assets/images/home/star.png')} style={{ marginRight: 5 }} />
-                        <TextComponent
-                            text={`${rating && formatRating(rating)} | ${distance && formatDistance(distance)} | ${time && formatTime(time)}`}
-                            fontsize={12} color={appColor.subText} />
-                    </RowComponent>
-                    <View style={styles.viewDiscount}>
-                        <TextComponent text={`Mã giảm: ${20}%`} fontsize={12} fontFamily={fontFamilies.regular} color={appColor.primary} />
-                    </View>
+                    {
+                        order || favorite ? <TextComponent text={address} fontsize={12} color={appColor.subText}
+                            styles={{ marginVertical: 6 }} /> :
+                            <RowComponent styles={{ marginVertical: 8 }}>
+                                <Image source={require('../assets/images/home/star.png')} style={{ marginRight: 5 }} />
+                                <TextComponent
+                                    text={`${rating && formatRating(rating)} | ${distance && formatDistance(distance)} | ${time && formatTime(time)}`}
+                                    fontsize={12} color={appColor.subText} />
+                            </RowComponent>
+                    }
+                    {
+                        order || favorite ?
+                            <RowComponent>
+                                <TextComponent text={`Đánh giá: ${formatRating(rating)}`} fontsize={12} />
+                                <SpaceComponent width={4} />
+                                <Image source={require('../assets/images/shopDetail/star.png')} />
+                            </RowComponent> :
+                            <View style={styles.viewDiscount}>
+                                <TextComponent text={`Mã giảm: ${20}%`} fontsize={12} fontFamily={fontFamilies.regular} color={appColor.primary} />
+                            </View>
+                    }
                 </View>
             </TouchableOpacity> :
             <TouchableOpacity style={[styles.container, globalStyle.shawdow]} onPress={onPress}>
@@ -45,28 +57,31 @@ const ShopAndProductComponent = ({ item, onPress, type, favorite, quantity }) =>
                         <RowComponent>
                             {oldPrice &&
                                 <RowComponent>
-                                    <TextComponent text={`${oldPrice}.000đ`} fontsize={14} color={appColor.subText} styles={styles.txtOldPrice} />
+                                    <TextComponent text={`${oldPrice}đ`} fontsize={14} color={appColor.subText} styles={styles.txtOldPrice} />
                                     <SpaceComponent width={5} />
                                 </RowComponent>
                             }
-                            <TextComponent text={`${price}.000đ`} fontsize={14} color={appColor.primary} />
+                            <TextComponent text={`${price}đ`} fontsize={14} color={appColor.primary} />
                         </RowComponent>
 
                         {/* Test */}
                         <RowComponent>
-                            {quantity &&
+                            {inCart ?
                                 <RowComponent>
-                                    <TouchableOpacity>
+                                    <TouchableOpacity onPress={onPressReduce}>
                                         <Image source={require('../assets/images/home/reduce.png')} />
                                     </TouchableOpacity>
                                     <SpaceComponent width={5} />
-                                    <TextComponent text={'1'} fontsize={14} styles={{ marginHorizontal: 10 }} />
+                                    <TextComponent text={quantity} fontsize={14} styles={{ marginHorizontal: 10 }} />
                                     <SpaceComponent width={5} />
-                                </RowComponent>
+                                    <TouchableOpacity onPress={onPressIncrease}>
+                                        <Image source={require('../assets/images/home/add.png')} />
+                                    </TouchableOpacity>
+                                </RowComponent> :
+                                <TouchableOpacity onPress={onPressAdd}>
+                                    <Image source={require('../assets/images/home/add.png')} />
+                                </TouchableOpacity>
                             }
-                            <TouchableOpacity >
-                                <Image source={require('../assets/images/home/add.png')} />
-                            </TouchableOpacity>
                         </RowComponent>
                     </RowComponent>
                 </View>
