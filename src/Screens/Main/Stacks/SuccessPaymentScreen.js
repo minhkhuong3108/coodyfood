@@ -13,7 +13,11 @@ const SuccessPaymentScreen = ({ navigation }) => {
             <Image source={require('../../../assets/images/payment/success.png')} />
             <SpaceComponent height={30} />
             <TextComponent text={'Thanh toán thành công'} fontsize={25} />
-            <SpaceComponent height={30} />
+            <SpaceComponent height={10} />
+            <TextComponent
+                text={'Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi. \n Chúc bạn 1 ngày tốt lành!'} textAlign={'center'}
+                fontsize={16} color={appColor.subText} />
+            <SpaceComponent height={40} />
             <ButtonComponent text={'Quay lại trang chủ'} onPress={() => navigation.navigate('Home')} color={appColor.white} />
         </ContainerComponent>
     )

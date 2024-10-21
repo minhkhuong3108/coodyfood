@@ -63,7 +63,8 @@ const HomeScreen = ({ navigation }) => {
   const renderCate = ({ item }) => {
     const { _id, name, image } = item
     return (
-      <TouchableOpacity key={_id} style={styles.btnCate} onPress={() => navigation.navigate('CheckOut')}>
+      <TouchableOpacity key={_id} style={styles.btnCate}
+        onPress={() => navigation.navigate('ShopByCategory', { item })}>
         <View style={styles.viewImgCate}>
           {image && <Image source={{ uri: image }} style={{ width: 50, height: 50 }} />}
         </View>

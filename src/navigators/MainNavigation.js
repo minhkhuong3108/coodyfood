@@ -1,75 +1,78 @@
 
-import {Image, StyleSheet, Text, View} from 'react-native';
-      import React from 'react';
-      import {createStackNavigator} from '@react-navigation/stack';
-      import HomeScreen from '../Screens/Main/Tabs/HomeScreen';
-      import SearchScreen from '../Screens/Main/Stacks/SearchScreen';
-      import ShopDetailScreen from '../Screens/Main/Stacks/ShopDetailScreen';
-      import ProductDetail from '../Screens/Main/Stacks/ProductDetail';
-      import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-      import TextComponent from '../components/TextComponent';
-      import {appColor} from '../constants/appColor';
-      import EditProfile from '../Screens/Profile/EditProfile';
-      import ReviewShopScreen from '../Screens/Main/Stacks/ReviewShopScreen';
-      import TicketSaleScreen from '../Screens/Main/Stacks/TicketSaleScreen';
-      import ProductFavoriteScreen from '../Screens/Main/Stacks/ProductFavoriteScreen';
-      import ProfileScreen from '../Screens/Main/Stacks/ProfileScreen';
-      import CheckOutScreen from '../Screens/Main/Stacks/CheckOutScreen';
-      import CheckOrderScreen from '../Screens/Main/Stacks/CheckOrderScreen';
-      import AddressScreen from '../Screens/Main/Stacks/AddressScreen';
-      import EditAddressScreen from '../Screens/Main/Stacks/EditAddressScreen';
-      import AddAddressScreen from '../Screens/Main/Stacks/AddAddressScreen';
-      import MyOrderScreen from '../Screens/MyOrder/MyOrderScreen';
-      import DetailOrderScreen from '../Screens/MyOrder/DetailOrderScreen';
-      import SearchAddressScreen from '../Screens/Main/Stacks/SearchAddressScreen';
-      import TestScreen from '../Screens/Main/Stacks/TestScreen'
-      import PayOSPaymentScreen from '../Screens/Main/Stacks/PayOSPaymentScreen'
-      import SuccessPaymentScreen from '../Screens/Main/Stacks/SuccessPaymentScreen'
-      import FailedPaymentScreen from '../Screens/Main/Stacks/FailedPaymentScreen'
-      import {
-        ZegoUIKitPrebuiltCallWaitingScreen,
-        ZegoUIKitPrebuiltCallInCallScreen,
+import { Image, StyleSheet, Text, View } from 'react-native';
+import React from 'react';
+import { createStackNavigator } from '@react-navigation/stack';
+import HomeScreen from '../Screens/Main/Tabs/HomeScreen';
+import SearchScreen from '../Screens/Main/Stacks/SearchScreen';
+import ShopDetailScreen from '../Screens/Main/Stacks/ShopDetailScreen';
+import ProductDetail from '../Screens/Main/Stacks/ProductDetail';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import TextComponent from '../components/TextComponent';
+import { appColor } from '../constants/appColor';
+import EditProfile from '../Screens/Profile/EditProfile';
+import ReviewShopScreen from '../Screens/Main/Stacks/ReviewShopScreen';
+import TicketSaleScreen from '../Screens/Main/Stacks/TicketSaleScreen';
+import ProductFavoriteScreen from '../Screens/Main/Stacks/ProductFavoriteScreen';
+import ProfileScreen from '../Screens/Main/Stacks/ProfileScreen';
+import CheckOutScreen from '../Screens/Main/Stacks/CheckOutScreen';
+import CheckOrderScreen from '../Screens/Main/Stacks/CheckOrderScreen';
+import AddressScreen from '../Screens/Main/Stacks/AddressScreen';
+import EditAddressScreen from '../Screens/Main/Stacks/EditAddressScreen';
+import AddAddressScreen from '../Screens/Main/Stacks/AddAddressScreen';
+import MyOrderScreen from '../Screens/Main/Stacks/MyOrderScreen';
+import DetailOrderScreen from '../Screens/Main/Stacks/DetailOrderScreen';
+import SearchAddressScreen from '../Screens/Main/Stacks/SearchAddressScreen';
+import TestScreen from '../Screens/Main/Stacks/TestScreen'
+import PayOSPaymentScreen from '../Screens/Main/Stacks/PayOSPaymentScreen'
+import SuccessPaymentScreen from '../Screens/Main/Stacks/SuccessPaymentScreen'
+import FailedPaymentScreen from '../Screens/Main/Stacks/FailedPaymentScreen'
+import {
+  ZegoUIKitPrebuiltCallWaitingScreen,
+  ZegoUIKitPrebuiltCallInCallScreen,
 } from '@zegocloud/zego-uikit-prebuilt-call-rn';
-      const Stack = createStackNavigator();
-      const Tab = createBottomTabNavigator();
+import RatingScreen from '../Screens/Main/Stacks/RatingScreen';
+import ShopByCategoryScreen from '../Screens/Main/Stacks/ShopByCategoryScreen';
+const Stack = createStackNavigator();
+const Tab = createBottomTabNavigator();
 
 const MainNavigation = () => {
   return (
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Tab" component={TabNavigation} />
-        <Stack.Screen name="Product" component={ProductDetail} />
-        <Stack.Screen name="Shop" component={ShopDetailScreen} />
-        <Stack.Screen name="Search" component={SearchScreen} />
-        <Stack.Screen name="EditProfile" component={EditProfile} />
-        <Stack.Screen name="Myorder" component={MyOrderScreen} />
-        <Stack.Screen name="DetailOrder" component={DetailOrderScreen} />
-        <Stack.Screen name="ReviewShop" component={ReviewShopScreen} />
-        <Stack.Screen name="TicketSale" component={TicketSaleScreen} />
-        <Stack.Screen name="ProductFavorite" component={ProductFavoriteScreen} />
-        <Stack.Screen name="Profile" component={ProfileScreen} />
-        <Stack.Screen name="CheckOut" component={CheckOutScreen} />
-        <Stack.Screen name="CheckOrder" component={CheckOrderScreen} />
-        <Stack.Screen name="Address" component={AddressScreen} />
-        <Stack.Screen name="EditAddress" component={EditAddressScreen} />
-        <Stack.Screen name="AddAddress" component={AddAddressScreen} />
-        <Stack.Screen name="SearchAddress" component={SearchAddressScreen} />
-        <Stack.Screen name="PayOS" component={PayOSPaymentScreen} />
-        <Stack.Screen name="SuccessPayment" component={SuccessPaymentScreen} />
-        <Stack.Screen name="FailPayment" component={FailedPaymentScreen} />
-    <Stack.Screen
-      options={{ headerShown: false }}
-      // DO NOT change the name
-      name="ZegoUIKitPrebuiltCallWaitingScreen"
-      component={ZegoUIKitPrebuiltCallWaitingScreen}
-    />
-    <Stack.Screen
-      options={{ headerShown: false }}
-      // DO NOT change the name
-      name="ZegoUIKitPrebuiltCallInCallScreen"
-      component={ZegoUIKitPrebuiltCallInCallScreen}
-    />
-      </Stack.Navigator >
-      );
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Tab" component={TabNavigation} />
+      <Stack.Screen name="Product" component={ProductDetail} />
+      <Stack.Screen name="Shop" component={ShopDetailScreen} />
+      <Stack.Screen name="Search" component={SearchScreen} />
+      <Stack.Screen name="EditProfile" component={EditProfile} />
+      <Stack.Screen name="Myorder" component={MyOrderScreen} />
+      <Stack.Screen name="DetailOrder" component={DetailOrderScreen} />
+      <Stack.Screen name="ReviewShop" component={ReviewShopScreen} />
+      <Stack.Screen name="TicketSale" component={TicketSaleScreen} />
+      <Stack.Screen name="ProductFavorite" component={ProductFavoriteScreen} />
+      <Stack.Screen name="Profile" component={ProfileScreen} />
+      <Stack.Screen name="CheckOut" component={CheckOutScreen} />
+      <Stack.Screen name="CheckOrder" component={CheckOrderScreen} />
+      <Stack.Screen name="Address" component={AddressScreen} />
+      <Stack.Screen name="EditAddress" component={EditAddressScreen} />
+      <Stack.Screen name="AddAddress" component={AddAddressScreen} />
+      <Stack.Screen name="SearchAddress" component={SearchAddressScreen} />
+      <Stack.Screen name="PayOS" component={PayOSPaymentScreen} />
+      <Stack.Screen name="SuccessPayment" component={SuccessPaymentScreen} />
+      <Stack.Screen name="FailPayment" component={FailedPaymentScreen} />
+      <Stack.Screen name="ShopByCategory" component={ShopByCategoryScreen} />
+      <Stack.Screen
+        options={{ headerShown: false }}
+        // DO NOT change the name
+        name="ZegoUIKitPrebuiltCallWaitingScreen"
+        component={ZegoUIKitPrebuiltCallWaitingScreen}
+      />
+      <Stack.Screen
+        options={{ headerShown: false }}
+        // DO NOT change the name
+        name="ZegoUIKitPrebuiltCallInCallScreen"
+        component={ZegoUIKitPrebuiltCallInCallScreen}
+      />
+    </Stack.Navigator >
+  );
 };
 
 const TabNavigation = () => {
@@ -135,7 +138,7 @@ const TabNavigation = () => {
                     )
                 }}
             /> */}
-      <Tab.Screen name='Favorite' component={AddressScreen}
+      <Tab.Screen name='Favorite' component={RatingScreen}
         options={{
           tabBarIcon: ({ focused }) => (
             <View style={styles.viewTabItem}>

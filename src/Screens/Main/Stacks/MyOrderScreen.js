@@ -8,23 +8,23 @@ import {
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 
-import TextComponent from '../../components/TextComponent';
-import Header from '../../components/HeaderComponent';
-import ContainerComponent from '../../components/ContainerComponent';
-import { appColor } from '../../constants/appColor';
-import { appInfor } from '../../constants/appInfor';
-import { fontFamilies } from '../../constants/fontFamilies';
-import ButtonComponent from '../../components/ButtonComponent';
-import OrderComponent from '../../components/MyOrder/OrderComponent';
+import TextComponent from '../../../components/TextComponent';
+import Header from '../../../components/HeaderComponent';
+import ContainerComponent from '../../../components/ContainerComponent';
+import { appColor } from '../../../constants/appColor';
+import { appInfor } from '../../../constants/appInfor';
+import { fontFamilies } from '../../../constants/fontFamilies';
+import ButtonComponent from '../../../components/ButtonComponent';
+import OrderComponent from '../../../components/MyOrder/OrderComponent';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import HeaderComponent from '../../components/HeaderComponent';
-import { globalStyle } from '../../styles/globalStyle';
-import RowComponent from '../../components/RowComponent';
-import SpaceComponent from '../../components/SpaceComponent';
+import HeaderComponent from '../../../components/HeaderComponent';
+import { globalStyle } from '../../../styles/globalStyle';
+import RowComponent from '../../../components/RowComponent';
+import SpaceComponent from '../../../components/SpaceComponent';
 
 const MyOrderScreen = ({ navigation }) => {
   const [Data, setData] = useState(data);
@@ -90,12 +90,12 @@ const MyOrderScreen = ({ navigation }) => {
             <RowComponent justifyContent={'space-between'} noAlign>
               <TextComponent numberOfLines={2} ellipsizeMode={'tail'} text={name} fontFamilies={fontFamilies.bold} width={appInfor.sizes.width * 0.45} />
               {payment ? <TextComponent text={price} fontsize={14} color={appColor.primary} fontFamily={fontFamilies.bold} /> :
-                <ButtonComponent type={'link'} image={require('../../assets/images/myorder/close.png')} />
+                <ButtonComponent type={'link'} image={require('../../../assets/images/myorder/close.png')} />
               }
             </RowComponent>
             {time && (
               <RowComponent>
-                <Image source={require('../../assets/images/myorder/clock.png')}
+                <Image source={require('../../../assets/images/myorder/clock.png')}
                   style={{ width: 20, height: 20, marginVertical: 5 }} />
                 <SpaceComponent width={5} />
                 <TextComponent text={time + ' phút'} fontsize={14} color={appColor.subText} />
