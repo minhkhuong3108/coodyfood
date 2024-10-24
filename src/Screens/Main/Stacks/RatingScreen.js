@@ -10,7 +10,10 @@ import RowComponent from '../../../components/RowComponent'
 import { Rating } from 'react-native-ratings'
 import ButtonComponent from '../../../components/ButtonComponent'
 
-const RatingScreen = () => {
+const RatingScreen = ({ navigation,route }) => {
+    const { shop } = route.params
+    console.log('shop', shop);
+    
     const [ratingShipper, setRatingShipper] = useState(0)
     const [ratingShop, setRatingShop] = useState(0)
     const [commentShipper, setCommentShipper] = useState('')

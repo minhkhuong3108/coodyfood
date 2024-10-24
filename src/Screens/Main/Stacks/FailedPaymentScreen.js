@@ -7,7 +7,7 @@ import TextComponent from '../../../components/TextComponent'
 import ButtonComponent from '../../../components/ButtonComponent'
 import { appColor } from '../../../constants/appColor'
 
-const FailedPaymentScreen = ({navigation}) => {
+const FailedPaymentScreen = ({navigation,route}) => { 
   return (
     <ContainerComponent styles={[globalStyle.container, styles.container]} >
       <Image source={require('../../../assets/images/payment/failed.png')} />

@@ -9,13 +9,13 @@ import { globalStyle } from '../styles/globalStyle'
 import NoteModel from '../modal/NoteModel'
 
 const OrderItem = ({ item, onpress, noTouch }) => {
-    const { _id, name, price, quantity, image, note } = item
+    const { _id, name, price, quantity, images, note } = item
     const [visible, setVisible] = useState(false)
 
     // const [noteItem, setNoteItem] = useState(note)
     return (
         <RowComponent styles={[styles.containerProduct, globalStyle.shawdow]}>
-            <Image source={image} style={styles.imgProduct} />
+            <Image source={{ uri: images[0] }} style={styles.imgProduct} />
             <SpaceComponent width={20} />
             <View style={{ flex: 1 }}>
                 <RowComponent justifyContent={'space-between'}>

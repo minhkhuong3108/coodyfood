@@ -29,9 +29,6 @@ const ShopDetailScreen = ({ navigation, route }) => {
     const [cart, setCart] = useState()
     const [isLoading, setIsLoading] = useState(false)
 
-    console.log('cart', cart);
-
-
     // console.log('selectedCategory', selectedCategory);
 
     const snapPoint = ['80%']
@@ -75,10 +72,12 @@ const ShopDetailScreen = ({ navigation, route }) => {
             console.log('getcart', response);
             // console.log('response.data == null', response.data == null);
             if (response.status == true && response.data != null) {
+                setData(response.data)
                 const product = response.data.products
                 setCart(product)
             }
             if (response.status == true && response.data == null) {
+                setData(null)
                 setCart(null)
             }
 
@@ -126,7 +125,6 @@ const ShopDetailScreen = ({ navigation, route }) => {
         setIsLoading(true);
         try {
             const response = await AxiosInstance().put('/carts/update', data)
-            console.log('response', response);
             if (response.status == true) {
                 getCart()
             }
@@ -149,7 +147,6 @@ const ShopDetailScreen = ({ navigation, route }) => {
         setIsLoading(true);
         try {
             const response = await AxiosInstance().put('/carts/delete', data)
-            console.log('response', response);
             if (response.status == true) {
                 getCart()
             }
@@ -189,8 +186,12 @@ const ShopDetailScreen = ({ navigation, route }) => {
         const cartItem = cart && cart.find(cartItem => cartItem._id == item._id)
         const quantity = cartItem && cartItem.quantity
         return (
-            <ShopAndProductComponent item={item}
-                onPressAdd={() => handleAddToCart(item)} inCart={inCart}
+            <ShopAndProductComponent
+                onPress={() => navigation.navigate('Product',
+                    { id: item._id, inCart, shopOwnerId: id })}
+                item={item}
+                onPressAdd={() => handleAddToCart(item)}
+                inCart={inCart}
                 onPressReduce={() => handleReduceProduct(item)}
                 onPressIncrease={() => handleIncreaseProduct(item)}
                 quantity={quantity} />
@@ -324,18 +325,19 @@ const ShopDetailScreen = ({ navigation, route }) => {
                     <SpaceComponent height={60} />
                 </ContainerComponent>
             </ContainerComponent>
-            {cart && <RowComponent onPress={handleOpenBottomSheet} activeOpacity={1} button justifyContent={'space-between'} styles={styles.containerCart}>
+            {cart && <RowComponent onPress={handleOpenBottomSheet}
+                activeOpacity={1} button justifyContent={'space-between'} styles={styles.containerCart}>
                 <View style={styles.viewCart}>
                     <View style={styles.viewQuantity}>
-                        <TextComponent text={'1'} color={appColor.white} fontsize={10} />
+                        <TextComponent text={data.totalItem} color={appColor.white} fontsize={10} />
                     </View>
                     <Image source={require('../../../assets/images/cart/cart.png')} />
                 </View>
                 <RowComponent>
-                    <TextComponent text={'100.000đ'} />
+                    <TextComponent text={data.totalPrice} />
                     <SpaceComponent width={10} />
                     <ButtonComponent text={'Giao hàng'} color={appColor.white} height={70} width={150} borderRadius={0}
-                        onPress={() => navigation.navigate('CheckOut')} />
+                        onPress={() => navigation.navigate('CheckOut', { data })} />
                 </RowComponent>
             </RowComponent>}
             <BottomSheet
@@ -355,7 +357,10 @@ const ShopDetailScreen = ({ navigation, route }) => {
                 <BottomSheetFlatList
                     showsVerticalScrollIndicator={false}
                     data={cart}
-                    renderItem={({ item }) => <ShopAndProductComponent item={item} quantity={item.quantity} inCart />}
+                    renderItem={({ item }) =>
+                        <ShopAndProductComponent item={item} quantity={item.quantity} inCart
+                            onPressIncrease={() => handleIncreaseProduct(item)}
+                            onPressReduce={() => handleReduceProduct(item)} />}
                     keyExtractor={item => item._id}
                     contentContainerStyle={{ paddingHorizontal: 16 }}
                 />

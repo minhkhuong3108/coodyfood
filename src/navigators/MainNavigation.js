@@ -59,6 +59,7 @@ const MainNavigation = () => {
       <Stack.Screen name="SuccessPayment" component={SuccessPaymentScreen} />
       <Stack.Screen name="FailPayment" component={FailedPaymentScreen} />
       <Stack.Screen name="ShopByCategory" component={ShopByCategoryScreen} />
+      <Stack.Screen name="Rating" component={RatingScreen} />
       <Stack.Screen
         options={{ headerShown: false }}
         // DO NOT change the name
@@ -138,7 +139,7 @@ const TabNavigation = () => {
                     )
                 }}
             /> */}
-      <Tab.Screen name='Favorite' component={RatingScreen}
+      <Tab.Screen name='Favorite' component={TicketSaleScreen}
         options={{
           tabBarIcon: ({ focused }) => (
             <View style={styles.viewTabItem}>

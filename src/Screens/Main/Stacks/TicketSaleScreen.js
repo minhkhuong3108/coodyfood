@@ -1,5 +1,5 @@
 import { FlatList, Image, StyleSheet, Text, View } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import ContainerComponent from '../../../components/ContainerComponent'
 import HeaderComponent from '../../../components/HeaderComponent'
 import RowComponent from '../../../components/RowComponent'
@@ -10,18 +10,32 @@ import SpaceComponent from '../../../components/SpaceComponent'
 import LineComponent from '../../../components/LineComponent'
 import ButtonComponent from '../../../components/ButtonComponent'
 import { globalStyle } from '../../../styles/globalStyle'
+import AxiosInstance from '../../../helpers/AxiosInstance'
+import { formatVoucherPrice } from '../../../components/format/FormatVoucherPrice'
+import { formatDate } from '../../../components/format/FormatDate'
 
-const TicketSaleScreen = () => {
-    const [sale, setSale] = useState(SALE)
+const TicketSaleScreen = ({ navigation, route }) => {
+    const { data } = route.params
+    const { totalPrice } = route.params
+    const [voucher, setVoucher] = useState([])
+
+    const getVoucher = async () => {
+        const response = await AxiosInstance().get(`/voucher/available/${totalPrice}`)
+        console.log('response', response.data);
+        setVoucher(response.data)
+    }
+    useEffect(() => {
+        getVoucher()
+    }, [])
     const renderItem = ({ item }) => {
-        const { text, time } = item
+        const { expirationDate, discountAmount, minimumOrderAmount } = item
         return (
             <View style={styles.containerItem}>
                 <RowComponent justifyContent={'space-between'}>
                     <TextComponent text={'Mã giảm giá'} fontsize={18} color={appColor.primary} fontFamily={fontFamilies.bold} />
                     <RowComponent>
                         <TextComponent text={'HSD: '} fontsize={12} />
-                        <TextComponent text={time} fontsize={12} />
+                        <TextComponent text={formatDate(expirationDate)} fontsize={12} />
                     </RowComponent>
                 </RowComponent>
                 <SpaceComponent height={7} />
@@ -31,10 +45,17 @@ const TicketSaleScreen = () => {
                     <RowComponent>
                         <Image source={require('../../../assets/images/ticketSale/logo.png')} />
                         <SpaceComponent width={20} />
-                        <TextComponent text={text} fontsize={13} fontFamily={fontFamilies.bold} />
+                        <TextComponent
+                            text={`Giảm ${formatVoucherPrice(discountAmount)} tổng tiền món ăn. 
+                            \n Đơn hàng tối thiểu ${formatVoucherPrice(minimumOrderAmount)}.`}
+                            fontsize={13} fontFamily={fontFamilies.bold} />
                     </RowComponent>
-                    <View style={{ position:'absolute',right:0,bottom:0 }}>
-                        <ButtonComponent text={'Sử dụng'} width={60} height={25} color={appColor.white} fontsize={10} borderRadius={5} />
+                    <View style={{ position: 'absolute', right: 0, bottom: 0 }}>
+                        <ButtonComponent text={'Sử dụng'} width={60} height={25}
+                            color={appColor.white} fontsize={10} borderRadius={5}
+                            onPress={() => {
+                                navigation.navigate('CheckOut', { sale: discountAmount, data })
+                            }} />
                     </View>
                 </RowComponent>
             </View>
@@ -45,9 +66,9 @@ const TicketSaleScreen = () => {
             <HeaderComponent isback text={'Phiếu giảm giá'} />
             <FlatList
                 showsVerticalScrollIndicator={false}
-                data={sale}
+                data={voucher}
                 renderItem={renderItem}
-                keyExtractor={item => item.id}
+                keyExtractor={item => item._id}
             />
         </ContainerComponent>
     )
