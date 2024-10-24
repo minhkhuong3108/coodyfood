@@ -12,14 +12,14 @@ import { formatDistance } from './format/FormatDistance'
 import formatTime from './format/FormatTime'
 import { formatRating } from './format/FormatRate'
 
-const ShopAndProductComponent = ({ item, onPress, type, favorite, inCart, order, onPressAdd, onPressReduce, onPressIncrease,quantity }) => {
+const ShopAndProductComponent = ({ item, onPress, type, favorite, inCart, order, onPressAdd, onPressReduce, onPressIncrease, quantity }) => {
     const { _id, name, images, discount, rating, distance, time, sold, price, oldPrice, location, address } = item
     // console.log('item', item);
 
     return (
         type == 'shop' ?
             <TouchableOpacity style={[styles.container, globalStyle.shawdow]} onPress={onPress}>
-                <Image source={{ uri: images[0] }} style={styles.img} />
+                {images && <Image source={{ uri: images[0] }} style={styles.img} />}
                 <View style={{ flex: 1 }}>
                     <RowComponent>
                         <TextComponent text={name} fontsize={16} styles={{ flex: 1 }} ellipsizeMode={'tail'} numberOfLines={1} />

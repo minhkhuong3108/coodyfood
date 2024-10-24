@@ -12,10 +12,15 @@ import { appColor } from '../../../constants/appColor'
 import { fontFamilies } from '../../../constants/fontFamilies'
 import { formatPrice } from '../../../components/format/FomatPrice'
 import ButtonComponent from '../../../components/ButtonComponent'
+import { formatDate } from '../../../components/format/FormatDate'
 
-const DetailOrderScreen = () => {
-  const item = ITEM
-  const [products, setProducts] = useState(PRODUCTS)
+const DetailOrderScreen = ({ navigation, route }) => {
+  const { item } = route.params
+  const products = item.items
+  const shop = item.shopOwner
+  const user = item.user
+  const address = item.shippingAddress
+  // const [products, setProducts] = useState(PRODUCTS)
   const [payment, setPayment] = useState('')
   const [images, setImages] = useState('')
   const handlePayment = () => {
@@ -35,7 +40,7 @@ const DetailOrderScreen = () => {
   return (
     <ContainerComponent styles={globalStyle.container} isScroll>
       <HeaderComponent text={'Đơn hàng chi tiết'} isback />
-      <ShopAndProductComponent type={'shop'} item={item} order />
+      <ShopAndProductComponent type={'shop'} item={shop && shop} order />
       <SpaceComponent height={10} />
       <LineComponent />
       <SpaceComponent height={25} />
@@ -46,7 +51,7 @@ const DetailOrderScreen = () => {
           <View>
             <TextComponent text={'Địa chỉ nhà hàng'} fontFamily={fontFamilies.bold} />
             <SpaceComponent height={5} />
-            <TextComponent width={280} text={'Công Viên Phần Mềm Quang Trung, Tân Chánh Hiệp, Quận 12, Hồ Chí Minh, Việt Nam '}
+            <TextComponent width={280} text={shop.address}
               fontsize={12} color={appColor.subText} />
           </View>
         </RowComponent>
@@ -57,7 +62,7 @@ const DetailOrderScreen = () => {
           <View>
             <TextComponent text={'Địa chỉ đặt hàng'} fontFamily={fontFamilies.bold} />
             <SpaceComponent height={5} />
-            <TextComponent width={280} text={'86 Đường Số 8, Phường 10, Gò Vấp, Thành phố Hồ Chí Minh '}
+            <TextComponent width={280} text={address.address}
               fontsize={12} color={appColor.subText} />
           </View>
         </RowComponent>
@@ -68,8 +73,8 @@ const DetailOrderScreen = () => {
       <TextComponent text={'Tóm tắt đơn hàng'} fontsize={14} fontFamily={fontFamilies.bold} />
       <SpaceComponent height={15} />
       {
-        products.map((item, index) => (
-          <RowComponent key={item._id}
+        products && products.map((item, index) => (
+          <RowComponent key={item.product_id}
             justifyContent={'space-between'} styles={{ marginBottom: 10 }}>
             <RowComponent>
               <TextComponent text={`${item.quantity}x`} fontsize={14} width={30} />
@@ -83,27 +88,27 @@ const DetailOrderScreen = () => {
       <SpaceComponent height={10} />
       <RowComponent justifyContent={'space-between'} >
         <TextComponent text={'Tên ngưởi nhận'} fontsize={14} />
-        <TextComponent text={'Nguyễn Văn A'} fontsize={14} />
+        <TextComponent text={user.name} fontsize={14} />
       </RowComponent>
       <SpaceComponent height={10} />
       <RowComponent justifyContent={'space-between'} >
         <TextComponent text={'SĐT người nhận'} fontsize={14} />
-        <TextComponent text={'0123456789'} fontsize={14} />
+        <TextComponent text={user.phone} fontsize={14} />
       </RowComponent>
       <SpaceComponent height={10} />
       <RowComponent justifyContent={'space-between'} >
         <TextComponent text={'Thời gian đặt hàng'} fontsize={14} />
-        <TextComponent text={'11/2/2024'} fontsize={14} />
+        <TextComponent text={formatDate(item.orderDate)} fontsize={14} />
       </RowComponent>
       <SpaceComponent height={10} />
       <RowComponent justifyContent={'space-between'} >
         <TextComponent text={'Mã đơn hàng'} fontsize={14} />
-        <TextComponent text={'123123121'} fontsize={14} />
+        <TextComponent text={item._id} fontsize={14} />
       </RowComponent>
       <SpaceComponent height={10} />
       <RowComponent justifyContent={'space-between'} >
         <TextComponent text={'Tạm tính'} fontsize={14} />
-        <TextComponent text={'200.000đ'} fontsize={14} />
+        <TextComponent text={formatPrice(item.totalPrice)} fontsize={14} />
       </RowComponent>
       <SpaceComponent height={10} />
       <RowComponent justifyContent={'space-between'} >
@@ -123,7 +128,8 @@ const DetailOrderScreen = () => {
       </RowComponent>
       <SpaceComponent height={20} />
       <RowComponent justifyContent={'space-between'}>
-        <ButtonComponent text={'Đánh giá'} backgroundColor={appColor.white} width={'48%'} height={51} borderColor={appColor.white}/>
+        <ButtonComponent text={'Đánh giá'} backgroundColor={appColor.white}
+          width={'48%'} height={51} borderColor={appColor.white} onPress={() => navigation.navigate('Rating',{shop})} />
         <ButtonComponent text={'Đặt lại'} color={appColor.white} width={'48%'} height={51} />
       </RowComponent>
       <SpaceComponent height={70} />

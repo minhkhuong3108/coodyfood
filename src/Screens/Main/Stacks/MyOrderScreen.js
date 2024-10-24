@@ -6,7 +6,7 @@ import {
   FlatList,
   Image,
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import TextComponent from '../../../components/TextComponent';
 import Header from '../../../components/HeaderComponent';
@@ -25,11 +25,19 @@ import HeaderComponent from '../../../components/HeaderComponent';
 import { globalStyle } from '../../../styles/globalStyle';
 import RowComponent from '../../../components/RowComponent';
 import SpaceComponent from '../../../components/SpaceComponent';
+import AxiosInstance from '../../../helpers/AxiosInstance';
+import { useSelector } from 'react-redux';
+import { useFocusEffect } from '@react-navigation/native';
+import { formatDate } from '../../../components/format/FormatDate';
 
 const MyOrderScreen = ({ navigation }) => {
-  const [Data, setData] = useState(data);
-  const [selectedOrder, setSelectedOrder] = useState('shipping');
+  const { user } = useSelector(state => state.login)
+  const [data, setData] = useState([]);
+  const [order, setOrder] = useState([]);
+  const [selectedOrder, setSelectedOrder] = useState('Chưa giải quyết');
   const transx = useSharedValue(0);
+  console.log('data', data);
+
   const handleSelectOrder = orderType => {
     setSelectedOrder(orderType);
   };
@@ -49,7 +57,7 @@ const MyOrderScreen = ({ navigation }) => {
   });
   //animation
   useEffect(() => {
-    if (selectedOrder == 'delivered') {
+    if (selectedOrder == 'Đơn hàng đã được giao hoàn tất') {
       transx.value = withTiming(appInfor.sizes.width * 0.31, { duration: 300 });
     }
     else if (selectedOrder == 'cart') {
@@ -58,57 +66,139 @@ const MyOrderScreen = ({ navigation }) => {
       transx.value = withTiming(0, { duration: 300 });
     }
   }, [selectedOrder]);
+
+  console.log('selectedOrder', selectedOrder);
+
   //lọc data tương ứng với status đã giao hay đang giao
   useEffect(() => {
-    const filteredData = data.filter(item => {
-      if (selectedOrder === 'delivered') {
-        return item.status === 'đã giao';
-      } else if (selectedOrder === 'shipping') {
-        return item.status === 'đang giao';
+    // const filteredData = DATA.filter(item => {
+    //   if (selectedOrder === 'Đơn hàng đã được giao hoàn tất') {
+    //     return item.status === 'đã giao';
+    //   } else if (selectedOrder === 'Chưa giải quyết') {
+    //     return item.status === 'đang giao';
+    //   }
+    //   else if (selectedOrder === 'cart') {
+    //     return !item.payment;
+    //   }
+    //   return false;
+    // });
+    // setData(filteredData);
+    if (selectedOrder == 'cart') {
+      handleGetCart()
+    }
+    else if (selectedOrder == 'Chưa giải quyết') {
+      getOrderWattting()
+    } else {
+      getOrderFinished()
+    }
+  }, [selectedOrder, order]);
+
+  useFocusEffect(
+    useCallback(() => {
+      getOrder()
+      if (selectedOrder == 'cart') {
+        handleGetCart()
       }
-      else if (selectedOrder === 'cart') {
-        return !item.payment;
+      else if (selectedOrder == 'Chưa giải quyết') {
+        getOrderWattting()
+      } else {
+        getOrderFinished()
       }
-      return false;
-    });
-    setData(filteredData);
-  }, [selectedOrder]);
+    }, [selectedOrder])
+  );
+
+  const handleGetCart = async () => {
+    try {
+      const response = await AxiosInstance().get(`/carts/${user._id}`);
+      console.log('cart', response);
+      setOrder(response.data);
+    } catch (error) {
+      console.log('error', error);
+    }
+  };
+
+  const getOrder = async () => {
+    try {
+      const response = await AxiosInstance().get(`/orders/orders-by-user/${user._id}`,);
+      console.log('response', response);
+      setOrder(response.data);
+    } catch (error) {
+      console.log('error', error);
+    }
+  };
+
+  const getOrderWattting = async () => {
+    try {
+      if (order) {
+        const result = order.filter(item => item.status === 'Chưa giải quyết');
+        // console.log('result', result);
+        setData(result)
+      }
+    } catch (error) {
+      console.log('error', error);
+    }
+  }
+
+  const getOrderFinished = async () => {
+    try {
+      if (order) {
+        const result = order.filter(item => item.status === 'Đơn hàng đã được giao hoàn tất');
+        // console.log('result', result);
+        setData(result)
+      }
+    } catch (error) {
+      console.log('error', error);
+    }
+  }
 
   const rendreitem = ({ item }) => {
-    const { id, status, name, date, price, time, img, payment } = item;
-    const totalQuantity = item.order.reduce((acc, cur) => acc + cur.count, 0);
-    console.log(totalQuantity);
+    const { _id, shopId, status, date, price, time, img, payment, shopAddress, shopImage, shopName, totalItem, totalPrice } = item;
+    const products = item.items
+    const { orderDate, paymentMethod } = item
+    const { name, address, images, rating } = item.shopOwner
+    // console.log('item', item);
 
+    // const totalQuantity = item.reduce((acc, cur) => acc + cur.count, 0);
+    // console.log(totalQuantity);
     return (
       <TouchableOpacity
+        key={_id}
+        onPress={() => {
+          if (selectedOrder == 'cart') {
+            navigation.navigate('Shop', { id: shopId });
+          }
+        }}
         style={styles.item}
         activeOpacity={status == 'đã giao' ? 1 : 0.7}>
         <RowComponent noAlign >
-          <Image source={{ uri: img }} style={styles.imgShop} />
+          {images && <Image source={{ uri: images[0] }} style={styles.imgShop} />}
           <SpaceComponent width={10} />
           <View style={{ justifyContent: 'space-between', flex: 1 }}>
             <RowComponent justifyContent={'space-between'} noAlign>
               <TextComponent numberOfLines={2} ellipsizeMode={'tail'} text={name} fontFamilies={fontFamilies.bold} width={appInfor.sizes.width * 0.45} />
-              {payment ? <TextComponent text={price} fontsize={14} color={appColor.primary} fontFamily={fontFamilies.bold} /> :
+              {paymentMethod ? <TextComponent text={price} fontsize={14} color={appColor.primary} fontFamily={fontFamilies.bold} /> :
                 <ButtonComponent type={'link'} image={require('../../../assets/images/myorder/close.png')} />
               }
             </RowComponent>
-            {time && (
+            {address ? (
               <RowComponent>
-                <Image source={require('../../../assets/images/myorder/clock.png')}
-                  style={{ width: 20, height: 20, marginVertical: 5 }} />
+                {/* <Image source={require('../../../assets/images/address/location.png')}
+                  style={{ width: 20, height: 20, marginVertical: 5 }} /> */}
                 <SpaceComponent width={5} />
-                <TextComponent text={time + ' phút'} fontsize={14} color={appColor.subText} />
+                <TextComponent text={address} fontsize={14} color={appColor.subText} />
               </RowComponent>
-            )}
+            ) :
+              <TextComponent text={shopAddress} fontsize={14} color={appColor.subText} width={appInfor.sizes.width * 0.5} />
+            }
             <RowComponent justifyContent={'space-between'} noAlign>
-              {payment ? <TextComponent text={date} width={appInfor.sizes.width * 0.5} fontsize={14} color={appColor.subText} /> :
-                <TextComponent text={price} color={appColor.primary} fontFamily={fontFamilies.bold} />
+              {paymentMethod ? <TextComponent text={formatDate(orderDate)} width={appInfor.sizes.width * 0.5} fontsize={14} color={appColor.subText} /> :
+                <TextComponent text={`${totalPrice}đ`} color={appColor.primary} fontFamily={fontFamilies.bold} />
               }
               {
-                payment ?
-                  <TextComponent text={payment} fontsize={14} fontFamily={fontFamilies.bold} /> :
-                  <TextComponent text={totalQuantity + ' sản phẩm'} />
+                paymentMethod ?
+                  <TextComponent text={paymentMethod} fontsize={14} fontFamily={fontFamilies.bold} /> :
+                  <TextComponent text={totalItem + ' sản phẩm'} />
+                // <TextComponent text={totalQuantity + ' sản phẩm'} />
               }
             </RowComponent>
           </View>
@@ -116,13 +206,14 @@ const MyOrderScreen = ({ navigation }) => {
         </RowComponent>
 
         {/* nút đặt hàng lại_xem chi tiết */}
-        {status == 'đã giao' && (
+        {status == 'Đơn hàng đã được giao hoàn tất' && (
           <RowComponent justifyContent={'space-between'} styles={{ width: '100%' }}>
             <ButtonComponent
               width={appInfor.sizes.width * 0.3}
               height={appInfor.sizes.height * 0.05}
               text={'Đặt hàng lại'}
-              color={appColor.white} />
+              color={appColor.white}
+              onPress={() => navigation.navigate('CheckOut', { data: item })} />
             <ButtonComponent
               width={appInfor.sizes.width * 0.3}
               height={appInfor.sizes.height * 0.05}
@@ -130,7 +221,7 @@ const MyOrderScreen = ({ navigation }) => {
               color={appColor.primary}
               backgroundColor={appColor.white}
               onPress={() => {
-                navigation.navigate('DetailOrder', { orderData: item });
+                navigation.navigate('DetailOrder', { item: item });
               }}
             />
           </RowComponent>
@@ -148,12 +239,12 @@ const MyOrderScreen = ({ navigation }) => {
         <View style={styles.orders}>
           <Animated.View style={animatedStyle} />
           <OrderComponent
-            order={'shipping'}
+            order={'Chưa giải quyết'}
             selectedOrder={selectedOrder}
             handleSelectOrder={handleSelectOrder}
           />
           <OrderComponent
-            order={'delivered'}
+            order={'Đơn hàng đã được giao hoàn tất'}
             selectedOrder={selectedOrder}
             handleSelectOrder={handleSelectOrder}
           />
@@ -165,9 +256,9 @@ const MyOrderScreen = ({ navigation }) => {
         </View>
         {/* flatlist */}
         <FlatList
-          data={Data}
+          data={data}
           renderItem={rendreitem}
-          keyExtractor={item => item.id}
+          keyExtractor={item => item._id}
         />
       </View>
     </ContainerComponent>
@@ -202,7 +293,7 @@ const styles = StyleSheet.create({
   },
 
 });
-const data = [
+const DATA = [
   {
     id: 1,
     status: 'đã giao',

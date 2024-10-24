@@ -22,10 +22,16 @@ import LoadingModal from '../../../modal/LoadingModal'
 import BottomSheet, { BottomSheetBackdrop } from '@gorhom/bottom-sheet'
 import { appInfor } from '../../../constants/appInfor'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { formatPrice } from '../../../components/format/FomatPrice'
+import { useFocusEffect } from '@react-navigation/native'
+import { useSelector } from 'react-redux'
 
-const CheckOutScreen = ({ navigation }) => {
-    const [order, setOrder] = useState(ORDER)
-    const [indexPay, setIndexPay] = useState()
+const CheckOutScreen = ({ navigation, route }) => {
+    const { data, sale } = route.params
+    const { user } = useSelector(state => state.login)
+    const [voucher, setVoucher] = useState(0)
+    const [order, setOrder] = useState()
+    const [indexPay, setIndexPay] = useState(2)
     const [visible, setVisible] = useState(false)
     const [note, setNote] = useState('')
     const [isLoading, setIsLoading] = useState(false)
@@ -33,7 +39,18 @@ const CheckOutScreen = ({ navigation }) => {
     const snapPoint = ['50%']
     const bottomSheetRef = useRef(null)
     console.log('indexPay', indexPay);
+    const [paymentMethod, setPaymentMethod] = useState('Tiền mặt');
     const [selectedOrderIndex, setSelectedOrderIndex] = useState(null);
+    console.log('currentAddress', currentAddress);
+    console.log('paymentMethod', paymentMethod);
+    console.log('data', data);
+
+
+    const { name, _id } = data.shopOwner
+    const totalPrice = data.totalPrice
+    const total = totalPrice - voucher
+
+
 
     const handleOpenBottomSheet = (index) => {
         setSelectedOrderIndex(index);
@@ -126,17 +143,11 @@ const CheckOutScreen = ({ navigation }) => {
                 const urlPayOS = 'https://api-merchant.payos.vn/v2/payment-requests'
                 const data = {
                     "orderCode": Number(String(Date.now()).slice(-6)),
-                    "amount": 1000,
+                    "amount": 2000,
                     "description": "VQRIO123",
-                    "items": [
-                        {
-                            "name": "Iphone",
-                            "quantity": 1,
-                            "price": 1000
-                        }
-                    ],
+                    "items": order,
                     "cancelUrl": "coodyfood://fail-payment", // URL khi thanh toán thất bại
-                    "returnUrl": "coodyfood://success-payment",
+                    "returnUrl": "coodyfood://success-payment?paymentMethod=PayOS", // URL khi thanh toán thành công
                     // "expiredAt": 1696559798,
                 }
 
@@ -174,8 +185,9 @@ const CheckOutScreen = ({ navigation }) => {
 
                 }
             } else if (indexPay == 2) {
+                addOrder()
                 setIsLoading(false)
-                navigation.navigate('SuccessPayment')
+                // navigation.navigate('SuccessPayment')
             }
 
         } catch (error) {
@@ -192,9 +204,42 @@ const CheckOutScreen = ({ navigation }) => {
             console.log('Error loading current address:', error);
         }
     }
+
+    const addOrder = async () => {
+        const body = {
+            userId: user._id,
+            order: order,
+            shippingAddressId: currentAddress._id,
+            paymentMethod,
+            shopOwner: data.shopOwner._id,
+            totalPrice
+        }
+        try {
+            const response = await AxiosInstance().post('/orders/add-order', body)
+            console.log('response', response);
+        } catch (error) {
+            console.log('error', error);
+        }
+    }
+
     useEffect(() => {
-        loadCurrentAddress()
+        setOrder(data.products || data.items)
     }, [])
+
+    useEffect(() => {
+        if (sale) {
+            setVoucher(sale)
+        }
+    }, [sale])
+
+    useFocusEffect(
+        useCallback(() => {
+            loadCurrentAddress(); // Load địa chỉ hiện tại từ AsyncStorage
+        }, [])
+    )
+console.log('order', order);
+
+
     return (
         <ContainerComponent styles={{ flex: 1 }}>
             <ContainerComponent styles={globalStyle.container} isScroll={true}>
@@ -202,7 +247,7 @@ const CheckOutScreen = ({ navigation }) => {
                 <View style={[styles.containerAddress, globalStyle.shawdow]}>
                     <RowComponent justifyContent={'space-between'}>
                         <TextComponent text={'Địa chỉ giao hàng'} fontsize={14} fontFamily={fontFamilies.bold} />
-                        <ButtonComponent type={'link'} text={'Sửa'} color={appColor.primary} fontsize={14} />
+                        <ButtonComponent type={'link'} text={'Sửa'} color={appColor.primary} fontsize={14} onPress={() => navigation.navigate('Address')} />
                     </RowComponent>
                     <SpaceComponent height={10} />
                     <TextComponent text={`${currentAddress.name} | ${currentAddress.phone}`} fontsize={12} />
@@ -215,15 +260,17 @@ const CheckOutScreen = ({ navigation }) => {
                     <ButtonComponent
                         width={132} height={30} borderColor={appColor.subText} backgroundColor={appColor.white}
                         text={'Thêm voucher'} fontsize={11}
+                        onPress={() => navigation.navigate('TicketSale', { totalPrice: data.totalPrice, data })}
                     />
                 </RowComponent>
                 <SpaceComponent height={20} />
                 <RowComponent justifyContent={'space-between'}>
-                    <TextComponent text={'Tên cửa hàng'} fontsize={14} fontFamily={fontFamilies.bold} />
-                    <ButtonComponent type={'link'} text={'Thêm món'} fontsize={14} color={appColor.primary} />
+                    <TextComponent text={name} fontsize={14} fontFamily={fontFamilies.bold} />
+                    <ButtonComponent type={'link'} text={'Thêm món'} fontsize={14} color={appColor.primary}
+                        onPress={() => navigation.navigate('Shop', { id: _id })} />
                 </RowComponent>
                 <SpaceComponent height={10} />
-                {order.map((item, index) =>
+                {order && order.map((item, index) =>
                     <OrderItem key={index} item={item} onpress={() => handleOpenBottomSheet(index)} textNote={item.note} />
                 )}
                 <LineComponent />
@@ -231,7 +278,7 @@ const CheckOutScreen = ({ navigation }) => {
                 <TextComponent text={'Phương thức thanh toán'} fontsize={20} fontFamily={fontFamilies.bold} />
                 <SpaceComponent height={15} />
                 {options.map((item, index) => (
-                    <TouchableOpacity key={index} style={styles.btnRow} onPress={() => setIndexPay(index)}>
+                    <TouchableOpacity key={index} style={styles.btnRow} onPress={() => { setIndexPay(index), setPaymentMethod(item.name) }}>
                         <View style={[styles.circle, index == indexPay && styles.activeCircle]} />
                         <SpaceComponent width={20} />
                         <Image source={item.image} />
@@ -244,12 +291,12 @@ const CheckOutScreen = ({ navigation }) => {
                 <SpaceComponent height={10} />
                 <RowComponent justifyContent={'space-between'}>
                     <TextComponent text={'Tổng cộng'} fontsize={16} />
-                    <TextComponent text={'500.000 đ'} fontsize={16} fontFamily={fontFamilies.bold} />
+                    <TextComponent text={`${formatPrice(totalPrice)}`} fontsize={16} fontFamily={fontFamilies.bold} />
                 </RowComponent>
                 <SpaceComponent height={10} />
                 <RowComponent justifyContent={'space-between'}>
                     <TextComponent text={'Mã khuyến mãi'} fontsize={16} />
-                    <TextComponent text={'0 đ'} fontsize={16} fontFamily={fontFamilies.bold} />
+                    <TextComponent text={formatPrice(voucher)} fontsize={16} fontFamily={fontFamilies.bold} />
                 </RowComponent>
                 <SpaceComponent height={10} />
                 <RowComponent justifyContent={'space-between'}>
@@ -261,7 +308,7 @@ const CheckOutScreen = ({ navigation }) => {
                 <SpaceComponent height={20} />
                 <RowComponent justifyContent={'space-between'}>
                     <TextComponent text={'Tổng tiền'} fontsize={18} fontFamily={fontFamilies.bold} />
-                    <TextComponent text={'500.000 đ'} fontsize={14} fontFamily={fontFamilies.bold} />
+                    <TextComponent text={formatPrice(total)} fontsize={14} fontFamily={fontFamilies.bold} />
                 </RowComponent>
                 <SpaceComponent height={15} />
                 <ButtonComponent text={'Đặt hàng'} height={60} color={appColor.white} onPress={handlePayment} />

@@ -23,6 +23,10 @@ const AddressScreen = ({ navigation }) => {
     const { user } = useSelector(state => state.login)
     const [currentAddress, setCurrentAddress] = useState()
     const [isLoading, setIsLoading] = useState(false)
+    console.log('address', address);
+    console.log('currentAddress', currentAddress);
+
+
 
     // console.log('address', address);
 
@@ -61,6 +65,7 @@ const AddressScreen = ({ navigation }) => {
 
     const handleSelectAddress = (item) => {
         const selectedAddress = {
+            _id: item._id,
             title: item.label,
             address: item.address,
             name: item.recipientName,

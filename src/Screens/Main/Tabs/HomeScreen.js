@@ -19,6 +19,7 @@ import MapAPI from '../../../core/apiMap/MapAPI'
 import AxiosInstance from '../../../helpers/AxiosInstance'
 import _ from 'lodash'
 import { CallConfig } from '../../Call/Callconfig';
+import LoadingModal from '../../../modal/LoadingModal'
 
 
 
@@ -29,12 +30,15 @@ const HomeScreen = ({ navigation }) => {
   const [cate, setCate] = useState([])
   const [cate2, setCate2] = useState(CATE2)
   const [shopRecomend, setShopRecomend] = useState(FEATURE)
-  const [shop, setShop] = useState([])
+  const [shop, setShop] = useState()
   const [shopView, setShopView] = useState([])
-  // console.log('shop', shop);
+  console.log('shop', shop);
   const [selectedCate, setSelectedCate] = useState(1)
   const [userLocation, setUserLocation] = useState(null);
   const [addressUser, setAddressUser] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [nearShop, setNearShop] = useState([])
+  
 
   // console.log('shopView', shopView);
   // console.log('userlocation', userLocation);
@@ -76,7 +80,7 @@ const HomeScreen = ({ navigation }) => {
   const handleSelectCate = (id) => {
     setSelectedCate(id)
     if (id == 1) {
-      handleNearByShops()
+      // handleNearByShops()
     } else if (id == 2) {
       handleNewShop()
     } else if (id == 3) {
@@ -135,6 +139,26 @@ const HomeScreen = ({ navigation }) => {
     );
   };
 
+  const haversineDistance = (coords1, coords2) => {
+    const toRad = (x) => x * Math.PI / 180;
+
+    const lat1 = coords1[0];
+    const lon1 = coords1[1];
+    const lat2 = coords2[0];
+    const lon2 = coords2[1];
+
+    const R = 6371; // Bán kính Trái Đất tính bằng km
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const d = R * c;
+
+    return d; // Khoảng cách tính bằng km
+  };
+
   const getDirections = async (lat, long) => {
     console.log('userLocation', userLocation);
     try {
@@ -151,6 +175,22 @@ const HomeScreen = ({ navigation }) => {
       console.log('error', error);
     }
   };
+
+  const getNearByShops = async () => {
+    if (shop && userLocation) {
+      const updatedShops = shop.map((shop) => {
+        const distance = calculateDistanceToShop([shop.latitude, shop.longitude]);
+        return { ...shop, distance };
+      });
+
+      const filteredShops = updatedShops.filter(shop => shop.distance <= 5); // Lọc các shop trong bán kính 5 km
+      setNearShop(filteredShops);
+    }
+  }
+
+  // useEffect(()=>{
+  //   getNearByShops()
+  // },[shop, userLocation])
 
   const handleNearByShops = async () => {
     if (shop && userLocation) {
@@ -171,6 +211,15 @@ const HomeScreen = ({ navigation }) => {
       setShopView(filteredShops)
 
     }
+  };
+
+  const calculateDistanceToShop = (shopLocation) => {
+    if (userLocation) {
+      const distance = haversineDistance(userLocation, shopLocation);
+      console.log(`Khoảng cách đến shop: ${distance} km`);
+      return distance;
+    }
+    return null;
   };
 
   const handleRateShop = async () => {
@@ -194,21 +243,20 @@ const HomeScreen = ({ navigation }) => {
     setCate(response.data)
   }
 
+
   useEffect(() => {
     requestLocationPermission().then(hasPermission => {
       if (hasPermission) {
         getUserLocation();
       }
     });
-    getShop()
-    getCategories()
   }, []);
 
-  // useEffect(() => {
-  //   if (userLocation) {
-  //     getGeocoding();
-  //   }
-  // }, [userLocation]);
+  useEffect(() => {
+    if (userLocation) {
+      getGeocoding();
+    }
+  }, [userLocation]);
 
 
   // useEffect(() => {
@@ -217,6 +265,27 @@ const HomeScreen = ({ navigation }) => {
   //     handleNearByShops()
   //   }
   // }, [shop]);
+  // useEffect(() => {
+  //   handleSelectCate()
+  // }, [selectedCate])
+
+  console.log('addressUser', addressUser);
+
+
+  useEffect(() => {
+    handleSelectCate(selectedCate);
+  }, [selectedCate, addressUser]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      await Promise.all([getCategories(),getShop()]);
+      setIsLoading(false);
+    };
+    fetchData();
+  }, [])
+
+
 
   return (
     <ContainerComponent styles={globalStyle.container} isScroll>
@@ -339,6 +408,7 @@ const HomeScreen = ({ navigation }) => {
         />
       </View>
       {/* <ButtonComponent text={'Đăng xuất'} onPress={signOut} type={'link'} /> */}
+      <LoadingModal visible={isLoading} />
       <SpaceComponent height={70} />
     </ContainerComponent>
   );
@@ -512,7 +582,7 @@ var SHOP = [
     name: 'Drumsteak Thai Ha',
     rate: 4.5,
     discount: 20,
-    image: require('../../../assets/images/home/p1.png'),
+    images: ['https://mcdonalds.vn/uploads/2018/food/burgers/xcheesedlx_bb.png.pagespeed.ic.T9fdYoxRFN.webp'],
     latitude: 10.787273,
     longitude: 106.749809,
   },
@@ -521,7 +591,7 @@ var SHOP = [
     name: 'Chicken salan',
     rate: 4.5,
     discount: 20,
-    image: require('../../../assets/images/home/p2.png'),
+    images: ['https://mcdonalds.vn/uploads/2018/food/burgers/xcheesedlx_bb.png.pagespeed.ic.T9fdYoxRFN.webp'],
     latitude: 10.84191,
     longitude: 106.64361,
   },
@@ -530,7 +600,7 @@ var SHOP = [
     name: 'Drumsteak Thai Ha',
     rate: 4.5,
     discount: 20,
-    image: require('../../../assets/images/home/p1.png'),
+    images: ['https://mcdonalds.vn/uploads/2018/food/burgers/xcheesedlx_bb.png.pagespeed.ic.T9fdYoxRFN.webp'],
     latitude: 10.83392,
     longitude: 106.64337,
   },
