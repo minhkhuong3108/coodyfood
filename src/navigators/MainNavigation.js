@@ -32,6 +32,8 @@ import {
 } from '@zegocloud/zego-uikit-prebuilt-call-rn';
 import RatingScreen from '../Screens/Main/Stacks/RatingScreen';
 import ShopByCategoryScreen from '../Screens/Main/Stacks/ShopByCategoryScreen';
+import CartScreen from '../Screens/Main/Stacks/CartScreen';
+import ListSearchScreen from '../Screens/Main/Stacks/ListSearchScreen';
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -60,6 +62,8 @@ const MainNavigation = () => {
       <Stack.Screen name="FailPayment" component={FailedPaymentScreen} />
       <Stack.Screen name="ShopByCategory" component={ShopByCategoryScreen} />
       <Stack.Screen name="Rating" component={RatingScreen} />
+      <Stack.Screen name="Cart" component={CartScreen} />
+      <Stack.Screen name="ListSearch" component={ListSearchScreen} />
       <Stack.Screen
         options={{ headerShown: false }}
         // DO NOT change the name
@@ -104,7 +108,7 @@ const TabNavigation = () => {
           )
         }}
       />
-      <Tab.Screen name='Cart' component={MyOrderScreen}
+      <Tab.Screen name='Order' component={MyOrderScreen}
         options={{
           tabBarIcon: ({ focused }) => (
             <View style={styles.viewTabItem}>

@@ -3,7 +3,7 @@ import React from 'react'
 import TextComponent from './TextComponent'
 import { appColor } from '../constants/appColor'
 
-const ButtonComponent = ({ text, color, styles, backgroundColor, textStyle, fontsize, borderRadius, borderColor, icon, onPress, width, height, type, image, imageStyle }) => {
+const ButtonComponent = ({ text, color, styles, backgroundColor, textStyle, fontsize, borderRadius, borderColor, icon, onPress, width, height, type, image, imageStyle,children }) => {
     return (
         type == 'link' ?
             <TouchableOpacity onPress={onPress} style={styles}>

@@ -1,5 +1,5 @@
 import { FlatList, Image, StyleSheet, Text, View } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import ContainerComponent from '../../../components/ContainerComponent'
 import HeaderComponent from '../../../components/HeaderComponent'
 import RowComponent from '../../../components/RowComponent'
@@ -10,10 +10,24 @@ import { globalStyle } from '../../../styles/globalStyle'
 import { appColor } from '../../../constants/appColor'
 import { fontFamilies } from '../../../constants/fontFamilies'
 import ReviewList from '../../../components/ReviewList'
+import AxiosInstance from '../../../helpers/AxiosInstance'
 
 
-const ReviewShopScreen = ({navigation}) => {
+const ReviewShopScreen = ({ navigation, route }) => {
+    const { id } = route.params
+    console.log('id', id);
+    
     const [rate, setRate] = useState(RATE)
+
+    const getReviewShop = async () => {
+        const respnse = await AxiosInstance().get(`/productReviews/shop/${id}`)
+        console.log('respnse', respnse.data);
+    }
+
+    useEffect(() => {
+        getReviewShop()
+    }, [])
+
     return (
         <ContainerComponent isScroll styles={globalStyle.container}>
             <HeaderComponent isback={true} text={'Đánh giá cửa hàng'} />
@@ -75,10 +89,10 @@ const ReviewShopScreen = ({navigation}) => {
             <TextComponent text={'Đánh giá'} fontsize={18} fontFamily={fontFamilies.bold} />
             <SpaceComponent height={20} />
             <FlatList
-            scrollEnabled={false}
-            data={rate}
-            renderItem={({ item }) => <ReviewList item={item} />}
-            keyExtractor={item => item.id}
+                scrollEnabled={false}
+                data={rate}
+                renderItem={({ item }) => <ReviewList item={item} />}
+                keyExtractor={item => item.id}
             />
         </ContainerComponent>
     )
