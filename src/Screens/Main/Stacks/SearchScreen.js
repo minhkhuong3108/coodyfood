@@ -1,4 +1,4 @@
-import { FlatList, Image, StyleSheet, Text, View } from 'react-native'
+import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import ContainerComponent from '../../../components/ContainerComponent'
 import SpaceComponent from '../../../components/SpaceComponent'
@@ -11,10 +11,12 @@ import ShopRecomendList from '../../../components/ShopRecomendList'
 import { globalStyle } from '../../../styles/globalStyle'
 import SearchModal from '../../../modal/SearchResultsModal'
 import SearchResultsModal from '../../../modal/SearchResultsModal'
+import AxiosInstance from '../../../helpers/AxiosInstance'
 
 const SearchScreen = ({ navigation }) => {
     const [search, setSearch] = useState('')
     const [shop, setShop] = useState(FEATURE)
+    const [suggested, setSuggested] = useState([])
     const [historySearch, setHistorySearch] = useState(HISTORY)
     const [isModalVisible, setModalVisible] = useState(false);
     // console.log('search', search.length);
@@ -39,21 +41,35 @@ const SearchScreen = ({ navigation }) => {
         setSearch(text);
         if (text.length > 0) {
             setModalVisible(true);
+            getSearch(text)
         } else {
             setModalVisible(false);
         }
     };
 
-    const suggestedProducts = [
-        { id: '1', name: 'Product 1' },
-        { id: '2', name: 'Product 2' },
-        { id: '3', name: 'Product 3' },
-        // Thêm các sản phẩm khác ở đây
-    ];
-    const renderProduct = ({ item }) => (
-        <View style={styles.productContainer}>
+    const getSearch = async (keyword) => {
+        try {
+            const response = await AxiosInstance().post(`/shopOwner/search?keyword=${keyword}`)
+            console.log('search', response.data);
+            setSuggested(response.data)
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const handleSuggestionsShop = (item) => {
+        if (item.type === 'shop') {
+            navigation.navigate('ListSearch', { type: 'shop', shopId: item._id })
+        }
+        else if (item.type === 'category') {
+            navigation.navigate('ListSearch', { type: 'category', category: item._id })
+        }
+    }
+
+    const renderSuggestionItem = ({ item }) => (
+        <TouchableOpacity style={styles.productContainer} onPress={() => handleSuggestionsShop(item)}>
             <Text style={styles.productName}>{item.name}</Text>
-        </View>
+        </TouchableOpacity>
     );
 
     const renderHistorySearch = ({ item }) => {
@@ -77,15 +93,15 @@ const SearchScreen = ({ navigation }) => {
                 <SpaceComponent width={10} />
                 <SearchComponent placeholder={'Tìm kiếm'} value={search} onchangeText={text => handleSearchChange(text)} ref={refSearch} />
             </RowComponent>
-            {search.length > 0 ? 
-            <View>
-                <SpaceComponent height={20} />
-                <FlatList
-                data={suggestedProducts}
-                renderItem={renderProduct}
-                keyExtractor={item => item.id}
-                />
-            </View> :
+            {search.length > 0 ?
+                <View>
+                    <SpaceComponent height={20} />
+                    <FlatList
+                        data={suggested}
+                        renderItem={renderSuggestionItem}
+                        keyExtractor={item => item._id}
+                    />
+                </View> :
                 <View>
                     <SpaceComponent height={40} />
                     <RowComponent justifyContent={'space-between'} >
@@ -141,28 +157,26 @@ var FEATURE = [
     {
         id: 1,
         name: 'Drumsteak Thai Ha',
-        location: 2,
+        distance: 2,
         time: 20,
-        rate: 4.5,
-        image: require('../../../assets/images/home/p1.png')
+        rating: 4.3,
+        images: ['https://mcdonalds.vn/uploads/2018/food/burgers/xcheesedlx_bb.png.pagespeed.ic.T9fdYoxRFN.webp'],
     },
     {
         id: 2,
         name: 'Chicken salan',
-        location: 2,
-        time: 20,
-        rate: 4.5,
-        image: require('../../../assets/images/home/p2.png')
+        distance: 2,
+        rating: 4.8,
+        images: ['https://mcdonalds.vn/uploads/2018/food/burgers/xcheesedlx_bb.png.pagespeed.ic.T9fdYoxRFN.webp'],
     },
     {
         id: 3,
         name: 'Drumsteak Thai Ha',
-        location: 2,
+        distance: 2,
         time: 20,
-        rate: 4.5,
-        image: require('../../../assets/images/home/p1.png')
+        rating: 4.5,
+        images: ['https://mcdonalds.vn/uploads/2018/food/burgers/xcheesedlx_bb.png.pagespeed.ic.T9fdYoxRFN.webp'],
     },
-
 ]
 
 var HISTORY = [

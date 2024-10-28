@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Text, TextInput, View } from 'react-native'
+import { Image, StyleSheet, Text, TextInput, ToastAndroid, View } from 'react-native'
 import React, { useState } from 'react'
 import ContainerComponent from '../../../components/ContainerComponent'
 import { globalStyle } from '../../../styles/globalStyle'
@@ -9,15 +9,43 @@ import { appColor } from '../../../constants/appColor'
 import RowComponent from '../../../components/RowComponent'
 import { Rating } from 'react-native-ratings'
 import ButtonComponent from '../../../components/ButtonComponent'
+import { useSelector } from 'react-redux'
+import AxiosInstance from '../../../helpers/AxiosInstance'
 
-const RatingScreen = ({ navigation,route }) => {
-    const { shop } = route.params
-    console.log('shop', shop);
-    
+const RatingScreen = ({ navigation, route }) => {
+    const { order_id } = route.params
+    const { user } = useSelector(state => state.login)
+    console.log('order_id', order_id);
+    console.log('user', user._id);
+
+
+
     const [ratingShipper, setRatingShipper] = useState(0)
     const [ratingShop, setRatingShop] = useState(0)
     const [commentShipper, setCommentShipper] = useState('')
     const [commentShop, setCommentShop] = useState('')
+    console.log('ratingsjop', ratingShop);
+    console.log('commentShop', commentShop);
+
+
+    const handleAddRating = async () => {
+        const data = {
+            order_id,
+            user_id: user._id,
+            rating: ratingShop,
+            comment: commentShop,
+            // image: 'https://mcdonalds.vn/uploads/2018/food/burgers/xcheesedlx_bb.png.pagespeed.ic.T9fdYoxRFN.webp'
+        }
+        try {
+            const response = await AxiosInstance().post('/productReviews/add', data)
+            if (response.data) {
+                ToastAndroid.show('Đánh giá thành công', ToastAndroid.SHORT)
+                navigation.navigate('Home')
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
     return (
         <ContainerComponent styles={[globalStyle.container]} isScroll>
@@ -82,7 +110,7 @@ const RatingScreen = ({ navigation,route }) => {
                 </View>
             </View>
             <SpaceComponent height={20} />
-            <ButtonComponent text={'Gửi đánh giá'} color={appColor.white} />
+            <ButtonComponent text={'Gửi đánh giá'} color={appColor.white} onPress={handleAddRating} />
             <SpaceComponent height={70} />
         </ContainerComponent>
     )

@@ -20,6 +20,8 @@ import AxiosInstance from '../../../helpers/AxiosInstance'
 import _ from 'lodash'
 import { CallConfig } from '../../Call/Callconfig';
 import LoadingModal from '../../../modal/LoadingModal'
+import { Shop } from 'iconsax-react-native'
+import { useFocusEffect } from '@react-navigation/native'
 
 
 
@@ -32,80 +34,17 @@ const HomeScreen = ({ navigation }) => {
   const [shopRecomend, setShopRecomend] = useState(FEATURE)
   const [shop, setShop] = useState()
   const [shopView, setShopView] = useState([])
-  console.log('shop', shop);
   const [selectedCate, setSelectedCate] = useState(1)
   const [userLocation, setUserLocation] = useState(null);
   const [addressUser, setAddressUser] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [nearShop, setNearShop] = useState([])
-  
-
-  // console.log('shopView', shopView);
-  // console.log('userlocation', userLocation);
-  // console.log('cate', cate);
+  const [cart, setCart] = useState([])
 
   useEffect(() => {
     //callkeep
     CallConfig(user.email, 'user' + user.email);
   }, []);
-
-  const groupedData = [];
-  for (let i = 0; i < cate.length; i += 2) {
-    groupedData.push(cate.slice(i, i + 2));
-  }
-
-  const renderGroupedItem = ({ item, index }) => (
-    <View key={index}>
-      {item.map(subItem => (
-        <View key={subItem._id} style={styles.item}>
-          {renderCate({ item: subItem })}
-        </View>
-      ))}
-    </View>
-  );
-
-  const renderCate = ({ item }) => {
-    const { _id, name, image } = item
-    return (
-      <TouchableOpacity key={_id} style={styles.btnCate}
-        onPress={() => navigation.navigate('ShopByCategory', { item })}>
-        <View style={styles.viewImgCate}>
-          {image && <Image source={{ uri: image }} style={{ width: 50, height: 50 }} />}
-        </View>
-        <TextComponent text={name} fontsize={14} styles={{ width: 63 }} textAlign={'center'} />
-      </TouchableOpacity>
-    )
-  }
-
-  const handleSelectCate = (id) => {
-    setSelectedCate(id)
-    if (id == 1) {
-      // handleNearByShops()
-    } else if (id == 2) {
-      handleNewShop()
-    } else if (id == 3) {
-      handleRateShop()
-    }
-  }
-
-  const renderCate2 = ({ item, index }) => {
-    const { id, name } = item
-    return (
-      <TouchableOpacity
-        key={id}
-        style={[{ marginRight: 20 }, index == cate2.length - 1 && styles.itemLast]}
-        onPress={() => handleSelectCate(id)}
-      >
-        <TextComponent
-          text={name}
-          fontsize={16}
-          styles={id == selectedCate && styles.activeCate}
-          color={id == selectedCate ? appColor.primary : appColor.text}
-          textAlign={'center'}
-        />
-      </TouchableOpacity>
-    );
-  };
 
   const requestLocationPermission = async () => {
     if (Platform.OS === 'android') {
@@ -139,11 +78,25 @@ const HomeScreen = ({ navigation }) => {
     );
   };
 
+  const getShop = async () => {
+    const response = await AxiosInstance().get('/shopOwner')
+    const shop = response.data
+
+    setShop(response.data)
+  }
+
+  const getCategories = async () => {
+    const response = await AxiosInstance().get('/shopCategories')
+    setCate(response.data)
+  }
+
+
+
   const haversineDistance = (coords1, coords2) => {
     const toRad = (x) => x * Math.PI / 180;
 
-    const lat1 = coords1[0];
-    const lon1 = coords1[1];
+    const lat1 = coords1[1];
+    const lon1 = coords1[0];
     const lat2 = coords2[0];
     const lon2 = coords2[1];
 
@@ -159,28 +112,29 @@ const HomeScreen = ({ navigation }) => {
     return d; // Khoảng cách tính bằng km
   };
 
-  const getDirections = async (lat, long) => {
-    console.log('userLocation', userLocation);
-    try {
-      if (userLocation) {
-        const direction = await MapAPI.getDirections({
-          vehicle: 'bike',
-          origin: userLocation,
-          destination: [long, lat],
-        });
-        return direction;
-      }
-      return null;
-    } catch (error) {
-      console.log('error', error);
+  const calculateTravelTime = (distance, speed) => {
+    const time = distance / speed;
+    const hours = Math.floor(time);
+    const minutes = Math.floor((time - hours) * 60);
+    return minutes;
+  }
+
+  const calculateDistanceToShop = (shopLocation) => {
+    if (userLocation) {
+      const distance = haversineDistance(userLocation, shopLocation);
+      console.log(`Khoảng cách đến shop: ${distance} km`);
+      const minutes = calculateTravelTime(distance, 5);
+      console.log(`Thời gian đi đến shop: ${minutes} phút`);
+      return { distance, time: minutes };
     }
+    return null;
   };
 
   const getNearByShops = async () => {
     if (shop && userLocation) {
       const updatedShops = shop.map((shop) => {
-        const distance = calculateDistanceToShop([shop.latitude, shop.longitude]);
-        return { ...shop, distance };
+        const { distance, time } = calculateDistanceToShop([shop.latitude, shop.longitude]);
+        return { ...shop, distance, time };
       });
 
       const filteredShops = updatedShops.filter(shop => shop.distance <= 5); // Lọc các shop trong bán kính 5 km
@@ -188,40 +142,24 @@ const HomeScreen = ({ navigation }) => {
     }
   }
 
-  // useEffect(()=>{
-  //   getNearByShops()
-  // },[shop, userLocation])
+  // const getShopPopular = async () => {
+  //   if (nearShop) {
+  //     const shopPopular = [...nearShop].sort((a, b) => b.rating - a.rating)
+  //     setShopRecomend(shopPopular)
+  //   }
+  // }
+
+  const getShopPopular = async () => {
+    if (shop) {
+      const shopPopular = [...shop].sort((a, b) => b.rating - a.rating)
+      setShopRecomend(shopPopular)
+    }
+  }
 
   const handleNearByShops = async () => {
-    if (shop && userLocation) {
-      const promises = shop.map(async (shop) => {
-        const response = await getDirections(shop.latitude, shop.longitude)
-        console.log('response', response);
-
-        if (response) {
-          const distance = response.routes[0].legs[0].distance.value;
-          // const location = response.routes[0].legs[0].distance.value;
-          const time = response.routes[0].legs[0].duration.value;
-          return { ...shop, time, distance };
-        }
-        return shop;
-      })
-      const result = await Promise.all(promises)
-      const filteredShops = result.filter((shop, index) => shop.distance <= 5000)
-      setShopView(filteredShops)
-
-    }
+    const shopDistance = [...shop].sort((a, b) => a.distance - b.distance)
+    setShopView(shopDistance)
   };
-
-  const calculateDistanceToShop = (shopLocation) => {
-    if (userLocation) {
-      const distance = haversineDistance(userLocation, shopLocation);
-      console.log(`Khoảng cách đến shop: ${distance} km`);
-      return distance;
-    }
-    return null;
-  };
-
   const handleRateShop = async () => {
     const shopRate = [...shop].sort((a, b) => b.rating - a.rating)
     setShopView(shopRate)
@@ -233,16 +171,25 @@ const HomeScreen = ({ navigation }) => {
 
   }
 
-  const getShop = async () => {
-    const response = await AxiosInstance().get('/shopOwner')
-    setShop(response.data)
+  const handleSelectCate = (id) => {
+    setSelectedCate(id)
+    if (id == 1) {
+      handleNearByShops()
+    } else if (id == 2) {
+      handleNewShop()
+    } else if (id == 3) {
+      handleRateShop()
+    }
   }
 
-  const getCategories = async () => {
-    const response = await AxiosInstance().get('/shopCategories')
-    setCate(response.data)
+  const getCart = async() => {
+    try {
+      const response = await AxiosInstance().get(`/carts/${user._id}`);
+      setCart(response.data);
+    } catch (error) {
+      console.log('error', error);
+    }
   }
-
 
   useEffect(() => {
     requestLocationPermission().then(hasPermission => {
@@ -258,19 +205,13 @@ const HomeScreen = ({ navigation }) => {
     }
   }, [userLocation]);
 
+  useEffect(() => {
+    getNearByShops()
+  }, [shop, userLocation])
 
-  // useEffect(() => {
-  //   console.log('shop', shop);
-  //   if (shop.length > 0) {
-  //     handleNearByShops()
-  //   }
-  // }, [shop]);
-  // useEffect(() => {
-  //   handleSelectCate()
-  // }, [selectedCate])
-
-  console.log('addressUser', addressUser);
-
+  useEffect(() => {
+    getShopPopular()
+  }, [nearShop])
 
   useEffect(() => {
     handleSelectCate(selectedCate);
@@ -279,137 +220,198 @@ const HomeScreen = ({ navigation }) => {
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
-      await Promise.all([getCategories(),getShop()]);
+      await Promise.all([getCategories(), getShop()]);
       setIsLoading(false);
     };
     fetchData();
   }, [])
 
+  useFocusEffect(
+    useCallback(() => {
+      getCart();
+    }, [])
+  )
 
+  const groupedData = [];
+  for (let i = 0; i < cate.length; i += 2) {
+    groupedData.push(cate.slice(i, i + 2));
+  }
+
+  const renderGroupedItem = ({ item, index }) => (
+    <View key={index}>
+      {item.map(subItem => (
+        <View key={subItem._id} style={styles.item}>
+          {renderCate({ item: subItem })}
+        </View>
+      ))}
+    </View>
+  );
+
+  const renderCate = ({ item }) => {
+    const { _id, name, image } = item
+    return (
+      <TouchableOpacity key={_id} style={styles.btnCate}
+        onPress={() => navigation.navigate('ShopByCategory', { item })}>
+        <View style={styles.viewImgCate}>
+          {image && <Image source={{ uri: image }} style={{ width: 50, height: 50 }} />}
+        </View>
+        <TextComponent text={name} fontsize={14} styles={{ width: 63 }} textAlign={'center'} />
+      </TouchableOpacity>
+    )
+  }
+
+  const renderCate2 = ({ item, index }) => {
+    const { id, name } = item
+    return (
+      <TouchableOpacity
+        key={id}
+        style={[{ marginRight: 20 }, index == cate2.length - 1 && styles.itemLast]}
+        onPress={() => handleSelectCate(id)}
+      >
+        <TextComponent
+          text={name}
+          fontsize={16}
+          styles={id == selectedCate && styles.activeCate}
+          color={id == selectedCate ? appColor.primary : appColor.text}
+          textAlign={'center'}
+        />
+      </TouchableOpacity>
+    );
+  };
 
   return (
-    <ContainerComponent styles={globalStyle.container} isScroll>
-      <RowComponent justifyContent={'space-between'}>
-        <View style={{ flex: 1 }}>
-          <TextComponent
-            text={'Giao đến'}
-            fontsize={16}
-            fontFamily={fontFamilies.bold}
-          />
-          <SpaceComponent height={15} />
-          <RowComponent
-            button
-            onPress={() =>
-              navigation.navigate('EditAddress', { item: addressUser })
-            }>
-            <Image
-              source={require('../../../assets/images/home/location.png')}
-              style={{ marginRight: 10 }}
-            />
+    <ContainerComponent styles={globalStyle.container}>
+      <ContainerComponent isScroll>
+        <RowComponent justifyContent={'space-between'}>
+          <View style={{ flex: 1 }}>
             <TextComponent
-              text={`${addressUser}`}
-              color={appColor.subText}
-              fontsize={12}
-              width={'80%'}
+              text={'Giao đến'}
+              fontsize={16}
+              fontFamily={fontFamilies.bold}
             />
-          </RowComponent>
-        </View>
-        <Image
-          source={require('../../../assets/images/home/avatar.png')}
-          style={styles.imgAvatar}
+            <SpaceComponent height={15} />
+            <RowComponent
+              button
+              onPress={() =>
+                navigation.navigate('EditAddress', { item: addressUser })
+              }>
+              <Image
+                source={require('../../../assets/images/home/location.png')}
+                style={{ marginRight: 10 }}
+              />
+              <TextComponent
+                text={`${addressUser}`}
+                color={appColor.subText}
+                fontsize={12}
+                width={'80%'}
+              />
+            </RowComponent>
+          </View>
+          <Image
+            source={require('../../../assets/images/home/avatar.png')}
+            style={styles.imgAvatar}
+          />
+        </RowComponent>
+        <SpaceComponent height={25} />
+        <SearchComponent
+          placeholder={'Tìm kiếm'}
+          value={search}
+          onchangeText={text => setSearch(text)}
+          onPress={() => navigation.navigate('Search')}
         />
-      </RowComponent>
-      <SpaceComponent height={25} />
-      <SearchComponent
-        placeholder={'Tìm kiếm'}
-        value={search}
-        onchangeText={text => setSearch(text)}
-        onPress={() => navigation.navigate('Search')}
-      />
-      <SpaceComponent height={20} />
+        <SpaceComponent height={20} />
 
-      <Swiper
-        dotColor={appColor.white}
-        activeDotColor={appColor.primary}
-        height={'auto'}
-        autoplay>
-        <Image
-          source={require('../../../assets/images/home/s1.png')}
-          style={styles.banner}
-        />
-        <Image
-          source={require('../../../assets/images/home/s2.png')}
-          style={styles.banner}
-        />
-        <Image
-          source={require('../../../assets/images/home/s3.png')}
-          style={styles.banner}
-        />
-        <Image
-          source={require('../../../assets/images/home/s4.png')}
-          style={styles.banner}
-        />
-      </Swiper>
-      <SpaceComponent height={10} />
-      <View>
-        <FlatList
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          data={groupedData}
-          renderItem={renderGroupedItem}
-          keyExtractor={(item, index) => index.toString()}
-        />
-      </View>
-      <SpaceComponent height={20} />
-      <TextComponent text={'Nổi bật gần bạn'} />
-      <SpaceComponent height={10} />
-      <View>
-        <FlatList
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          data={shopRecomend}
-          renderItem={({ item, index }) =>
-            <ShopRecomendList item={item} index={index} type={'large'} list={shopRecomend} onpress={() => navigation.navigate('Address')} />
-          }
-          keyExtractor={item => item.id}
-        />
-      </View>
-      <SpaceComponent height={20} />
-      <TextComponent text={'Đề xuất cho bạn'} fontsize={18} />
-      <SpaceComponent height={10} />
-      <View>
-        <FlatList
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          data={shopRecomend}
-          renderItem={({ item, index }) => (
-            <ShopRecomendList item={item} index={index} list={shopRecomend} />
-          )}
-          key={item => item.id}
-        />
-      </View>
-      <SpaceComponent height={30} />
-      <View>
-        <FlatList
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          data={cate2}
-          renderItem={renderCate2}
-          keyExtractor={item => item.id}
-        />
-      </View>
-      <SpaceComponent height={30} />
-      <View>
-        <FlatList
-          data={shopView}
-          renderItem={({ item }) => <ShopAndProductComponent type={'shop'} item={item} onPress={() => navigation.navigate('Shop', { id: item._id })} />}
-          keyExtractor={item => item._id}
-          scrollEnabled={false}
-        />
-      </View>
-      {/* <ButtonComponent text={'Đăng xuất'} onPress={signOut} type={'link'} /> */}
+        <Swiper
+          dotColor={appColor.white}
+          activeDotColor={appColor.primary}
+          height={'auto'}
+          autoplay>
+          <Image
+            source={require('../../../assets/images/home/s1.png')}
+            style={styles.banner}
+          />
+          <Image
+            source={require('../../../assets/images/home/s2.png')}
+            style={styles.banner}
+          />
+          <Image
+            source={require('../../../assets/images/home/s3.png')}
+            style={styles.banner}
+          />
+          <Image
+            source={require('../../../assets/images/home/s4.png')}
+            style={styles.banner}
+          />
+        </Swiper>
+        <SpaceComponent height={10} />
+        <View>
+          <FlatList
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            data={groupedData}
+            renderItem={renderGroupedItem}
+            keyExtractor={(item, index) => index.toString()}
+          />
+        </View>
+        <SpaceComponent height={20} />
+        <TextComponent text={'Nổi bật gần bạn'} />
+        <SpaceComponent height={10} />
+        <View>
+          <FlatList
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            data={shopRecomend}
+            renderItem={({ item, index }) =>
+              <ShopRecomendList item={item} index={index} type={'large'} list={shopRecomend} onpress={() => navigation.navigate('Address')} />
+            }
+            keyExtractor={item => item.id}
+          />
+        </View>
+        <SpaceComponent height={20} />
+        <TextComponent text={'Đề xuất cho bạn'} fontsize={18} />
+        <SpaceComponent height={10} />
+        <View>
+          <FlatList
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            data={shopRecomend}
+            renderItem={({ item, index }) => (
+              <ShopRecomendList item={item} index={index} list={shopRecomend} />
+            )}
+            key={item => item.id}
+          />
+        </View>
+        <SpaceComponent height={30} />
+        <View>
+          <FlatList
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            data={cate2}
+            renderItem={renderCate2}
+            keyExtractor={item => item.id}
+          />
+        </View>
+        <SpaceComponent height={30} />
+        <View>
+          <FlatList
+            data={shopView}
+            renderItem={({ item }) => <ShopAndProductComponent type={'shop'} item={item} onPress={() => navigation.navigate('Shop', { id: item._id })} />}
+            keyExtractor={item => item._id}
+            scrollEnabled={false}
+          />
+        </View>
+        <SpaceComponent height={70} />
+      </ContainerComponent>
+      <TouchableOpacity
+        style={[styles.btnCart]}
+        onPress={() => navigation.navigate('Cart')}
+      >
+        <Image source={require('../../../assets/images/home/cart.png')} />
+        <View style={styles.viewQuantityCart}>
+          <TextComponent text={cart.length} color={appColor.white} fontsize={10} />
+        </View>
+      </TouchableOpacity>
       <LoadingModal visible={isLoading} />
-      <SpaceComponent height={70} />
     </ContainerComponent>
   );
 };
@@ -417,6 +419,30 @@ const HomeScreen = ({ navigation }) => {
 export default HomeScreen;
 
 const styles = StyleSheet.create({
+  viewQuantityCart: {
+    position: 'absolute',
+    top: -5,
+    right: -5,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: appColor.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  btnCart: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    paddingVertical: 10,
+    borderRadius: 5,
+    width: 45,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: appColor.white,
+    shadowColor: 'rgba(0,0,0,0.9)',
+    elevation: 8,
+  },
   activeCate: {
     borderBottomWidth: 2,
     borderBottomColor: appColor.primary,
@@ -554,33 +580,32 @@ var FEATURE = [
   {
     id: 1,
     name: 'Drumsteak Thai Ha',
-    location: 2,
+    distance: 2,
     time: 20,
-    rate: 4.5,
-    image: require('../../../assets/images/home/p1.png'),
+    rating: 4.3,
+    images: ['https://mcdonalds.vn/uploads/2018/food/burgers/xcheesedlx_bb.png.pagespeed.ic.T9fdYoxRFN.webp'],
   },
   {
     id: 2,
     name: 'Chicken salan',
-    location: 2,
-    time: 20,
-    rate: 4.5,
-    image: require('../../../assets/images/home/p2.png'),
+    distance: 2,
+    rating: 4.8,
+    images: ['https://mcdonalds.vn/uploads/2018/food/burgers/xcheesedlx_bb.png.pagespeed.ic.T9fdYoxRFN.webp'],
   },
   {
     id: 3,
     name: 'Drumsteak Thai Ha',
-    location: 2,
+    distance: 2,
     time: 20,
-    rate: 4.5,
-    image: require('../../../assets/images/home/p1.png'),
+    rating: 4.5,
+    images: ['https://mcdonalds.vn/uploads/2018/food/burgers/xcheesedlx_bb.png.pagespeed.ic.T9fdYoxRFN.webp'],
   },
 ];
 var SHOP = [
   {
     id: 1,
     name: 'Drumsteak Thai Ha',
-    rate: 4.5,
+    rating: 4.8,
     discount: 20,
     images: ['https://mcdonalds.vn/uploads/2018/food/burgers/xcheesedlx_bb.png.pagespeed.ic.T9fdYoxRFN.webp'],
     latitude: 10.787273,
@@ -589,7 +614,7 @@ var SHOP = [
   {
     id: 2,
     name: 'Chicken salan',
-    rate: 4.5,
+    rating: 5,
     discount: 20,
     images: ['https://mcdonalds.vn/uploads/2018/food/burgers/xcheesedlx_bb.png.pagespeed.ic.T9fdYoxRFN.webp'],
     latitude: 10.84191,
@@ -598,7 +623,7 @@ var SHOP = [
   {
     id: 3,
     name: 'Drumsteak Thai Ha',
-    rate: 4.5,
+    rating: 4.6,
     discount: 20,
     images: ['https://mcdonalds.vn/uploads/2018/food/burgers/xcheesedlx_bb.png.pagespeed.ic.T9fdYoxRFN.webp'],
     latitude: 10.83392,

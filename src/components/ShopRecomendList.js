@@ -5,34 +5,36 @@ import TextComponent from './TextComponent'
 import { fontFamilies } from '../constants/fontFamilies'
 import { appColor } from '../constants/appColor'
 import { globalStyle } from '../styles/globalStyle'
+import { formatDistance } from './format/FormatDistance'
+import { formatRating } from './format/FormatRate'
 
 const ShopRecomendList = ({ item, onpress, type, index, list }) => {
-  const { id, name, location, time, rate, image } = item
+  const { id, name, distance, time, rating, images } = item
   return (
     type == 'large' ?
       <TouchableOpacity style={[styles.containerRecomend, globalStyle.shawdow, index == list.length - 1 && styles.itemLast]} onPress={onpress}>
-        <Image style={styles.imgRecomend} source={image} />
+        <Image style={styles.imgRecomend} source={{ uri: images[0] }} />
         <RowComponent justifyContent={'space-between'} styles={styles.viewInfo}>
           <View>
             <TextComponent text={name} fontsize={14} numberOfLines={1} ellipsizeMode={'tail'} width={170} />
-            <TextComponent text={`${location}.0 km | ${time} phút`} fontsize={12} color={appColor.subText} />
+            <TextComponent text={`${formatDistance(distance)} | ${time} phút`} fontsize={12} color={appColor.subText} />
           </View>
           <RowComponent styles={styles.viewRate}>
-            <TextComponent text={rate} fontsize={14} fontFamily={fontFamilies.bold} color={appColor.white} />
+            <TextComponent text={formatRating(rating)} fontsize={14} fontFamily={fontFamilies.bold} color={appColor.white} />
             <Image source={require('../assets/images/home/startWhite.png')} style={{ marginLeft: 5 }} />
           </RowComponent>
         </RowComponent>
       </TouchableOpacity>
       :
       <TouchableOpacity style={[styles.containerRecomendSmall, globalStyle.shawdow, index == list.length - 1 && styles.itemLast]} onPress={onpress}>
-        <Image style={styles.imgRecomendSmall} source={image} />
+        <Image style={styles.imgRecomendSmall} source={{ uri: images[0] }} />
         <RowComponent justifyContent={'space-between'} styles={styles.viewInfo}>
           <View>
             <TextComponent text={name} fontsize={12} styles={{ width: 80 }} numberOfLines={1} ellipsizeMode={'tail'} />
-            <TextComponent text={`${location}.0 km | ${time} phút`} fontsize={10} color={appColor.subText} />
+            <TextComponent text={`${formatDistance(distance)} | ${time} phút`} fontsize={10} color={appColor.subText} />
           </View>
           <RowComponent styles={styles.viewRateSmall}>
-            <TextComponent text={rate} fontsize={12} fontFamily={fontFamilies.bold} color={appColor.white} />
+            <TextComponent text={formatRating(rating)} fontsize={12} fontFamily={fontFamilies.bold} color={appColor.white} />
             <Image source={require('../assets/images/home/startWhite.png')} style={styles.imgStarSmall} />
           </RowComponent>
         </RowComponent>
@@ -57,11 +59,12 @@ const styles = StyleSheet.create({
     backgroundColor: appColor.green
   },
   imgRecomendSmall: {
-    width: 143,
+    width: '100%',
     height: 116,
-    borderRadius: 15
+    borderRadius: 15,
   },
   containerRecomendSmall: {
+    width:160,
     padding: 7,
     borderWidth: 1,
     borderColor: appColor.gray,

@@ -20,6 +20,7 @@ import LoadingModal from '../../../modal/LoadingModal'
 
 const ShopDetailScreen = ({ navigation, route }) => {
     const { id } = route.params
+    
     const { user } = useSelector(state => state.login)
     const [popularFood, setPopularFood] = useState(POPULARFOOD)
     const [products, setProducts] = useState([])
@@ -264,7 +265,7 @@ const ShopDetailScreen = ({ navigation, route }) => {
                         <View>
                             <TextComponent text={name} fontsize={18} fontFamily={fontFamilies.bold} />
                             <SpaceComponent height={15} />
-                            <RowComponent>
+                            <RowComponent button onPress={() => navigation.navigate('ReviewShop', {id})}>
                                 <Image source={require('../../../assets/images/shopDetail/star.png')} />
                                 {rating && <TextComponent text={formatRating(rating)} fontsize={14} styles={{ marginHorizontal: 5 }} />}
                                 <TextComponent text={'(99+ đánh giá)'} fontsize={12} color={appColor.subText} />

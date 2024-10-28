@@ -20,6 +20,8 @@ const DetailOrderScreen = ({ navigation, route }) => {
   const shop = item.shopOwner
   const user = item.user
   const address = item.shippingAddress
+  console.log('item', item);
+
   // const [products, setProducts] = useState(PRODUCTS)
   const [payment, setPayment] = useState('')
   const [images, setImages] = useState('')
@@ -74,7 +76,7 @@ const DetailOrderScreen = ({ navigation, route }) => {
       <SpaceComponent height={15} />
       {
         products && products.map((item, index) => (
-          <RowComponent key={item.product_id}
+          <RowComponent key={item._id}
             justifyContent={'space-between'} styles={{ marginBottom: 10 }}>
             <RowComponent>
               <TextComponent text={`${item.quantity}x`} fontsize={14} width={30} />
@@ -129,7 +131,7 @@ const DetailOrderScreen = ({ navigation, route }) => {
       <SpaceComponent height={20} />
       <RowComponent justifyContent={'space-between'}>
         <ButtonComponent text={'Đánh giá'} backgroundColor={appColor.white}
-          width={'48%'} height={51} borderColor={appColor.white} onPress={() => navigation.navigate('Rating',{shop})} />
+          width={'48%'} height={51} borderColor={appColor.white} onPress={() => navigation.navigate('Rating', { order_id: item._id })} />
         <ButtonComponent text={'Đặt lại'} color={appColor.white} width={'48%'} height={51} />
       </RowComponent>
       <SpaceComponent height={70} />

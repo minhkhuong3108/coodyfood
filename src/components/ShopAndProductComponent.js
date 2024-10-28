@@ -13,7 +13,7 @@ import formatTime from './format/FormatTime'
 import { formatRating } from './format/FormatRate'
 
 const ShopAndProductComponent = ({ item, onPress, type, favorite, inCart, order, onPressAdd, onPressReduce, onPressIncrease, quantity }) => {
-    const { _id, name, images, discount, rating, distance, time, sold, price, oldPrice, location, address } = item
+    const { _id, name, images, discount, rating, distance, time, sold, price, oldPrice, address } = item
     // console.log('item', item);
 
     return (
@@ -31,7 +31,7 @@ const ShopAndProductComponent = ({ item, onPress, type, favorite, inCart, order,
                             <RowComponent styles={{ marginVertical: 8 }}>
                                 <Image source={require('../assets/images/home/star.png')} style={{ marginRight: 5 }} />
                                 <TextComponent
-                                    text={`${rating && formatRating(rating)} | ${distance && formatDistance(distance)} | ${time && formatTime(time)}`}
+                                    text={`${rating && formatRating(rating)} | ${distance && formatDistance(distance)} | ${time} phút`}
                                     fontsize={12} color={appColor.subText} />
                             </RowComponent>
                     }

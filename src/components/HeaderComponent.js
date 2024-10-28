@@ -11,7 +11,7 @@ isback để hiện mũi tên quay lại(back): isback={true}
 text để điền tên cho màn hinh: text={'name'}
 <Header  isback={true} text={'Chỉnh Sửa Địa Chỉ'} />
 */
-const HeaderComponent = ({ text, isback }) => {
+const HeaderComponent = ({ text, isback, onPress,imgRight }) => {
   const navigation = useNavigation(); // Khai báo hook useNavigation
 
   const Back = () => {
@@ -32,6 +32,16 @@ const HeaderComponent = ({ text, isback }) => {
         </TouchableOpacity>
       )}
       <TextComponent text={text} styles={styles.title} fontsize={18} />
+      {imgRight && (
+        <TouchableOpacity
+          onPress={onPress}
+          style={styles.button}>
+          <Image
+            style={styles.img}
+            source={imgRight}
+          />
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
@@ -42,6 +52,7 @@ const styles = StyleSheet.create({
     backgroundColor: appColor.white,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     // height: appInfor.sizes.height * 0.1,
     // padding: appInfor.sizes.width * 0.05,
     // paddingTop: appInfor.sizes.height * 0.08,

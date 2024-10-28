@@ -29,12 +29,14 @@ import AxiosInstance from '../../../helpers/AxiosInstance';
 import { useSelector } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
 import { formatDate } from '../../../components/format/FormatDate';
+import LoadingModal from '../../../modal/LoadingModal';
 
 const MyOrderScreen = ({ navigation }) => {
   const { user } = useSelector(state => state.login)
   const [data, setData] = useState([]);
   const [order, setOrder] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState('Chưa giải quyết');
+  const [isLoading, setIsLoading] = useState(false);
   const transx = useSharedValue(0);
   console.log('data', data);
 
@@ -57,10 +59,10 @@ const MyOrderScreen = ({ navigation }) => {
   });
   //animation
   useEffect(() => {
-    if (selectedOrder == 'Đơn hàng đã được giao hoàn tất') {
+    if (selectedOrder == 'Đang giao hàng') {
       transx.value = withTiming(appInfor.sizes.width * 0.31, { duration: 300 });
     }
-    else if (selectedOrder == 'cart') {
+    else if (selectedOrder == 'Đơn hàng đã được giao hoàn tất') {
       transx.value = withTiming(appInfor.sizes.width * 0.62, { duration: 300 });
     } else {
       transx.value = withTiming(0, { duration: 300 });
@@ -69,68 +71,60 @@ const MyOrderScreen = ({ navigation }) => {
 
   console.log('selectedOrder', selectedOrder);
 
-  //lọc data tương ứng với status đã giao hay đang giao
-  useEffect(() => {
-    // const filteredData = DATA.filter(item => {
-    //   if (selectedOrder === 'Đơn hàng đã được giao hoàn tất') {
-    //     return item.status === 'đã giao';
-    //   } else if (selectedOrder === 'Chưa giải quyết') {
-    //     return item.status === 'đang giao';
-    //   }
-    //   else if (selectedOrder === 'cart') {
-    //     return !item.payment;
-    //   }
-    //   return false;
-    // });
-    // setData(filteredData);
-    if (selectedOrder == 'cart') {
-      handleGetCart()
-    }
-    else if (selectedOrder == 'Chưa giải quyết') {
+  const filterCart = () => {
+    if (selectedOrder == 'Chưa giải quyết') {
       getOrderWattting()
+    }
+    else if (selectedOrder == 'Đang giao hàng') {
+      getOrderShipping()
     } else {
       getOrderFinished()
     }
+  }
+  //lọc data tương ứng với status đã giao hay đang giao
+  useEffect(() => {
+    filterCart()
   }, [selectedOrder, order]);
 
   useFocusEffect(
     useCallback(() => {
       getOrder()
-      if (selectedOrder == 'cart') {
-        handleGetCart()
-      }
-      else if (selectedOrder == 'Chưa giải quyết') {
-        getOrderWattting()
-      } else {
-        getOrderFinished()
-      }
+      filterCart()
     }, [selectedOrder])
   );
 
-  const handleGetCart = async () => {
-    try {
-      const response = await AxiosInstance().get(`/carts/${user._id}`);
-      console.log('cart', response);
-      setOrder(response.data);
-    } catch (error) {
-      console.log('error', error);
-    }
-  };
 
   const getOrder = async () => {
     try {
+      setIsLoading(true)
       const response = await AxiosInstance().get(`/orders/orders-by-user/${user._id}`,);
       console.log('response', response);
       setOrder(response.data);
     } catch (error) {
       console.log('error', error);
+    } finally {
+      setIsLoading(false)
     }
   };
 
   const getOrderWattting = async () => {
     try {
       if (order) {
-        const result = order.filter(item => item.status === 'Chưa giải quyết');
+        const result = order.filter(item => item.status === 'Chưa giải quyết' ||
+          item.status === 'Chờ thanh toán');
+        // console.log('result', result);
+        setData(result)
+      }
+    } catch (error) {
+      console.log('error', error);
+    }
+  }
+
+  const getOrderShipping = async () => {
+    try {
+      if (order) {
+        const result = order.filter(item => item.status === 'Đang giao hàng' ||
+          item.status === 'Tìm người giao hàng');
         // console.log('result', result);
         setData(result)
       }
@@ -232,9 +226,10 @@ const MyOrderScreen = ({ navigation }) => {
   return (
     <ContainerComponent styles={globalStyle.container}>
       {/* header đơn hàng của tôi */}
-      <HeaderComponent isback={true} text={'Đơn hàng của tôi'} />
+      {/* <HeaderComponent text={'Đơn hàng của tôi'} />
+      <SpaceComponent height={10} /> */}
       {/* body*/}
-      <View >
+      <View style={{ flex: 1 }}>
         {/* đã giao- đang giao */}
         <View style={styles.orders}>
           <Animated.View style={animatedStyle} />
@@ -244,23 +239,32 @@ const MyOrderScreen = ({ navigation }) => {
             handleSelectOrder={handleSelectOrder}
           />
           <OrderComponent
-            order={'Đơn hàng đã được giao hoàn tất'}
+            order={'Đang giao hàng'}
             selectedOrder={selectedOrder}
             handleSelectOrder={handleSelectOrder}
           />
           <OrderComponent
-            order={'cart'}
+            order={'Đơn hàng đã được giao hoàn tất'}
             selectedOrder={selectedOrder}
             handleSelectOrder={handleSelectOrder}
           />
         </View>
         {/* flatlist */}
+        {data.length == 0 && (
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <Image source={require('../../../assets/images/myorder/order.png')} />
+            <SpaceComponent height={20} />
+            <TextComponent text={'Hiện tại bạn không có đơn hàng nào.'} textAlign={'center'} />
+            <SpaceComponent height={20} />
+          </View>
+        )}
         <FlatList
           data={data}
           renderItem={rendreitem}
           keyExtractor={item => item._id}
         />
       </View>
+      <LoadingModal visible={isLoading} />
     </ContainerComponent>
   );
 };
