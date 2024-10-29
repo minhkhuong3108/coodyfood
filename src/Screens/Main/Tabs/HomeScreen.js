@@ -182,7 +182,7 @@ const HomeScreen = ({ navigation }) => {
     }
   }
 
-  const getCart = async() => {
+  const getCart = async () => {
     try {
       const response = await AxiosInstance().get(`/carts/${user._id}`);
       setCart(response.data);
@@ -408,7 +408,7 @@ const HomeScreen = ({ navigation }) => {
       >
         <Image source={require('../../../assets/images/home/cart.png')} />
         <View style={styles.viewQuantityCart}>
-          <TextComponent text={cart.length} color={appColor.white} fontsize={10} />
+          <TextComponent text={cart.length>0 ? cart.length : '0'} color={appColor.white} fontsize={10} />
         </View>
       </TouchableOpacity>
       <LoadingModal visible={isLoading} />

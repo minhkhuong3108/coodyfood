@@ -12,13 +12,19 @@ import { globalStyle } from '../../../styles/globalStyle'
 import SearchModal from '../../../modal/SearchResultsModal'
 import SearchResultsModal from '../../../modal/SearchResultsModal'
 import AxiosInstance from '../../../helpers/AxiosInstance'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { useSelector } from 'react-redux'
 
 const SearchScreen = ({ navigation }) => {
+    const { user } = useSelector(state => state.login)
     const [search, setSearch] = useState('')
     const [shop, setShop] = useState(FEATURE)
     const [suggested, setSuggested] = useState([])
-    const [historySearch, setHistorySearch] = useState(HISTORY)
+    const [historySearch, setHistorySearch] = useState([])
     const [isModalVisible, setModalVisible] = useState(false);
+    const historyKey = `historySearch_${user._id}`
+    console.log('historySearch', historySearch);
+
     // console.log('search', search.length);
 
 
@@ -35,6 +41,9 @@ const SearchScreen = ({ navigation }) => {
             }
         }, 100); // Delay to ensure the component is mounted
         return () => clearTimeout(timer);
+    }, [])
+    useEffect(() => {
+        loadHistorySearch()
     }, [])
 
     const handleSearchChange = (text) => {
@@ -57,7 +66,40 @@ const SearchScreen = ({ navigation }) => {
         }
     }
 
+    const loadHistorySearch = async () => {
+        try {
+            const history = await AsyncStorage.getItem(historyKey)
+            if (history) {
+                setHistorySearch(JSON.parse(history))
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const saveHistorySearch = async (history) => {
+        try {
+            await AsyncStorage.setItem(historyKey, JSON.stringify(history))
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const removeHistorySearch = async () => {
+        try {
+            await AsyncStorage.removeItem(historyKey)
+            setHistorySearch([])
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     const handleSuggestionsShop = (item) => {
+        setHistorySearch(prevHistory => {
+            const newHistory = [item, ...prevHistory.filter(prev => prev._id !== item._id)]
+            saveHistorySearch(newHistory.slice(0, 3))
+            return newHistory.slice(0, 3)
+        })
         if (item.type === 'shop') {
             navigation.navigate('ListSearch', { type: 'shop', shopId: item._id })
         }
@@ -75,7 +117,7 @@ const SearchScreen = ({ navigation }) => {
     const renderHistorySearch = ({ item }) => {
         const { name } = item
         return (
-            <RowComponent styles={styles.containerHS}>
+            <RowComponent button onPress={() => handleSuggestionsShop(item)} styles={styles.containerHS}>
                 <Image source={require('../../../assets/images/home/history.png')} style={{ marginLeft: 3, marginRight: 9 }} />
                 <TextComponent text={name} fontsize={14} color={appColor.subText} />
             </RowComponent>
@@ -104,16 +146,18 @@ const SearchScreen = ({ navigation }) => {
                 </View> :
                 <View>
                     <SpaceComponent height={40} />
-                    <RowComponent justifyContent={'space-between'} >
+                    {historySearch.length > 0 && <RowComponent justifyContent={'space-between'} >
                         <TextComponent text={'Tìm kiếm gần đây'} fontsize={18} />
-                        <ButtonComponent text={'Xóa'} type={'link'} color={appColor.primary} fontsize={14} />
+                        <ButtonComponent text={'Xóa'} type={'link'} color={appColor.primary} fontsize={14}
+                            onPress={removeHistorySearch} />
                     </RowComponent>
-                    <SpaceComponent height={20} />
+                    }
+                    {historySearch.length > 0 && <SpaceComponent height={20} />}
                     <View>
                         <FlatList
-                            data={historySearch.slice(0, 3)}
+                            data={historySearch}
                             renderItem={renderHistorySearch}
-                            keyExtractor={item => item.id}
+                            keyExtractor={item => item._id}
                         />
                     </View>
                     <SpaceComponent height={30} />

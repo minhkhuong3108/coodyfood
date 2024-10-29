@@ -20,7 +20,7 @@ import LoadingModal from '../../../modal/LoadingModal'
 const ProductDetail = ({ navigation, route }) => {
     const { user } = useSelector(state => state.login)
     const { id, shopOwnerId } = route.params
-    const [rate, setRate] = useState(RATE)
+    const [rate, setRate] = useState([])
     const [product, setProduct] = useState({})
     const [isLoading, setIsLoading] = useState(false)
     const [data, setData] = useState({})
@@ -76,6 +76,7 @@ const ProductDetail = ({ navigation, route }) => {
     useEffect(() => {
         getProduct()
         getCart()
+        getRate()
     }, [])
 
     const isProductInCart = (productId) => {
@@ -143,6 +144,20 @@ const ProductDetail = ({ navigation, route }) => {
             console.log('error', error);
         } finally {
             setIsLoading(false);
+        }
+    }
+
+    const getRate = async () => {
+        try {
+            setIsLoading(true)
+            const response = await AxiosInstance().get(`/productReviews/product/${id}`)
+            console.log('review', response.data);
+            setRate(response.data)
+
+        } catch (error) {
+            console.log('error', error);
+        } finally {
+            setIsLoading(false)
         }
     }
 

@@ -11,17 +11,26 @@ import { appColor } from '../../../constants/appColor'
 import { fontFamilies } from '../../../constants/fontFamilies'
 import ReviewList from '../../../components/ReviewList'
 import AxiosInstance from '../../../helpers/AxiosInstance'
+import LoadingModal from '../../../modal/LoadingModal'
 
 
 const ReviewShopScreen = ({ navigation, route }) => {
     const { id } = route.params
-    console.log('id', id);
-    
-    const [rate, setRate] = useState(RATE)
+
+    const [data, setData] = useState()
+    const [isLoading, setIsLoading] = useState(false)
 
     const getReviewShop = async () => {
-        const respnse = await AxiosInstance().get(`/productReviews/shop/${id}`)
-        console.log('respnse', respnse.data);
+        try {
+            setIsLoading(true)
+            const respnse = await AxiosInstance().get(`/productReviews/shop/${id}`)
+            console.log('respnse', respnse.data);
+            setData(respnse.data)
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setIsLoading(false)
+        }
     }
 
     useEffect(() => {
@@ -90,10 +99,11 @@ const ReviewShopScreen = ({ navigation, route }) => {
             <SpaceComponent height={20} />
             <FlatList
                 scrollEnabled={false}
-                data={rate}
+                data={data}
                 renderItem={({ item }) => <ReviewList item={item} />}
                 keyExtractor={item => item.id}
             />
+            <LoadingModal visible={isLoading} />
         </ContainerComponent>
     )
 }
