@@ -5,28 +5,34 @@ import TextComponent from './TextComponent'
 import SpaceComponent from './SpaceComponent'
 import { fontFamilies } from '../constants/fontFamilies'
 import { appColor } from '../constants/appColor'
+import { Rating } from 'react-native-ratings'
+import { formatDate } from './format/FormatDate'
+import { globalStyle } from '../styles/globalStyle'
 
-const ReviewList = ({item}) => {
-    const { name, rate, comment, images, avatar, day } = item
+const ReviewList = ({ item }) => {
+    const { name, rating, comment, image, created_at } = item
+    const { user } = item
     return (
         <View style={styles.containerRate}>
-            <Image source={avatar} style={styles.imgAvatar} />
+            {user&&<Image source={{ uri: user.image }} style={styles.imgAvatar} />}
             <View style={{ flex: 1 }}>
                 <RowComponent justifyContent={'space-between'}>
                     <View>
-                        <TextComponent text={name} fontsize={18} fontFamily={fontFamilies.bold} />
+                       {user&& <TextComponent text={user.name} fontsize={18} fontFamily={fontFamilies.bold} />}
                         <SpaceComponent height={5} />
-                        <TextComponent text={day} color={appColor.subText} fontsize={12} fontFamily={fontFamilies.regular} />
+                        <TextComponent text={formatDate(created_at)} color={appColor.subText} fontsize={12} fontFamily={fontFamilies.regular} />
                     </View>
-                    <Image source={require('../assets/images/productDetail/5start.png')} />
+                    {/* <Image source={require('../assets/images/productDetail/5start.png')} /> */}
+                    <Rating
+                        ratingCount={5}
+                        imageSize={20}
+                        startingValue={rating}
+                        readonly={true}
+                    />
                 </RowComponent>
                 {comment && <TextComponent text={comment} fontsize={16} styles={{ marginTop: 15 }} />}
-
-                {images && <RowComponent styles={{ marginTop: 15 }}>
-                    {images.map((item, index) => (
-                        <Image source={item} key={index} style={styles.imgRate} />
-                    ))}
-                </RowComponent>}
+                <SpaceComponent height={15} />
+                <Image source={{ uri: image }} style={[styles.imgRate,globalStyle.shawdow]} />
 
             </View>
         </View>
@@ -39,7 +45,7 @@ const styles = StyleSheet.create({
     imgRate: {
         width: 100,
         height: 100,
-        marginRight: 10
+        backgroundColor: appColor.gray,
     },
     imgAvatar: {
         width: 50,

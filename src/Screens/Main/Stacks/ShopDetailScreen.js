@@ -20,7 +20,7 @@ import LoadingModal from '../../../modal/LoadingModal'
 
 const ShopDetailScreen = ({ navigation, route }) => {
     const { id } = route.params
-    
+
     const { user } = useSelector(state => state.login)
     const [popularFood, setPopularFood] = useState(POPULARFOOD)
     const [products, setProducts] = useState([])
@@ -29,8 +29,7 @@ const ShopDetailScreen = ({ navigation, route }) => {
     const [data, setData] = useState()
     const [cart, setCart] = useState()
     const [isLoading, setIsLoading] = useState(false)
-
-    // console.log('selectedCategory', selectedCategory);
+    const [shopDetail, setShopDetail] = useState({})
 
     const snapPoint = ['80%']
     const bottomSheetRef = useRef(null)
@@ -47,7 +46,6 @@ const ShopDetailScreen = ({ navigation, route }) => {
         )
     )
 
-    const [shopDetail, setShopDetail] = useState({})
 
     const getShopDetail = async () => {
         try {
@@ -60,10 +58,14 @@ const ShopDetailScreen = ({ navigation, route }) => {
 
     const getCategoriesProduct = async () => {
         try {
+            setIsLoading(true);
             const response = await AxiosInstance().get(`/productCategories/shopOwner/${id}`)
             setCategory(response.data)
         } catch (error) {
             console.log('error', error);
+        }
+        finally {
+            setIsLoading(false);
         }
     }
     const getCart = async () => {
@@ -107,10 +109,13 @@ const ShopDetailScreen = ({ navigation, route }) => {
     }
     const getProducts = async () => {
         try {
+            setIsLoading(true);
             const response = await AxiosInstance().get(`/products/category/${selectedCategory}`)
             setProducts(response.data)
         } catch (error) {
             console.log('error', error);
+        }finally{
+            setIsLoading(false);
         }
     }
 
@@ -176,7 +181,7 @@ const ShopDetailScreen = ({ navigation, route }) => {
         }
     }, [category]);
 
-    const { name, images, rating, distance, time, sold, price, oldPrice } = shopDetail
+    const { name, images, rating, distance, time, sold, price, oldPrice, countReview } = shopDetail
 
     const isProductInCart = (productId) => {
         return cart && cart.some(item => item._id === productId);
@@ -234,7 +239,7 @@ const ShopDetailScreen = ({ navigation, route }) => {
     useEffect(() => {
         const fetchData = async () => {
             setIsLoading(true);
-            await Promise.all([getShopDetail(), getCart(), getCategoriesProduct(), getProducts()]);
+            await Promise.all([getShopDetail(), getCart()]);
             setIsLoading(false);
         };
         fetchData();
@@ -265,10 +270,10 @@ const ShopDetailScreen = ({ navigation, route }) => {
                         <View>
                             <TextComponent text={name} fontsize={18} fontFamily={fontFamilies.bold} />
                             <SpaceComponent height={15} />
-                            <RowComponent button onPress={() => navigation.navigate('ReviewShop', {id})}>
+                            <RowComponent button onPress={() => navigation.navigate('ReviewShop', { id })}>
                                 <Image source={require('../../../assets/images/shopDetail/star.png')} />
                                 {rating && <TextComponent text={formatRating(rating)} fontsize={14} styles={{ marginHorizontal: 5 }} />}
-                                <TextComponent text={'(99+ đánh giá)'} fontsize={12} color={appColor.subText} />
+                                <TextComponent text={`(${countReview} đánh giá)`} fontsize={12} color={appColor.subText} />
                             </RowComponent>
                             <SpaceComponent height={15} />
                             <RowComponent>

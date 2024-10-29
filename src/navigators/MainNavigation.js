@@ -22,7 +22,6 @@ import AddAddressScreen from '../Screens/Main/Stacks/AddAddressScreen';
 import MyOrderScreen from '../Screens/Main/Stacks/MyOrderScreen';
 import DetailOrderScreen from '../Screens/Main/Stacks/DetailOrderScreen';
 import SearchAddressScreen from '../Screens/Main/Stacks/SearchAddressScreen';
-import TestScreen from '../Screens/Main/Stacks/TestScreen'
 import PayOSPaymentScreen from '../Screens/Main/Stacks/PayOSPaymentScreen'
 import SuccessPaymentScreen from '../Screens/Main/Stacks/SuccessPaymentScreen'
 import FailedPaymentScreen from '../Screens/Main/Stacks/FailedPaymentScreen'
@@ -30,10 +29,10 @@ import {
   ZegoUIKitPrebuiltCallWaitingScreen,
   ZegoUIKitPrebuiltCallInCallScreen,
 } from '@zegocloud/zego-uikit-prebuilt-call-rn';
-import RatingScreen from '../Screens/Main/Stacks/RatingScreen';
 import ShopByCategoryScreen from '../Screens/Main/Stacks/ShopByCategoryScreen';
 import CartScreen from '../Screens/Main/Stacks/CartScreen';
 import ListSearchScreen from '../Screens/Main/Stacks/ListSearchScreen';
+import RatingShopScreen from '../Screens/Main/Stacks/RatingShopScreen';
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -61,7 +60,7 @@ const MainNavigation = () => {
       <Stack.Screen name="SuccessPayment" component={SuccessPaymentScreen} />
       <Stack.Screen name="FailPayment" component={FailedPaymentScreen} />
       <Stack.Screen name="ShopByCategory" component={ShopByCategoryScreen} />
-      <Stack.Screen name="Rating" component={RatingScreen} />
+      <Stack.Screen name="Rating" component={RatingShopScreen} />
       <Stack.Screen name="Cart" component={CartScreen} />
       <Stack.Screen name="ListSearch" component={ListSearchScreen} />
       <Stack.Screen
