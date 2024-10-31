@@ -254,6 +254,7 @@ const MyOrderScreen = ({ navigation }) => {
           </View>
         )}
         <FlatList
+        showsVerticalScrollIndicator={false}
           data={data}
           renderItem={rendreitem}
           keyExtractor={item => item._id}
