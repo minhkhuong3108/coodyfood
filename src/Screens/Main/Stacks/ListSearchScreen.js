@@ -5,9 +5,13 @@ import HeaderComponent from '../../../components/HeaderComponent'
 import ShopAndProductComponent from '../../../components/ShopAndProductComponent'
 import AxiosInstance from '../../../helpers/AxiosInstance'
 import { globalStyle } from '../../../styles/globalStyle'
+import SpaceComponent from '../../../components/SpaceComponent'
+import RowComponent from '../../../components/RowComponent'
+import ButtonComponent from '../../../components/ButtonComponent'
+import SearchComponent from '../../../components/SearchComponent'
 
 const ListSearchScreen = ({ navigation, route }) => {
-    const { type, category, shopId } = route.params
+    const { type, category, shopId, name } = route.params
     const [shops, setShops] = useState([])
 
     const getShopsByCategory = async () => {
@@ -40,7 +44,16 @@ const ListSearchScreen = ({ navigation, route }) => {
 
     return (
         <ContainerComponent styles={globalStyle.container}>
-            <HeaderComponent text={'Danh sách tìm kiếm'} isback />
+            <RowComponent>
+                <ButtonComponent
+                    image={require('../../../assets/images/home/back.png')}
+                    type={'link'}
+                    onPress={() => navigation.navigate('Home')}
+                />
+                <SpaceComponent width={10} />
+                <SearchComponent placeholder={'Tìm kiếm'} value={name} onPress={() => navigation.push('Search', { name })} />
+            </RowComponent>
+            <SpaceComponent height={20} />
             <FlatList
                 data={shops}
                 renderItem={({ item }) => <ShopAndProductComponent type={'shop'} item={item} />}

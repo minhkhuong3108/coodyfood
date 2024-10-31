@@ -137,7 +137,8 @@ const HomeScreen = ({ navigation }) => {
         return { ...shop, distance, time };
       });
 
-      const filteredShops = updatedShops.filter(shop => shop.distance <= 5); // Lọc các shop trong bán kính 5 km
+      // const filteredShops = updatedShops.filter(shop => shop.distance <= 5); // Lọc các shop trong bán kính 5 km
+      const filteredShops = updatedShops.filter(shop => shop.distance <= 1000000); // Lọc các shop trong bán kính 5 km
       setNearShop(filteredShops);
     }
   }
@@ -151,22 +152,22 @@ const HomeScreen = ({ navigation }) => {
 
   const getShopPopular = async () => {
     if (shop) {
-      const shopPopular = [...shop].sort((a, b) => b.rating - a.rating)
+      const shopPopular = [...nearShop].sort((a, b) => b.rating - a.rating)
       setShopRecomend(shopPopular)
     }
   }
 
   const handleNearByShops = async () => {
-    const shopDistance = [...shop].sort((a, b) => a.distance - b.distance)
+    const shopDistance = [...nearShop].sort((a, b) => a.distance - b.distance)
     setShopView(shopDistance)
   };
   const handleRateShop = async () => {
-    const shopRate = [...shop].sort((a, b) => b.rating - a.rating)
+    const shopRate = [...nearShop].sort((a, b) => b.rating - a.rating)
     setShopView(shopRate)
   }
 
   const handleNewShop = async () => {
-    const shopNew = [...shop].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+    const shopNew = [...nearShop].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
     setShopView(shopNew)
 
   }
@@ -364,7 +365,7 @@ const HomeScreen = ({ navigation }) => {
             renderItem={({ item, index }) =>
               <ShopRecomendList item={item} index={index} type={'large'} list={shopRecomend} onpress={() => navigation.navigate('Address')} />
             }
-            keyExtractor={item => item.id}
+            keyExtractor={item => item._id}
           />
         </View>
         <SpaceComponent height={20} />
@@ -378,7 +379,7 @@ const HomeScreen = ({ navigation }) => {
             renderItem={({ item, index }) => (
               <ShopRecomendList item={item} index={index} list={shopRecomend} />
             )}
-            key={item => item.id}
+            key={item => item._id}
           />
         </View>
         <SpaceComponent height={30} />
@@ -408,7 +409,7 @@ const HomeScreen = ({ navigation }) => {
       >
         <Image source={require('../../../assets/images/home/cart.png')} />
         <View style={styles.viewQuantityCart}>
-          <TextComponent text={cart.length>0 ? cart.length : '0'} color={appColor.white} fontsize={10} />
+          <TextComponent text={cart.length > 0 ? cart.length : '0'} color={appColor.white} fontsize={10} />
         </View>
       </TouchableOpacity>
       <LoadingModal visible={isLoading} />
