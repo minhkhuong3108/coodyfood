@@ -1,4 +1,4 @@
-import { FlatList, Image, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { FlatList, Image, ImageBackground, StyleSheet, Text, ToastAndroid, TouchableOpacity, View } from 'react-native'
 import React, { act, useCallback, useEffect, useRef, useState } from 'react'
 import ButtonComponent from '../../../components/ButtonComponent'
 import SpaceComponent from '../../../components/SpaceComponent'
@@ -30,6 +30,7 @@ const ShopDetailScreen = ({ navigation, route }) => {
     const [cart, setCart] = useState()
     const [isLoading, setIsLoading] = useState(false)
     const [shopDetail, setShopDetail] = useState({})
+    const [isFavorite, setIsFavorite] = useState(false)
 
     const snapPoint = ['80%']
     const bottomSheetRef = useRef(null)
@@ -91,6 +92,64 @@ const ShopDetailScreen = ({ navigation, route }) => {
         }
     }
 
+    const getShopFavorite = async () => {
+        try {
+            const response = await AxiosInstance().get(`/favorites/shop/${id}`)
+            if (response.data.length > 0) {
+                setIsFavorite(true)
+            }
+
+        } catch (error) {
+            console.log('error', error);
+        }
+    }
+
+    const handleAddShopFavorite = async () => {
+        const data = {
+            userId: user._id,
+            shopOwnerId: id
+        }
+        try {
+            setIsLoading(true);
+            const response = await AxiosInstance().post('/favorites/add', data)
+            if (response.status == true) {
+                ToastAndroid.show('Đã thêm vào shop yêu thích', ToastAndroid.SHORT)
+                setIsFavorite(true)
+            }
+        } catch (error) {
+            console.log('error', error);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    const handleRemoveShopFavorite = async () => {
+        const data = {
+            userId: user._id,
+            shopOwnerId: id
+        }
+        try {
+            setIsLoading(true);
+            const response = await AxiosInstance().delete('/favorites/delete', {data})
+            if (response.status == true) {
+                ToastAndroid.show('Đã xóa khỏi shop yêu thích', ToastAndroid.SHORT)
+                setIsFavorite(false)
+            }
+        } catch (error) {
+            console.log('error', error);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    const handleShopFavorite = async () => {
+        if (isFavorite==true) {
+            handleRemoveShopFavorite()
+        } else {
+            handleAddShopFavorite()
+        }
+    }
+
     const handleAddToCart = async (item) => {
         const data = {
             user: user._id,
@@ -114,7 +173,7 @@ const ShopDetailScreen = ({ navigation, route }) => {
             setProducts(response.data)
         } catch (error) {
             console.log('error', error);
-        }finally{
+        } finally {
             setIsLoading(false);
         }
     }
@@ -166,6 +225,7 @@ const ShopDetailScreen = ({ navigation, route }) => {
     useEffect(() => {
         getShopDetail()
         getCart()
+        getShopFavorite()
     }, [])
 
     useEffect(() => {
@@ -249,20 +309,12 @@ const ShopDetailScreen = ({ navigation, route }) => {
         <ContainerComponent styles={{ flex: 1, backgroundColor: appColor.white }}>
             <ContainerComponent styles={{ flex: 1, backgroundColor: appColor.white }} isScroll>
                 {images && <ImageBackground style={styles.imageBackground} source={{ uri: images[0] }}>
-                    <RowComponent justifyContent={'space-between'} styles={styles.containerHead}>
-                        <ButtonComponent
-                            image={require('../../../assets/images/shopDetail/back.png')}
-                            styles={styles.btnBack}
-                            type={'link'}
-                            onPress={() => navigation.goBack()}
-                        />
-                        <ButtonComponent
-                            image={require('../../../assets/images/shopDetail/search.png')}
-                            styles={styles.btnBack}
-                            type={'link'}
-                        />
-
-                    </RowComponent>
+                    <ButtonComponent
+                        image={require('../../../assets/images/shopDetail/back.png')}
+                        styles={styles.btnBack}
+                        type={'link'}
+                        onPress={() => navigation.goBack()}
+                    />
                 </ImageBackground>}
                 <SpaceComponent height={20} />
                 <ContainerComponent styles={[globalStyle.container, { paddingTop: 0 }]}>
@@ -292,7 +344,10 @@ const ShopDetailScreen = ({ navigation, route }) => {
                         </View>
                         <ButtonComponent
                             type={'link'}
-                            image={require('../../../assets/images/shopDetail/no-favor.png')}
+                            image={isFavorite ? require('../../../assets/images/shopDetail/favorited.png') :
+                                require('../../../assets/images/shopDetail/favorite.png')}
+                            onPress={handleShopFavorite}
+
                         />
                     </RowComponent>
                     <SpaceComponent height={20} />
@@ -469,6 +524,10 @@ const styles = StyleSheet.create({
     },
 
     btnBack: {
+        position: 'absolute',
+        top: 50,
+        left: 24,
+        zIndex: 1,
         justifyContent: 'center',
         alignItems: 'center',
         width: 40,

@@ -1,4 +1,4 @@
-import { Alert, FlatList, Image, NativeModules, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { Alert, FlatList, Image, NativeModules, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from 'react-native'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import ContainerComponent from '../../../components/ContainerComponent'
 import HeaderComponent from '../../../components/HeaderComponent'
@@ -160,6 +160,7 @@ const CheckOutScreen = ({ navigation, route }) => {
                 const signature = crypto.HmacSHA256(sortedData, checksumKey).toString();
 
                 try {
+                    addOrder()
                     const response = await axios.post(urlPayOS, {
                         ...data,
                         signature
@@ -215,10 +216,16 @@ const CheckOutScreen = ({ navigation, route }) => {
             totalPrice
         }
         try {
+            setIsLoading(true)
             const response = await AxiosInstance().post('/orders/add-order', body)
-            console.log('response', response);
+            if (response.status==true) {
+                ToastAndroid.show('Đặt hàng thành công', ToastAndroid.SHORT)
+                navigation.navigate('Home')
+            }
         } catch (error) {
             console.log('error', error);
+        } finally {
+            setIsLoading(false)
         }
     }
 
@@ -237,7 +244,7 @@ const CheckOutScreen = ({ navigation, route }) => {
             loadCurrentAddress(); // Load địa chỉ hiện tại từ AsyncStorage
         }, [])
     )
-console.log('order', order);
+    console.log('order', order);
 
 
     return (
@@ -279,7 +286,9 @@ console.log('order', order);
                 <SpaceComponent height={15} />
                 {options.map((item, index) => (
                     <TouchableOpacity key={index} style={styles.btnRow} onPress={() => { setIndexPay(index), setPaymentMethod(item.name) }}>
-                        <View style={[styles.circle, index == indexPay && styles.activeCircle]} />
+                        <View style={[styles.circleContainer, index == indexPay && styles.activeCircleContainer]} >
+                            <View style={[styles.circle, index == indexPay && styles.activeCircle]} />
+                        </View>
                         <SpaceComponent width={20} />
                         <Image source={item.image} />
                         <SpaceComponent width={10} />
@@ -323,7 +332,8 @@ console.log('order', order);
                 snapPoints={snapPoint}
                 backdropComponent={renderBackdrop}
                 handleComponent={null}
-                index={-1}>
+                index={-1}
+            >
                 <RowComponent styles={styles.headerBottomSheet} justifyContent={'space-between'}>
                     <ButtonComponent type={'link'} text={'Đóng'} color={appColor.white} onPress={handleCloseBottomSheet} />
                     <TextComponent text={'Ghi chú'} color={appColor.white} />
@@ -358,16 +368,29 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 15,
         borderTopRightRadius: 15,
     },
+    activeCircleContainer: {
+        borderColor: appColor.primary,
+    },
+    circleContainer: {
+        width: 30,
+        height: 30,
+        borderRadius: 15,
+        borderWidth: 2,
+        borderColor: appColor.subText,
+        backgroundColor: appColor.white,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
     activeCircle: {
         backgroundColor: appColor.primary,
         borderColor: appColor.primary,
     },
     circle: {
-        width: 22,
-        height: 22,
-        borderRadius: 11,
+        width: 20,
+        height: 20,
+        borderRadius: 10,
         borderWidth: 2,
-        borderColor: appColor.text,
+        borderColor: appColor.white,
         backgroundColor: appColor.white
     },
     btnRow: {

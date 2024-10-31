@@ -12,7 +12,6 @@ import { appColor } from '../constants/appColor';
 import EditProfile from '../Screens/Profile/EditProfile';
 import ReviewShopScreen from '../Screens/Main/Stacks/ReviewShopScreen';
 import TicketSaleScreen from '../Screens/Main/Stacks/TicketSaleScreen';
-import ProductFavoriteScreen from '../Screens/Main/Stacks/ProductFavoriteScreen';
 import ProfileScreen from '../Screens/Main/Stacks/ProfileScreen';
 import CheckOutScreen from '../Screens/Main/Stacks/CheckOutScreen';
 import CheckOrderScreen from '../Screens/Main/Stacks/CheckOrderScreen';
@@ -33,6 +32,7 @@ import ShopByCategoryScreen from '../Screens/Main/Stacks/ShopByCategoryScreen';
 import CartScreen from '../Screens/Main/Stacks/CartScreen';
 import ListSearchScreen from '../Screens/Main/Stacks/ListSearchScreen';
 import RatingShopScreen from '../Screens/Main/Stacks/RatingShopScreen';
+import FavoriteScreen from '../Screens/Main/Tabs/FavoriteScreen';
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -48,7 +48,6 @@ const MainNavigation = () => {
       <Stack.Screen name="DetailOrder" component={DetailOrderScreen} />
       <Stack.Screen name="ReviewShop" component={ReviewShopScreen} />
       <Stack.Screen name="TicketSale" component={TicketSaleScreen} />
-      <Stack.Screen name="ProductFavorite" component={ProductFavoriteScreen} />
       <Stack.Screen name="Profile" component={ProfileScreen} />
       <Stack.Screen name="CheckOut" component={CheckOutScreen} />
       <Stack.Screen name="CheckOrder" component={CheckOrderScreen} />
@@ -142,7 +141,7 @@ const TabNavigation = () => {
                     )
                 }}
             /> */}
-      <Tab.Screen name='Favorite' component={TicketSaleScreen}
+      <Tab.Screen name='Favorite' component={FavoriteScreen}
         options={{
           tabBarIcon: ({ focused }) => (
             <View style={styles.viewTabItem}>

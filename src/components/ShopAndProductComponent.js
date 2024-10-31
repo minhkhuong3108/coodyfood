@@ -12,7 +12,7 @@ import { formatDistance } from './format/FormatDistance'
 import formatTime from './format/FormatTime'
 import { formatRating } from './format/FormatRate'
 
-const ShopAndProductComponent = ({ item, onPress, type, favorite, inCart, order, onPressAdd, onPressReduce, onPressIncrease, quantity }) => {
+const ShopAndProductComponent = ({ item, onPress, type, favorite, inCart, order, onPressAdd, onPressReduce, onPressIncrease, quantity, onPressFavorite }) => {
     const { _id, name, images, discount, rating, distance, time, sold, price, oldPrice, address } = item
     // console.log('item', item);
 
@@ -23,7 +23,7 @@ const ShopAndProductComponent = ({ item, onPress, type, favorite, inCart, order,
                 <View style={{ flex: 1 }}>
                     <RowComponent>
                         <TextComponent text={name} fontsize={16} styles={{ flex: 1 }} ellipsizeMode={'tail'} numberOfLines={1} />
-                        {favorite && <ButtonComponent type={'link'} image={require('../assets/images/favoriteProduct/heart.png')} />}
+                        {favorite && <ButtonComponent type={'link'} image={require('../assets/images/favoriteProduct/heart.png')} onPress={onPressFavorite} />}
                     </RowComponent>
                     {
                         order || favorite ? <TextComponent text={address} fontsize={12} color={appColor.subText}
@@ -38,7 +38,7 @@ const ShopAndProductComponent = ({ item, onPress, type, favorite, inCart, order,
                     {
                         order || favorite ?
                             <RowComponent>
-                                <TextComponent text={`Đánh giá: ${formatRating(rating)}`} fontsize={12} />
+                                <TextComponent text={`Đánh giá: ${rating && formatRating(rating)}`} fontsize={12} />
                                 <SpaceComponent width={4} />
                                 <Image source={require('../assets/images/shopDetail/star.png')} />
                             </RowComponent> :

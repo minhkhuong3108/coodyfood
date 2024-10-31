@@ -1,5 +1,5 @@
 import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import ContainerComponent from '../../../components/ContainerComponent'
 import SpaceComponent from '../../../components/SpaceComponent'
 import SearchComponent from '../../../components/SearchComponent'
@@ -14,10 +14,16 @@ import SearchResultsModal from '../../../modal/SearchResultsModal'
 import AxiosInstance from '../../../helpers/AxiosInstance'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useSelector } from 'react-redux'
+import { useFocusEffect } from '@react-navigation/native'
 
-const SearchScreen = ({ navigation }) => {
+const SearchScreen = ({ navigation,route }) => {
     const { user } = useSelector(state => state.login)
-    const [search, setSearch] = useState('')
+    const name = route.params?.name||''
+    console.log('name', name);
+    
+    const [search, setSearch] = useState(name)
+    console.log('search', search);
+    
     const [shop, setShop] = useState(FEATURE)
     const [suggested, setSuggested] = useState([])
     const [historySearch, setHistorySearch] = useState([])
@@ -30,18 +36,28 @@ const SearchScreen = ({ navigation }) => {
 
     const refSearch = useRef()
 
-    useEffect(() => {
-        // if (refSearch.current) {
-        //     refSearch.current.focus()
-        //     console.log('refSearch.current', refSearch.current.focus());  
-        // }
-        const timer = setTimeout(() => {
-            if (refSearch.current) {
-                refSearch.current.focus();
-            }
-        }, 100); // Delay to ensure the component is mounted
-        return () => clearTimeout(timer);
-    }, [])
+    useFocusEffect(
+        useCallback(() => {
+            // if (refSearch.current) {
+            //     refSearch.current.focus()
+            //     console.log('refSearch.current', refSearch.current.focus());  
+            // }
+            const timer = setTimeout(() => {
+                if (refSearch.current) {
+                    refSearch.current.focus();
+                }
+            }, 100); // Delay to ensure the component is mounted
+            return () => clearTimeout(timer);
+        }, [])
+    )
+
+    useFocusEffect(
+        useCallback(() => {
+            setSearch(name);
+            getSearch(name) // Cập nhật giá trị của search khi màn hình được focus
+        }, [name])
+    );
+
     useEffect(() => {
         loadHistorySearch()
     }, [])
@@ -101,10 +117,10 @@ const SearchScreen = ({ navigation }) => {
             return newHistory.slice(0, 3)
         })
         if (item.type === 'shop') {
-            navigation.navigate('ListSearch', { type: 'shop', shopId: item._id })
+            navigation.navigate('ListSearch', { type: 'shop', shopId: item._id, name: item.name })
         }
         else if (item.type === 'category') {
-            navigation.navigate('ListSearch', { type: 'category', category: item._id })
+            navigation.navigate('ListSearch', { type: 'category', category: item._id, name: item.name })
         }
     }
 

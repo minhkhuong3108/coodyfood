@@ -7,6 +7,7 @@ import { appColor } from '../constants/appColor'
 import { fontFamilies } from '../constants/fontFamilies'
 import { globalStyle } from '../styles/globalStyle'
 import NoteModel from '../modal/NoteModel'
+import { formatPrice } from './format/FomatPrice'
 
 const OrderItem = ({ item, onpress, noTouch }) => {
     const { _id, name, price, quantity, images, note } = item
@@ -15,12 +16,12 @@ const OrderItem = ({ item, onpress, noTouch }) => {
     // const [noteItem, setNoteItem] = useState(note)
     return (
         <RowComponent styles={[styles.containerProduct, globalStyle.shawdow]}>
-            <Image source={{ uri: images[0] }} style={styles.imgProduct} />
+            {images && <Image source={{ uri: images[0] }} style={styles.imgProduct} />}
             <SpaceComponent width={20} />
             <View style={{ flex: 1 }}>
                 <RowComponent justifyContent={'space-between'}>
                     <TextComponent text={name} width={140} fontsize={16} numberOfLines={1} ellipsizeMode={'tail'} />
-                    <TextComponent text={`${price}.000 đ`} fontsize={14} fontFamily={fontFamilies.bold} />
+                    <TextComponent text={`${formatPrice(price)}`} fontsize={14} fontFamily={fontFamilies.bold} />
                 </RowComponent>
                 <SpaceComponent height={8} />
                 <TextComponent text={`Số lượng: ${quantity}`} fontsize={14} color={appColor.subText} />
@@ -28,7 +29,7 @@ const OrderItem = ({ item, onpress, noTouch }) => {
                 {noTouch ? <View style={styles.btnNote}>
                     <Image source={require('../assets/images/checkout/note.png')} />
                     <SpaceComponent width={8} />
-                    <TextComponent text={note.length > 0 ? note : 'Ghi chú'} fontsize={10} />
+                    <TextComponent text={note && note.length > 0 ? note : 'Ghi chú'} fontsize={10} />
                 </View> :
                     <TouchableOpacity style={styles.btnNote} onPress={onpress}>
                         <Image source={require('../assets/images/checkout/note.png')} />

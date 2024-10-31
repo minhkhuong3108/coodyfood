@@ -9,11 +9,11 @@ import { formatDistance } from './format/FormatDistance'
 import { formatRating } from './format/FormatRate'
 
 const ShopRecomendList = ({ item, onpress, type, index, list }) => {
-  const { id, name, distance, time, rating, images } = item
+  const { _id, name, distance, time, rating, images } = item
   return (
     type == 'large' ?
       <TouchableOpacity style={[styles.containerRecomend, globalStyle.shawdow, index == list.length - 1 && styles.itemLast]} onPress={onpress}>
-        <Image style={styles.imgRecomend} source={{ uri: images[0] }} />
+        {images && <Image style={styles.imgRecomend} source={{ uri: images[0] }} />}
         <RowComponent justifyContent={'space-between'} styles={styles.viewInfo}>
           <View>
             <TextComponent text={name} fontsize={14} numberOfLines={1} ellipsizeMode={'tail'} width={170} />
@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
   },
   containerRecomendSmall: {
-    width:160,
+    width: 160,
     padding: 7,
     borderWidth: 1,
     borderColor: appColor.gray,

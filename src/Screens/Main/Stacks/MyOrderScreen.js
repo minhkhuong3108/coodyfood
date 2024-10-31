@@ -111,7 +111,7 @@ const MyOrderScreen = ({ navigation }) => {
     try {
       if (order) {
         const result = order.filter(item => item.status === 'Chưa giải quyết' ||
-          item.status === 'Chờ thanh toán');
+          item.status === 'Chờ thanh toán').sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
         // console.log('result', result);
         setData(result)
       }
@@ -124,7 +124,7 @@ const MyOrderScreen = ({ navigation }) => {
     try {
       if (order) {
         const result = order.filter(item => item.status === 'Đang giao hàng' ||
-          item.status === 'Tìm người giao hàng');
+          item.status === 'Tìm người giao hàng').sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
         // console.log('result', result);
         setData(result)
       }
@@ -136,7 +136,7 @@ const MyOrderScreen = ({ navigation }) => {
   const getOrderFinished = async () => {
     try {
       if (order) {
-        const result = order.filter(item => item.status === 'Đơn hàng đã được giao hoàn tất');
+        const result = order.filter(item => item.status === 'Đơn hàng đã được giao hoàn tất').sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
         // console.log('result', result);
         setData(result)
       }
@@ -157,22 +157,23 @@ const MyOrderScreen = ({ navigation }) => {
     return (
       <TouchableOpacity
         key={_id}
-        onPress={() => {
-          if (selectedOrder == 'cart') {
-            navigation.navigate('Shop', { id: shopId });
-          }
-        }}
         style={styles.item}
-        activeOpacity={status == 'đã giao' ? 1 : 0.7}>
+        activeOpacity={status == 'đã giao' ? 1 : 0.7}
+        onPress={
+          () => {
+            if (selectedOrder == 'Chưa giải quyết') {
+              navigation.navigate('CheckOrder', { item: item });
+            }
+          }
+        }>
         <RowComponent noAlign >
           {images && <Image source={{ uri: images[0] }} style={styles.imgShop} />}
           <SpaceComponent width={10} />
           <View style={{ justifyContent: 'space-between', flex: 1 }}>
             <RowComponent justifyContent={'space-between'} noAlign>
               <TextComponent numberOfLines={2} ellipsizeMode={'tail'} text={name} fontFamilies={fontFamilies.bold} width={appInfor.sizes.width * 0.45} />
-              {paymentMethod ? <TextComponent text={price} fontsize={14} color={appColor.primary} fontFamily={fontFamilies.bold} /> :
-                <ButtonComponent type={'link'} image={require('../../../assets/images/myorder/close.png')} />
-              }
+              <TextComponent text={price} fontsize={14} color={appColor.primary} fontFamily={fontFamilies.bold} />
+
             </RowComponent>
             {address ? (
               <RowComponent>
@@ -185,15 +186,9 @@ const MyOrderScreen = ({ navigation }) => {
               <TextComponent text={shopAddress} fontsize={14} color={appColor.subText} width={appInfor.sizes.width * 0.5} />
             }
             <RowComponent justifyContent={'space-between'} noAlign>
-              {paymentMethod ? <TextComponent text={formatDate(orderDate)} width={appInfor.sizes.width * 0.5} fontsize={14} color={appColor.subText} /> :
-                <TextComponent text={`${totalPrice}đ`} color={appColor.primary} fontFamily={fontFamilies.bold} />
-              }
-              {
-                paymentMethod ?
-                  <TextComponent text={paymentMethod} fontsize={14} fontFamily={fontFamilies.bold} /> :
-                  <TextComponent text={totalItem + ' sản phẩm'} />
-                // <TextComponent text={totalQuantity + ' sản phẩm'} />
-              }
+              <TextComponent text={formatDate(orderDate)} width={appInfor.sizes.width * 0.3} fontsize={14} color={appColor.subText} />
+
+              <TextComponent text={`${paymentMethod}${status === 'Chờ thanh toán' ? ' (Chờ thanh toán)' : ''}`} fontsize={14} fontFamily={fontFamilies.bold} />
             </RowComponent>
           </View>
 
