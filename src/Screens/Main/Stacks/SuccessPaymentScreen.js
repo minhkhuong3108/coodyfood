@@ -1,13 +1,33 @@
 import { Image, StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import React, { useEffect } from 'react'
 import ContainerComponent from '../../../components/ContainerComponent'
 import SpaceComponent from '../../../components/SpaceComponent'
 import TextComponent from '../../../components/TextComponent'
 import ButtonComponent from '../../../components/ButtonComponent'
 import { globalStyle } from '../../../styles/globalStyle'
 import { appColor } from '../../../constants/appColor'
+import AxiosInstance from '../../../helpers/AxiosInstance'
 
-const SuccessPaymentScreen = ({ navigation }) => {
+const SuccessPaymentScreen = ({ navigation, route }) => {
+    const { orderId, paymentMethod } = route.params
+    console.log('paymentMethod', paymentMethod);
+    console.log('orderId', orderId);
+
+
+
+    const updateOrder = async () => {
+        try {
+            await AxiosInstance().put(`/orders/Success-Payment/${orderId}`)
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    useEffect(() => {
+        if (paymentMethod == 'PayOS') {
+            updateOrder()
+        }
+    }, [])
     return (
         <ContainerComponent styles={[globalStyle.container, styles.container]} >
             <Image source={require('../../../assets/images/payment/success.png')} />

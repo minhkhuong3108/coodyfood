@@ -36,6 +36,7 @@ const DetailOrderScreen = ({ navigation, route }) => {
       setImages(require('../../../assets/images/checkout/cash.png'))
     }
   }
+
   useEffect(() => {
     handlePayment()
   }, [payment])

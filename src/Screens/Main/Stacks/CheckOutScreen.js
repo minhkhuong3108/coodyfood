@@ -112,6 +112,7 @@ const CheckOutScreen = ({ navigation, route }) => {
                 let apptime = Date.now()
                 let embeddata = "{}"
                 let item = "[]"
+                let callback_url = `coodyfood://success-payment`
                 let description = "Merchant description for order #" + app_trans_id
                 let hmacInput = appid + "|" + app_trans_id + "|" + appuser + "|" + amount + "|" + apptime + "|" + embeddata + "|" + item
                 let mac = crypto.HmacSHA256(hmacInput, config.key1).toString()
@@ -125,6 +126,7 @@ const CheckOutScreen = ({ navigation, route }) => {
                     embed_data: embeddata,
                     description: description,
                     mac: mac,
+                    callback_url
                 }
 
                 const response = await axios.post(config.endpoint, order);
@@ -141,18 +143,19 @@ const CheckOutScreen = ({ navigation, route }) => {
             else if (indexPay == 1) {
                 // Handle payment with PayOS
                 setIsLoading(true)
+                const result = await addOrder()
                 const urlPayOS = 'https://api-merchant.payos.vn/v2/payment-requests'
-                const data = {
+                const body = {
                     "orderCode": Number(String(Date.now()).slice(-6)),
                     "amount": 2000,
                     "description": "VQRIO123",
                     "items": order,
                     "cancelUrl": "coodyfood://fail-payment", // URL khi thanh toán thất bại
-                    "returnUrl": "coodyfood://success-payment?paymentMethod=PayOS", // URL khi thanh toán thành công
+                    "returnUrl": `coodyfood://success-payment?paymentMethod=PayOS&orderId=${result._id}`, // URL khi thanh toán thành công
                     // "expiredAt": 1696559798,
                 }
 
-                const sortedData = `amount=${data.amount}&cancelUrl=${data.cancelUrl}&description=${data.description}&orderCode=${data.orderCode}&returnUrl=${data.returnUrl}`;
+                const sortedData = `amount=${body.amount}&cancelUrl=${body.cancelUrl}&description=${body.description}&orderCode=${body.orderCode}&returnUrl=${body.returnUrl}`;
 
                 // Checksum key từ Kênh thanh toán
                 const checksumKey = 'afbd4ad1e5f608bba26bc0dd6b0e256b7424b91d955bf3dc9f470483f05a1200'; // Thay YOUR_CHECKSUM_KEY bằng checksum key thực tế của bạn
@@ -161,9 +164,9 @@ const CheckOutScreen = ({ navigation, route }) => {
                 const signature = crypto.HmacSHA256(sortedData, checksumKey).toString();
 
                 try {
-                    addOrder()
+                    
                     const response = await axios.post(urlPayOS, {
-                        ...data,
+                        ...body,
                         signature
                     },
                         {
@@ -222,7 +225,9 @@ const CheckOutScreen = ({ navigation, route }) => {
             console.log('response', response);
             if (response.status == true) {
                 ToastAndroid.show('Đặt hàng thành công', ToastAndroid.SHORT)
-                navigation.navigate('Home')
+                // navigation.navigate('Home')
+                const result = response.data
+                return result
             }
         } catch (error) {
             console.log('error', error);

@@ -111,7 +111,7 @@ const MyOrderScreen = ({ navigation }) => {
     try {
       if (order) {
         const result = order.filter(item => item.status === 'Chưa giải quyết' ||
-          item.status === 'Chờ thanh toán').sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
+          item.status === 'Chờ thanh toán')
         // console.log('result', result);
         setData(result)
       }
@@ -124,7 +124,7 @@ const MyOrderScreen = ({ navigation }) => {
     try {
       if (order) {
         const result = order.filter(item => item.status === 'Đang giao hàng' ||
-          item.status === 'Tìm người giao hàng').sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
+          item.status === 'Tìm người giao hàng')
         // console.log('result', result);
         setData(result)
       }
@@ -136,7 +136,7 @@ const MyOrderScreen = ({ navigation }) => {
   const getOrderFinished = async () => {
     try {
       if (order) {
-        const result = order.filter(item => item.status === 'Đơn hàng đã được giao hoàn tất').sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
+        const result = order.filter(item => item.status === 'Đơn hàng đã được giao hoàn tất')
         // console.log('result', result);
         setData(result)
       }

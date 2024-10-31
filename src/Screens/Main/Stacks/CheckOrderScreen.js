@@ -12,14 +12,20 @@ import OrderItem from '../../../components/OrderItem'
 import ButtonComponent from '../../../components/ButtonComponent'
 import LineComponent from '../../../components/LineComponent'
 import BottomSheet, { BottomSheetBackdrop } from '@gorhom/bottom-sheet'
+import AxiosInstance from '../../../helpers/AxiosInstance'
+import LoadingModal from '../../../modal/LoadingModal'
+import moment from 'moment'
+import crypto from 'crypto-js'
+import axios from 'axios'
 
 const CheckOrderScreen = ({ navigation, route }) => {
     const { item } = route.params
     console.log('item', item);
-    const data = item.items
+    const order = item.items
     const [imagePayment, setImagePayment] = useState('')
     const [indexPay, setIndexPay] = useState(2)
     const [paymentMethod, setPaymentMethod] = useState('Tiền mặt')
+    const [isLoading, setIsLoading] = useState(false)
 
     const snapPoint = ['50%']
     const bottomSheetRef = useRef(null)
@@ -52,7 +58,7 @@ const CheckOrderScreen = ({ navigation, route }) => {
     ]
 
 
-    const handlePayment = () => {
+    const getPayment = () => {
         if (item.paymentMethod == 'ZaloPay') {
             setImagePayment(require('../../../assets/images/checkout/zalo.png'))
         }
@@ -64,8 +70,123 @@ const CheckOrderScreen = ({ navigation, route }) => {
         }
     }
 
+    const handlePayment = async () => {
+        try {
+            if (indexPay == 0) {
+                setIsLoading(true)
+                const config = {
+                    appid: 2554,
+                    key1: 'sdngKKJmqEMzvh5QQcdD2A9XBSKUNaYn',
+                    key2: 'trMrHtvjo6myautxDUiAcYsVtaeQ8nhf',
+                    endpoint: 'https://sb-openapi.zalopay.vn/v2/create'
+                }
+                const transID = Math.floor(Math.random() * 1000000);
+                let appid = config.appid
+                let app_trans_id = `${moment().format('YYMMDD')}_${transID}`
+                let amount = 10000
+                let appuser = "ZaloPayDemo"
+                let apptime = Date.now()
+                let embeddata = "{}"
+                let item = "[]"
+                let description = "Merchant description for order #" + app_trans_id
+                let hmacInput = appid + "|" + app_trans_id + "|" + appuser + "|" + amount + "|" + apptime + "|" + embeddata + "|" + item
+                let mac = crypto.HmacSHA256(hmacInput, config.key1).toString()
+                const order = {
+                    app_id: appid,
+                    app_trans_id: app_trans_id,
+                    app_user: appuser,
+                    amount: amount,
+                    app_time: apptime,
+                    item: item,
+                    embed_data: embeddata,
+                    description: description,
+                    mac: mac,
+                }
+
+                const response = await axios.post(config.endpoint, order);
+                setIsLoading(false)
+                // Handle response from server
+                const result = response.data;
+                if (result.return_code == 1) {
+                    var ZaloPay = NativeModules.PayZaloBridge;
+                    ZaloPay.payOrder(result.zp_trans_token)
+                } else {
+                    Alert.alert('Error', 'Failed  to create order');
+                }
+            }
+            else if (indexPay == 1) {
+                // Handle payment with PayOS
+                setIsLoading(true)
+                const urlPayOS = 'https://api-merchant.payos.vn/v2/payment-requests'
+                const data = {
+                    "orderCode": Number(String(Date.now()).slice(-6)),
+                    "amount": 2000,
+                    "description": "VQRIO123",
+                    "items": order,
+                    "cancelUrl": "coodyfood://fail-payment", // URL khi thanh toán thất bại
+                    "returnUrl": `coodyfood://success-payment?paymentMethod=PayOS&orderId=${item._id}`, // URL khi thanh toán thành công
+                    // "expiredAt": 1696559798,
+                }
+
+                const sortedData = `amount=${data.amount}&cancelUrl=${data.cancelUrl}&description=${data.description}&orderCode=${data.orderCode}&returnUrl=${data.returnUrl}`;
+
+                // Checksum key từ Kênh thanh toán
+                const checksumKey = 'afbd4ad1e5f608bba26bc0dd6b0e256b7424b91d955bf3dc9f470483f05a1200'; // Thay YOUR_CHECKSUM_KEY bằng checksum key thực tế của bạn
+
+                // Tạo chữ ký HMAC_SHA256
+                const signature = crypto.HmacSHA256(sortedData, checksumKey).toString();
+
+                try {
+                    const response = await axios.post(urlPayOS, {
+                        ...data,
+                        signature
+                    },
+                        {
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'x-client-id': 'd5aadfd7-2a34-43e0-9cbb-e580f986f144',
+                                'x-api-key': 'd3e8013a-1db0-429a-9159-36c152d26782'
+                            }
+                        }
+
+                    )
+                    console.log('response', response.data);
+                    setIsLoading(false)
+                    const checkoutUrl = response.data.data.checkoutUrl
+                    if (checkoutUrl) {
+                        navigation.navigate('PayOS', { checkoutUrl })
+                    }
+
+                } catch (error) {
+                    console.log(error);
+                }
+            } else if (indexPay == 2) {
+                updatedOrder()
+                // setIsLoading(false)
+                // navigation.navigate('SuccessPayment')
+            }
+
+        } catch (error) {
+            console.log('error', error);
+        }
+    }
+
+    const updatedOrder = async () => {
+        try {
+            setIsLoading(true)
+            const response = await AxiosInstance().put(`/orders/Success-Payment/${item._id}`)
+            if (response.status == true) {
+                navigation.navigate('SuccessPayment')
+            }
+        } catch (error) {
+            console.log('error', error);
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
     useEffect(() => {
-        handlePayment()
+        getPayment()
     }, [item.paymentMethod])
 
     return (
@@ -133,7 +254,7 @@ const CheckOrderScreen = ({ navigation, route }) => {
                     <SpaceComponent height={20} />
                     <FlatList
                         scrollEnabled={false}
-                        data={data}
+                        data={order}
                         renderItem={({ item }) => <OrderItem noTouch item={item} />}
                         keyExtractor={item => item._id}
                     />
@@ -193,31 +314,32 @@ const CheckOrderScreen = ({ navigation, route }) => {
                 backdropComponent={renderBackdrop}
                 index={-1}
             >
-               <ContainerComponent styles={styles.btsContainer}>
-               <TextComponent text={'Chọn phương thức thanh toán'} fontsize={18} fontFamily={fontFamilies.bold} />
-                <SpaceComponent height={20} />
-                {options.map((item, index) => (
-                    <TouchableOpacity key={index} style={styles.btnRow} onPress={() => { setIndexPay(index), setPaymentMethod(item.name) }}>
-                        <View style={[styles.circleContainer,index == indexPay && styles.activeCircleContainer]} >
-                            <View style={[styles.circle, index == indexPay && styles.activeCircle]} />
-                        </View>
-                        <SpaceComponent width={20} />
-                        <Image source={item.image} />
-                        <SpaceComponent width={10} />
-                        <TextComponent text={item.name} />
-                    </TouchableOpacity>
-                ))}
-                <SpaceComponent height={20} />
-                <LineComponent />
-                <SpaceComponent height={20} />
-                <RowComponent justifyContent={'space-between'}>
-                    <TextComponent text={'Tổng cộng'} fontsize={18} fontFamily={fontFamilies.bold} />
-                    <TextComponent text={'600.000 đ'} fontsize={18} fontFamily={fontFamilies.bold} />
-                </RowComponent>
-                <SpaceComponent height={40} />
-                <ButtonComponent text={'Đặt hàng'} onPress={handleCloseBottomSheet} color={appColor.white} />
-               </ContainerComponent>
+                <ContainerComponent styles={styles.btsContainer}>
+                    <TextComponent text={'Chọn phương thức thanh toán'} fontsize={18} fontFamily={fontFamilies.bold} />
+                    <SpaceComponent height={20} />
+                    {options.map((item, index) => (
+                        <TouchableOpacity key={index} style={styles.btnRow} onPress={() => { setIndexPay(index), setPaymentMethod(item.name) }}>
+                            <View style={[styles.circleContainer, index == indexPay && styles.activeCircleContainer]} >
+                                <View style={[styles.circle, index == indexPay && styles.activeCircle]} />
+                            </View>
+                            <SpaceComponent width={20} />
+                            <Image source={item.image} />
+                            <SpaceComponent width={10} />
+                            <TextComponent text={item.name} />
+                        </TouchableOpacity>
+                    ))}
+                    <SpaceComponent height={20} />
+                    <LineComponent />
+                    <SpaceComponent height={20} />
+                    <RowComponent justifyContent={'space-between'}>
+                        <TextComponent text={'Tổng cộng'} fontsize={18} fontFamily={fontFamilies.bold} />
+                        <TextComponent text={'600.000 đ'} fontsize={18} fontFamily={fontFamilies.bold} />
+                    </RowComponent>
+                    <SpaceComponent height={40} />
+                    <ButtonComponent text={'Đặt hàng'} onPress={handlePayment} color={appColor.white} />
+                </ContainerComponent>
             </BottomSheet>
+            <LoadingModal visible={isLoading} />
         </ContainerComponent>
     )
 }
@@ -225,14 +347,14 @@ const CheckOrderScreen = ({ navigation, route }) => {
 export default CheckOrderScreen
 
 const styles = StyleSheet.create({
-    btsContainer:{
+    btsContainer: {
         backgroundColor: appColor.white,
-        paddingHorizontal:16
+        paddingHorizontal: 16
     },
     activeCircleContainer: {
         borderColor: appColor.primary,
     },
-    circleContainer:{
+    circleContainer: {
         width: 30,
         height: 30,
         borderRadius: 15,
