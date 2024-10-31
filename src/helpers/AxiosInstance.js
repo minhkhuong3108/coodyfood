@@ -5,7 +5,8 @@ import axios from 'axios';
 //http://192.168.1.150:9999/
 const AxiosInstance = (contentType = 'application/json') => {
     const axiosInstance = axios.create({
-        baseURL: 'https://api-project-black.vercel.app/'
+        // baseURL: 'https://api-project-git-master-binhtransx25s-projects.vercel.app/'
+        baseURL: 'http://192.168.1.150:9999/'
     });
     // cmd -----> ipconfig -----> IPv4 Address (192.168.1.1)
     axiosInstance.interceptors.request.use(

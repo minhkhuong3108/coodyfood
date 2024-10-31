@@ -38,12 +38,12 @@ const CheckOutScreen = ({ navigation, route }) => {
     const [currentAddress, setCurrentAddress] = useState({})
     const snapPoint = ['50%']
     const bottomSheetRef = useRef(null)
-    console.log('indexPay', indexPay);
+    // console.log('indexPay', indexPay);
     const [paymentMethod, setPaymentMethod] = useState('Tiền mặt');
     const [selectedOrderIndex, setSelectedOrderIndex] = useState(null);
-    console.log('currentAddress', currentAddress);
-    console.log('paymentMethod', paymentMethod);
-    console.log('data', data);
+    // console.log('currentAddress', currentAddress);
+    // console.log('paymentMethod', paymentMethod);
+    // console.log('data', data);
 
 
     const { name, _id } = data.shopOwner
@@ -95,9 +95,9 @@ const CheckOutScreen = ({ navigation, route }) => {
     ]
 
     const handlePayment = async () => {
-        setIsLoading(true)
         try {
             if (indexPay == 0) {
+                setIsLoading(true)
                 const config = {
                     appid: 2554,
                     key1: 'sdngKKJmqEMzvh5QQcdD2A9XBSKUNaYn',
@@ -140,6 +140,7 @@ const CheckOutScreen = ({ navigation, route }) => {
             }
             else if (indexPay == 1) {
                 // Handle payment with PayOS
+                setIsLoading(true)
                 const urlPayOS = 'https://api-merchant.payos.vn/v2/payment-requests'
                 const data = {
                     "orderCode": Number(String(Date.now()).slice(-6)),
@@ -187,7 +188,7 @@ const CheckOutScreen = ({ navigation, route }) => {
                 }
             } else if (indexPay == 2) {
                 addOrder()
-                setIsLoading(false)
+                // setIsLoading(false)
                 // navigation.navigate('SuccessPayment')
             }
 
@@ -215,10 +216,11 @@ const CheckOutScreen = ({ navigation, route }) => {
             shopOwner: data.shopOwner._id,
             totalPrice
         }
+        setIsLoading(true)
         try {
-            setIsLoading(true)
             const response = await AxiosInstance().post('/orders/add-order', body)
-            if (response.status==true) {
+            console.log('response', response);
+            if (response.status == true) {
                 ToastAndroid.show('Đặt hàng thành công', ToastAndroid.SHORT)
                 navigation.navigate('Home')
             }
@@ -244,7 +246,7 @@ const CheckOutScreen = ({ navigation, route }) => {
             loadCurrentAddress(); // Load địa chỉ hiện tại từ AsyncStorage
         }, [])
     )
-    console.log('order', order);
+    // console.log('order', order);
 
 
     return (
@@ -323,7 +325,6 @@ const CheckOutScreen = ({ navigation, route }) => {
                 <ButtonComponent text={'Đặt hàng'} height={60} color={appColor.white} onPress={handlePayment} />
                 <SpaceComponent height={70} />
                 {/* <AlertChoiceModal visible={visible} title={'Xác nhận'} onClose={() => setVisible(false)} /> */}
-                <LoadingModal visible={isLoading} />
                 {/* <AlertModel visible={visible} title={'Thành công'} fail onRequestClose={() => setVisible(false)}  description={'Thanh toán thành công'} /> */}
             </ContainerComponent>
             <BottomSheet
@@ -346,6 +347,7 @@ const CheckOutScreen = ({ navigation, route }) => {
                     <TextInput placeholder={'Nhập ghi chú...'} style={styles.inputNote} value={note} onChangeText={text => setNote(text)} />
                 </View>
             </BottomSheet>
+            <LoadingModal visible={isLoading} />
         </ContainerComponent>
     )
 }

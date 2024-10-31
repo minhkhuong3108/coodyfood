@@ -49,6 +49,9 @@ const AddressScreen = ({ navigation }) => {
             if (jsonValue != null) {
                 setCurrentAddress(JSON.parse(jsonValue));
             }
+            if (jsonValue == null) {
+                setCurrentAddress(address[0]);
+            }
         } catch (error) {
             console.log('Error loading current address:', error);
         }
