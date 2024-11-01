@@ -31,7 +31,7 @@ const HomeScreen = ({ navigation }) => {
   const [search, setSearch] = useState('')
   const [cate, setCate] = useState([])
   const [cate2, setCate2] = useState(CATE2)
-  const [shopRecomend, setShopRecomend] = useState(FEATURE)
+  const [shopRecomend, setShopRecomend] = useState()
   const [shop, setShop] = useState()
   const [shopView, setShopView] = useState([])
   const [selectedCate, setSelectedCate] = useState(1)
