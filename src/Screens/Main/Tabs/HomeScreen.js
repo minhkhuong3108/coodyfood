@@ -31,7 +31,7 @@ import {CallConfig} from '../../Call/Callconfig';
 import LoadingModal from '../../../modal/LoadingModal';
 import {Shop} from 'iconsax-react-native';
 import {useFocusEffect} from '@react-navigation/native';
-import {getSocket} from '../../../socket/socket';
+import {connectSocket, getSocket} from '../../../socket/socket';
 
 const HomeScreen = ({navigation}) => {
   const dispatch = useDispatch();
@@ -53,7 +53,7 @@ const HomeScreen = ({navigation}) => {
     //callkeep
     CallConfig(user.email, 'user' + user.email);
     //socket
-    getSocket();
+    connectSocket();
   }, []);
 
   const requestLocationPermission = async () => {

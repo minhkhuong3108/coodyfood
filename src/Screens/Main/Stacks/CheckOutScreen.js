@@ -62,6 +62,7 @@ const CheckOutScreen = ({navigation, route}) => {
 
   //TEST(phí giao hàng)
   const shippingfee = '15000';
+  
   const handleOpenBottomSheet = index => {
     setSelectedOrderIndex(index);
     setNote(order[index].note || '');
