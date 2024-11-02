@@ -1,49 +1,59 @@
-import { FlatList, Image, PermissionsAndroid, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import React, { useCallback, useEffect, useState } from 'react'
-import ButtonComponent from '../../../components/ButtonComponent'
-import { useDispatch, useSelector } from 'react-redux'
-import { logout } from '../../../Redux/Reducers/LoginSlice'
-import ContainerComponent from '../../../components/ContainerComponent'
-import { globalStyle } from '../../../styles/globalStyle'
-import SpaceComponent from '../../../components/SpaceComponent'
-import RowComponent from '../../../components/RowComponent'
-import TextComponent from '../../../components/TextComponent'
-import { appColor } from '../../../constants/appColor'
-import SearchComponent from '../../../components/SearchComponent'
-import { fontFamilies } from '../../../constants/fontFamilies'
-import Swiper from 'react-native-swiper'
-import ShopRecomendList from '../../../components/ShopRecomendList'
-import ShopAndProductComponent from '../../../components/ShopAndProductComponent'
-import Geolocation from 'react-native-geolocation-service'
-import MapAPI from '../../../core/apiMap/MapAPI'
-import AxiosInstance from '../../../helpers/AxiosInstance'
-import _ from 'lodash'
-import { CallConfig } from '../../Call/Callconfig';
-import LoadingModal from '../../../modal/LoadingModal'
-import { Shop } from 'iconsax-react-native'
-import { useFocusEffect } from '@react-navigation/native'
+import {
+  FlatList,
+  Image,
+  PermissionsAndroid,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import React, {useCallback, useEffect, useState} from 'react';
+import ButtonComponent from '../../../components/ButtonComponent';
+import {useDispatch, useSelector} from 'react-redux';
+import {logout} from '../../../Redux/Reducers/LoginSlice';
+import ContainerComponent from '../../../components/ContainerComponent';
+import {globalStyle} from '../../../styles/globalStyle';
+import SpaceComponent from '../../../components/SpaceComponent';
+import RowComponent from '../../../components/RowComponent';
+import TextComponent from '../../../components/TextComponent';
+import {appColor} from '../../../constants/appColor';
+import SearchComponent from '../../../components/SearchComponent';
+import {fontFamilies} from '../../../constants/fontFamilies';
+import Swiper from 'react-native-swiper';
+import ShopRecomendList from '../../../components/ShopRecomendList';
+import ShopAndProductComponent from '../../../components/ShopAndProductComponent';
+import Geolocation from 'react-native-geolocation-service';
+import MapAPI from '../../../core/apiMap/MapAPI';
+import AxiosInstance from '../../../helpers/AxiosInstance';
+import _ from 'lodash';
+import {CallConfig} from '../../Call/Callconfig';
+import LoadingModal from '../../../modal/LoadingModal';
+import {Shop} from 'iconsax-react-native';
+import {useFocusEffect} from '@react-navigation/native';
+import {getSocket} from '../../../socket/socket';
 
-
-
-const HomeScreen = ({ navigation }) => {
-  const dispatch = useDispatch()
-  const { user } = useSelector(state => state.login)
-  const [search, setSearch] = useState('')
-  const [cate, setCate] = useState([])
-  const [cate2, setCate2] = useState(CATE2)
-  const [shopRecomend, setShopRecomend] = useState()
-  const [shop, setShop] = useState()
-  const [shopView, setShopView] = useState([])
-  const [selectedCate, setSelectedCate] = useState(1)
+const HomeScreen = ({navigation}) => {
+  const dispatch = useDispatch();
+  const {user} = useSelector(state => state.login);
+  const [search, setSearch] = useState('');
+  const [cate, setCate] = useState([]);
+  const [cate2, setCate2] = useState(CATE2);
+  const [shopRecomend, setShopRecomend] = useState();
+  const [shop, setShop] = useState();
+  const [shopView, setShopView] = useState([]);
+  const [selectedCate, setSelectedCate] = useState(1);
   const [userLocation, setUserLocation] = useState(null);
   const [addressUser, setAddressUser] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [nearShop, setNearShop] = useState([])
-  const [cart, setCart] = useState([])
+  const [nearShop, setNearShop] = useState([]);
+  const [cart, setCart] = useState([]);
 
   useEffect(() => {
     //callkeep
     CallConfig(user.email, 'user' + user.email);
+    //socket
+    getSocket();
   }, []);
 
   const requestLocationPermission = async () => {
@@ -58,42 +68,42 @@ const HomeScreen = ({ navigation }) => {
   const getGeocoding = async () => {
     if (userLocation) {
       let geocoding = await MapAPI.getGeocoding({
-        description: encodeURIComponent(userLocation[1] + ',' + userLocation[0]),
+        description: encodeURIComponent(
+          userLocation[1] + ',' + userLocation[0],
+        ),
       });
       // console.log('geocoding', geocoding.results[0].formatted_address);
       setAddressUser(geocoding.results[0].formatted_address);
     }
-  }
+  };
 
   const getUserLocation = () => {
     Geolocation.getCurrentPosition(
       position => {
-        const { latitude, longitude } = position.coords;
+        const {latitude, longitude} = position.coords;
         setUserLocation([longitude, latitude]);
       },
       error => {
         console.error(error);
       },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
+      {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
     );
   };
 
   const getShop = async () => {
-    const response = await AxiosInstance().get('/shopOwner')
-    const shop = response.data
+    const response = await AxiosInstance().get('/shopOwner');
+    const shop = response.data;
 
-    setShop(response.data)
-  }
+    setShop(response.data);
+  };
 
   const getCategories = async () => {
-    const response = await AxiosInstance().get('/shopCategories')
-    setCate(response.data)
-  }
-
-
+    const response = await AxiosInstance().get('/shopCategories');
+    setCate(response.data);
+  };
 
   const haversineDistance = (coords1, coords2) => {
-    const toRad = (x) => x * Math.PI / 180;
+    const toRad = x => (x * Math.PI) / 180;
 
     const lat1 = coords1[1];
     const lon1 = coords1[0];
@@ -103,9 +113,12 @@ const HomeScreen = ({ navigation }) => {
     const R = 6371; // Bán kính Trái Đất tính bằng km
     const dLat = toRad(lat2 - lat1);
     const dLon = toRad(lon2 - lon1);
-    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRad(lat1)) *
+        Math.cos(toRad(lat2)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const d = R * c;
 
@@ -117,31 +130,36 @@ const HomeScreen = ({ navigation }) => {
     const hours = Math.floor(time);
     const minutes = Math.floor((time - hours) * 60);
     return minutes;
-  }
+  };
 
-  const calculateDistanceToShop = (shopLocation) => {
+  const calculateDistanceToShop = shopLocation => {
     if (userLocation) {
       const distance = haversineDistance(userLocation, shopLocation);
       console.log(`Khoảng cách đến shop: ${distance} km`);
       const minutes = calculateTravelTime(distance, 5);
       console.log(`Thời gian đi đến shop: ${minutes} phút`);
-      return { distance, time: minutes };
+      return {distance, time: minutes};
     }
     return null;
   };
 
   const getNearByShops = async () => {
     if (shop && userLocation) {
-      const updatedShops = shop.map((shop) => {
-        const { distance, time } = calculateDistanceToShop([shop.latitude, shop.longitude]);
-        return { ...shop, distance, time };
+      const updatedShops = shop.map(shop => {
+        const {distance, time} = calculateDistanceToShop([
+          shop.latitude,
+          shop.longitude,
+        ]);
+        return {...shop, distance, time};
       });
 
       // const filteredShops = updatedShops.filter(shop => shop.distance <= 5); // Lọc các shop trong bán kính 5 km
-      const filteredShops = updatedShops.filter(shop => shop.distance <= 1000000); // Lọc các shop trong bán kính 5 km
+      const filteredShops = updatedShops.filter(
+        shop => shop.distance <= 1000000,
+      ); // Lọc các shop trong bán kính 5 km
       setNearShop(filteredShops);
     }
-  }
+  };
 
   // const getShopPopular = async () => {
   //   if (nearShop) {
@@ -152,36 +170,37 @@ const HomeScreen = ({ navigation }) => {
 
   const getShopPopular = async () => {
     if (shop) {
-      const shopPopular = [...nearShop].sort((a, b) => b.rating - a.rating)
-      setShopRecomend(shopPopular)
+      const shopPopular = [...nearShop].sort((a, b) => b.rating - a.rating);
+      setShopRecomend(shopPopular);
     }
-  }
+  };
 
   const handleNearByShops = async () => {
-    const shopDistance = [...nearShop].sort((a, b) => a.distance - b.distance)
-    setShopView(shopDistance)
+    const shopDistance = [...nearShop].sort((a, b) => a.distance - b.distance);
+    setShopView(shopDistance);
   };
   const handleRateShop = async () => {
-    const shopRate = [...nearShop].sort((a, b) => b.rating - a.rating)
-    setShopView(shopRate)
-  }
+    const shopRate = [...nearShop].sort((a, b) => b.rating - a.rating);
+    setShopView(shopRate);
+  };
 
   const handleNewShop = async () => {
-    const shopNew = [...nearShop].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
-    setShopView(shopNew)
+    const shopNew = [...nearShop].sort(
+      (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt),
+    );
+    setShopView(shopNew);
+  };
 
-  }
-
-  const handleSelectCate = (id) => {
-    setSelectedCate(id)
+  const handleSelectCate = id => {
+    setSelectedCate(id);
     if (id == 1) {
-      handleNearByShops()
+      handleNearByShops();
     } else if (id == 2) {
-      handleNewShop()
+      handleNewShop();
     } else if (id == 3) {
-      handleRateShop()
+      handleRateShop();
     }
-  }
+  };
 
   const getCart = async () => {
     try {
@@ -190,7 +209,7 @@ const HomeScreen = ({ navigation }) => {
     } catch (error) {
       console.log('error', error);
     }
-  }
+  };
 
   useEffect(() => {
     requestLocationPermission().then(hasPermission => {
@@ -207,12 +226,12 @@ const HomeScreen = ({ navigation }) => {
   }, [userLocation]);
 
   useEffect(() => {
-    getNearByShops()
-  }, [shop, userLocation])
+    getNearByShops();
+  }, [shop, userLocation]);
 
   useEffect(() => {
-    getShopPopular()
-  }, [nearShop])
+    getShopPopular();
+  }, [nearShop]);
 
   useEffect(() => {
     handleSelectCate(selectedCate);
@@ -225,50 +244,61 @@ const HomeScreen = ({ navigation }) => {
       setIsLoading(false);
     };
     fetchData();
-  }, [])
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
       getCart();
-    }, [])
-  )
+    }, []),
+  );
 
   const groupedData = [];
   for (let i = 0; i < cate.length; i += 2) {
     groupedData.push(cate.slice(i, i + 2));
   }
 
-  const renderGroupedItem = ({ item, index }) => (
+  const renderGroupedItem = ({item, index}) => (
     <View key={index}>
       {item.map(subItem => (
         <View key={subItem._id} style={styles.item}>
-          {renderCate({ item: subItem })}
+          {renderCate({item: subItem})}
         </View>
       ))}
     </View>
   );
 
-  const renderCate = ({ item }) => {
-    const { _id, name, image } = item
+  const renderCate = ({item}) => {
+    const {_id, name, image} = item;
     return (
-      <TouchableOpacity key={_id} style={styles.btnCate}
-        onPress={() => navigation.navigate('ShopByCategory', { item })}>
+      <TouchableOpacity
+        key={_id}
+        style={styles.btnCate}
+        onPress={() => navigation.navigate('ShopByCategory', {item})}>
         <View style={styles.viewImgCate}>
-          {image && <Image source={{ uri: image }} style={{ width: 50, height: 50 }} />}
+          {image && (
+            <Image source={{uri: image}} style={{width: 50, height: 50}} />
+          )}
         </View>
-        <TextComponent text={name} fontsize={14} styles={{ width: 63 }} textAlign={'center'} />
+        <TextComponent
+          text={name}
+          fontsize={14}
+          styles={{width: 63}}
+          textAlign={'center'}
+        />
       </TouchableOpacity>
-    )
-  }
+    );
+  };
 
-  const renderCate2 = ({ item, index }) => {
-    const { id, name } = item
+  const renderCate2 = ({item, index}) => {
+    const {id, name} = item;
     return (
       <TouchableOpacity
         key={id}
-        style={[{ marginRight: 20 }, index == cate2.length - 1 && styles.itemLast]}
-        onPress={() => handleSelectCate(id)}
-      >
+        style={[
+          {marginRight: 20},
+          index == cate2.length - 1 && styles.itemLast,
+        ]}
+        onPress={() => handleSelectCate(id)}>
         <TextComponent
           text={name}
           fontsize={16}
@@ -284,7 +314,7 @@ const HomeScreen = ({ navigation }) => {
     <ContainerComponent styles={globalStyle.container}>
       <ContainerComponent isScroll>
         <RowComponent justifyContent={'space-between'}>
-          <View style={{ flex: 1 }}>
+          <View style={{flex: 1}}>
             <TextComponent
               text={'Giao đến'}
               fontsize={16}
@@ -294,11 +324,11 @@ const HomeScreen = ({ navigation }) => {
             <RowComponent
               button
               onPress={() =>
-                navigation.navigate('EditAddress', { item: addressUser })
+                navigation.navigate('EditAddress', {item: addressUser})
               }>
               <Image
                 source={require('../../../assets/images/home/location.png')}
-                style={{ marginRight: 10 }}
+                style={{marginRight: 10}}
               />
               <TextComponent
                 text={`${addressUser}`}
@@ -362,9 +392,15 @@ const HomeScreen = ({ navigation }) => {
             horizontal
             showsHorizontalScrollIndicator={false}
             data={shopRecomend}
-            renderItem={({ item, index }) =>
-              <ShopRecomendList item={item} index={index} type={'large'} list={shopRecomend} onpress={() => navigation.navigate('Address')} />
-            }
+            renderItem={({item, index}) => (
+              <ShopRecomendList
+                item={item}
+                index={index}
+                type={'large'}
+                list={shopRecomend}
+                onpress={() => navigation.navigate('Address')}
+              />
+            )}
             keyExtractor={item => item._id}
           />
         </View>
@@ -376,7 +412,7 @@ const HomeScreen = ({ navigation }) => {
             horizontal
             showsHorizontalScrollIndicator={false}
             data={shopRecomend}
-            renderItem={({ item, index }) => (
+            renderItem={({item, index}) => (
               <ShopRecomendList item={item} index={index} list={shopRecomend} />
             )}
             key={item => item._id}
@@ -396,7 +432,13 @@ const HomeScreen = ({ navigation }) => {
         <View>
           <FlatList
             data={shopView}
-            renderItem={({ item }) => <ShopAndProductComponent type={'shop'} item={item} onPress={() => navigation.navigate('Shop', { id: item._id })} />}
+            renderItem={({item}) => (
+              <ShopAndProductComponent
+                type={'shop'}
+                item={item}
+                onPress={() => navigation.navigate('Shop', {id: item._id})}
+              />
+            )}
             keyExtractor={item => item._id}
             scrollEnabled={false}
           />
@@ -405,11 +447,14 @@ const HomeScreen = ({ navigation }) => {
       </ContainerComponent>
       <TouchableOpacity
         style={[styles.btnCart]}
-        onPress={() => navigation.navigate('Cart')}
-      >
+        onPress={() => navigation.navigate('Cart')}>
         <Image source={require('../../../assets/images/home/cart.png')} />
         <View style={styles.viewQuantityCart}>
-          <TextComponent text={cart.length > 0 ? cart.length : '0'} color={appColor.white} fontsize={10} />
+          <TextComponent
+            text={cart.length > 0 ? cart.length : '0'}
+            color={appColor.white}
+            fontsize={10}
+          />
         </View>
       </TouchableOpacity>
       <LoadingModal visible={isLoading} />
@@ -477,7 +522,7 @@ const styles = StyleSheet.create({
   },
   item: {
     marginVertical: 15,
-    height: 100
+    height: 100,
   },
   viewImgCate: {
     width: 63,
@@ -584,14 +629,18 @@ var FEATURE = [
     distance: 2,
     time: 20,
     rating: 4.3,
-    images: ['https://mcdonalds.vn/uploads/2018/food/burgers/xcheesedlx_bb.png.pagespeed.ic.T9fdYoxRFN.webp'],
+    images: [
+      'https://mcdonalds.vn/uploads/2018/food/burgers/xcheesedlx_bb.png.pagespeed.ic.T9fdYoxRFN.webp',
+    ],
   },
   {
     id: 2,
     name: 'Chicken salan',
     distance: 2,
     rating: 4.8,
-    images: ['https://mcdonalds.vn/uploads/2018/food/burgers/xcheesedlx_bb.png.pagespeed.ic.T9fdYoxRFN.webp'],
+    images: [
+      'https://mcdonalds.vn/uploads/2018/food/burgers/xcheesedlx_bb.png.pagespeed.ic.T9fdYoxRFN.webp',
+    ],
   },
   {
     id: 3,
@@ -599,7 +648,9 @@ var FEATURE = [
     distance: 2,
     time: 20,
     rating: 4.5,
-    images: ['https://mcdonalds.vn/uploads/2018/food/burgers/xcheesedlx_bb.png.pagespeed.ic.T9fdYoxRFN.webp'],
+    images: [
+      'https://mcdonalds.vn/uploads/2018/food/burgers/xcheesedlx_bb.png.pagespeed.ic.T9fdYoxRFN.webp',
+    ],
   },
 ];
 var SHOP = [
@@ -608,7 +659,9 @@ var SHOP = [
     name: 'Drumsteak Thai Ha',
     rating: 4.8,
     discount: 20,
-    images: ['https://mcdonalds.vn/uploads/2018/food/burgers/xcheesedlx_bb.png.pagespeed.ic.T9fdYoxRFN.webp'],
+    images: [
+      'https://mcdonalds.vn/uploads/2018/food/burgers/xcheesedlx_bb.png.pagespeed.ic.T9fdYoxRFN.webp',
+    ],
     latitude: 10.787273,
     longitude: 106.749809,
   },
@@ -617,7 +670,9 @@ var SHOP = [
     name: 'Chicken salan',
     rating: 5,
     discount: 20,
-    images: ['https://mcdonalds.vn/uploads/2018/food/burgers/xcheesedlx_bb.png.pagespeed.ic.T9fdYoxRFN.webp'],
+    images: [
+      'https://mcdonalds.vn/uploads/2018/food/burgers/xcheesedlx_bb.png.pagespeed.ic.T9fdYoxRFN.webp',
+    ],
     latitude: 10.84191,
     longitude: 106.64361,
   },
@@ -626,7 +681,9 @@ var SHOP = [
     name: 'Drumsteak Thai Ha',
     rating: 4.6,
     discount: 20,
-    images: ['https://mcdonalds.vn/uploads/2018/food/burgers/xcheesedlx_bb.png.pagespeed.ic.T9fdYoxRFN.webp'],
+    images: [
+      'https://mcdonalds.vn/uploads/2018/food/burgers/xcheesedlx_bb.png.pagespeed.ic.T9fdYoxRFN.webp',
+    ],
     latitude: 10.83392,
     longitude: 106.64337,
   },
