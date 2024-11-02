@@ -4,6 +4,7 @@ import ZegoUIKitPrebuiltCallService, {
   ZegoUIKitPrebuiltCallInCallScreen,
   ZegoSendCallInvitationButton,
 } from '@zegocloud/zego-uikit-prebuilt-call-rn';
+import { Image, View } from 'react-native';
 import * as ZIM from 'zego-zim-react-native';
 import * as ZPNs from 'zego-zpns-react-native';
 
@@ -11,12 +12,19 @@ import * as ZPNs from 'zego-zpns-react-native';
 export const CallConfig = async (userID, userName) => {
   try {
     await ZegoUIKitPrebuiltCallService.init(
-      785543570,
-      'c3d0338ceef0dd5036a0aefc0a2d31818597e77598a1d3c60bed8d7d912e0b5e',
+      1174464780,//AppID
+      'a13abce8327d63610fdcc01effb642e7cc6bf0e9817aa0843b74c69a1e5dd59a',//AppSign
       userID,
       userName,
       [ZIM, ZPNs],
       {
+        innerText: {
+          incomingVideoCallDialogTitle: '%0',
+          incomingVideoCallDialogMessage: 'Đang gọi đến bạn',
+          outgoingVideoCallPageMessage: 'Đang gọi...',
+          incomingCallPageDeclineButton: 'Từ chối',
+          incomingCallPageAcceptButton: 'Trả lời',
+        },
         ringtoneConfig: {
           incomingCallFileName: 'zego_incoming.mp3',
           outgoingCallFileName: 'zego_incoming.mp3',
@@ -25,21 +33,16 @@ export const CallConfig = async (userID, userName) => {
           channelID: 'ZegoUIKit',
           channelName: 'ZegoUIKit',
         },
-        waitingPageConfig: {
-          //backgroundColor: appColor.gray,
-          avatarBuilder: invitee => {
-            return (
-              <View style={{width: 100, height: 100}}>
-                <Image
-                  style={{width: '100%', height: '100%', borderRadius: 99}}
-                  resizeMode="cover"
-                  source={{
-                    uri: `https://res.cloudinary.com/djywo5wza/image/upload/v1726318840/Rectangle_201_ltuozm.jpg`,
-                  }}
-                />
-              </View>
-            );
-          },
+        avatarBuilder: () => {
+          return (
+            <View style={{width: '100%', height: '100%'}}>
+              <Image
+                style={{width: '100%', height: '100%'}}
+                resizeMode="cover"
+                source={{uri: `https://robohash.org/abc.png`}}
+              />
+            </View>
+          );
         },
       },
     );
