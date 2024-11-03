@@ -53,7 +53,7 @@ const HomeScreen = ({navigation}) => {
     //callkeep
     CallConfig(user.email, 'user' + user.email);
     //socket
-    connectSocket();
+    // connectSocket();
   }, []);
 
   const requestLocationPermission = async () => {
@@ -135,9 +135,7 @@ const HomeScreen = ({navigation}) => {
   const calculateDistanceToShop = shopLocation => {
     if (userLocation) {
       const distance = haversineDistance(userLocation, shopLocation);
-      console.log(`Khoảng cách đến shop: ${distance} km`);
       const minutes = calculateTravelTime(distance, 5);
-      console.log(`Thời gian đi đến shop: ${minutes} phút`);
       return {distance, time: minutes};
     }
     return null;

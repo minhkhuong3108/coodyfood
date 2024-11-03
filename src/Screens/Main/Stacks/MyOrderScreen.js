@@ -38,7 +38,7 @@ const MyOrderScreen = ({ navigation }) => {
   const [selectedOrder, setSelectedOrder] = useState('Chưa giải quyết');
   const [isLoading, setIsLoading] = useState(false);
   const transx = useSharedValue(0);
-  console.log('data', data);
+  // console.log('data', data);
 
   const handleSelectOrder = orderType => {
     setSelectedOrder(orderType);
@@ -98,7 +98,7 @@ const MyOrderScreen = ({ navigation }) => {
     try {
       setIsLoading(true)
       const response = await AxiosInstance().get(`/orders/orders-by-user/${user._id}`,);
-      console.log('response', response);
+      // console.log('response', response);
       setOrder(response.data);
     } catch (error) {
       console.log('error', error);
@@ -161,7 +161,7 @@ const MyOrderScreen = ({ navigation }) => {
         activeOpacity={status == 'đã giao' ? 1 : 0.7}
         onPress={
           () => {
-            if (selectedOrder == 'Chưa giải quyết') {
+            if (selectedOrder == 'Chưa giải quyết' || selectedOrder == 'Đang giao hàng') {
               navigation.navigate('CheckOrder', { item: item });
             }
           }

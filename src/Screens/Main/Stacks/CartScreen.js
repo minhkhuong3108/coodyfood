@@ -81,7 +81,7 @@ const CartScreen = ({ navigation }) => {
                 scrollEnabled={false}
                 data={cart}
                 renderItem={renderItem}
-                keyExtractor={item => item._id}
+                keyExtractor={item => item.shopId}
             />
             <LoadingModal visible={isLoading} />
         </ContainerComponent>
