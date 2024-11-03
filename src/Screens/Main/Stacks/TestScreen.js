@@ -11,7 +11,7 @@ import WebView from 'react-native-webview';
 import SpaceComponent from '../../../components/SpaceComponent';
 
 
-const TestScreen = ({ navigation }) => {
+const TestScreen = () => {
   const [token, setToken] = useState('');
   // const handlePay = async () => {
   //   try {
@@ -168,9 +168,9 @@ const TestScreen = ({ navigation }) => {
       {/* <Button title="Push Notification" onPress={handlePushNotification} />
       <Button title="Shipper nhận đơn" onPress={() => setStatus(1)} />
       <Button title="Shipper giao hàng" onPress={() => setStatus(2)} /> */}
-      <Button title="PayOS" onPress={() => Linking.openURL('coodyfood://product')} />
+      <Button title="PayOS" onPress={handlePushNotification} />
 
-      <WebView source={{ uri: 'https://pay.payos.vn/web/8b94aa93e80a49cd8f5f25dcd4c2b9e9' }} />
+      {/* <WebView source={{ uri: 'https://pay.payos.vn/web/8b94aa93e80a49cd8f5f25dcd4c2b9e9' }} /> */}
 
     </View>
   );

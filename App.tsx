@@ -1,5 +1,5 @@
 import { StatusBar, StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Provider } from 'react-redux'
 import { PersistGate } from 'redux-persist/integration/react'
 import { persistor, store } from './src/Redux/Store'
@@ -7,9 +7,52 @@ import AppNavigation from './src/navigators/AppNavigation'
 import MapScreen from './src/Screens/Main/Stacks/MapScreen'
 import TestScreen from './src/Screens/Main/Stacks/TestScreen'
 import ZaloPay from './src/utils/ZaloPay'
+import { connectSocket, getSocket } from './src/socket/socket'
+import notifee, { AndroidImportance, AndroidVisibility } from '@notifee/react-native';
+import { appColor } from './src/constants/appColor'
 
+interface Order {
+  orderId: string;
+  status: string;
+  // Các thuộc tính khác của đơn hàng
+}
 
 const App = () => {
+  useEffect(() => {
+    // Kết nối socket khi ứng dụng khởi động
+    connectSocket();
+
+    const socket = getSocket();
+
+    // Lắng nghe sự kiện thay đổi trạng thái đơn hàng
+    socket.on('order_confirmed', async (order: Order) => {
+      console.log('Order status updated:', order);
+      const channelId = await notifee.createChannel({
+        id: 'high-priority',
+        name: 'High Priority Channel',
+        importance: AndroidImportance.HIGH,
+        visibility: AndroidVisibility.PUBLIC,
+      });
+      await notifee.displayNotification({
+        title: 'Thông báo đơn hàng',
+        body: `Trạng thái đơn hàng: ${order.status}`,
+        android: {
+          channelId,
+          smallIcon: 'ic_small_icon', // optional, defaults to 'ic_launcher'.
+          color: appColor.primary,
+          // pressAction is needed if you want the notification to open the app when pressed
+          pressAction: {
+            id: 'default',
+          },
+        },
+      });
+    });
+
+
+    return () => {
+      socket.off('order_confirmed');
+    };
+  }, []);
   return (
     <>
       <Provider store={store}>

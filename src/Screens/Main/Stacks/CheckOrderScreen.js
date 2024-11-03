@@ -6,34 +6,36 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import ContainerComponent from '../../../components/ContainerComponent';
 import HeaderComponent from '../../../components/HeaderComponent';
 import TextComponent from '../../../components/TextComponent';
-import {fontFamilies} from '../../../constants/fontFamilies';
-import {appColor} from '../../../constants/appColor';
+import { fontFamilies } from '../../../constants/fontFamilies';
+import { appColor } from '../../../constants/appColor';
 import SpaceComponent from '../../../components/SpaceComponent';
-import {globalStyle} from '../../../styles/globalStyle';
+import { globalStyle } from '../../../styles/globalStyle';
 import RowComponent from '../../../components/RowComponent';
 import OrderItem from '../../../components/OrderItem';
 import ButtonComponent from '../../../components/ButtonComponent';
 import LineComponent from '../../../components/LineComponent';
-import BottomSheet, {BottomSheetBackdrop} from '@gorhom/bottom-sheet';
+import BottomSheet, { BottomSheetBackdrop } from '@gorhom/bottom-sheet';
 import AxiosInstance from '../../../helpers/AxiosInstance';
 import LoadingModal from '../../../modal/LoadingModal';
 import moment from 'moment';
 import crypto from 'crypto-js';
 import axios from 'axios';
-import {getSocket} from '../../../socket/socket';
+import { getSocket } from '../../../socket/socket';
 
-const CheckOrderScreen = ({navigation, route}) => {
-  const {item} = route.params;
+const CheckOrderScreen = ({ navigation, route }) => {
+  const { item } = route.params;
   console.log('item', item);
   const order = item.items;
   const [imagePayment, setImagePayment] = useState('');
   const [indexPay, setIndexPay] = useState(2);
   const [paymentMethod, setPaymentMethod] = useState('Tiền mặt');
   const [isLoading, setIsLoading] = useState(false);
+  const [orderStatus, setOrderStatus] = useState(item.status);
+
 
   const snapPoint = ['50%'];
   const bottomSheetRef = useRef(null);
@@ -48,16 +50,7 @@ const CheckOrderScreen = ({navigation, route}) => {
     <BottomSheetBackdrop appearsOnIndex={0} disappearsOnIndex={-1} {...props} />
   ));
   //gọi socket
-  useEffect(() => {
-    const socketInstance = getSocket();
-    //nghe phẢn hồi từ sever
-    if (socketInstance) {
-      socketInstance.on('order_confirmed', data => {
-        //xem log
-        console.log('\x1b[34m[Data]:\x1b[0m ' + JSON.stringify(data));
-      });
-    }
-  }, []);
+
 
   const options = [
     {
@@ -182,7 +175,7 @@ const CheckOrderScreen = ({navigation, route}) => {
           setIsLoading(false);
           const checkoutUrl = response.data.data.checkoutUrl;
           if (checkoutUrl) {
-            navigation.navigate('PayOS', {checkoutUrl});
+            navigation.navigate('PayOS', { checkoutUrl });
           }
         } catch (error) {
           console.log(error);
@@ -215,13 +208,22 @@ const CheckOrderScreen = ({navigation, route}) => {
 
   useEffect(() => {
     getPayment();
-  }, [item.paymentMethod]);
+    const socket = getSocket();
+    socket.on('order_confirmed', (order) => {
+      if (order.order._id === item._id) {
+        setOrderStatus(order.status)
+      }
+    })
+    return () => {
+      socket.off('order_status');
+    };
+  }, [item.paymentMethod, item._id]);
 
   return (
-    <ContainerComponent styles={{flex: 1, backgroundColor: appColor.white}}>
+    <ContainerComponent styles={{ flex: 1, backgroundColor: appColor.white }}>
       <ContainerComponent styles={globalStyle.container} isScroll>
         <HeaderComponent text={'Đơn hàng chi tiết'} isback />
-        {item.status !== 'Đang giao hàng' ? (
+        {orderStatus !== 'Đang giao hàng' ? (
           <View style={[styles.viewWait, globalStyle.shawdow]}>
             <TextComponent
               text={'Đang xử lý đơn hàng của bạn...'}
@@ -274,7 +276,7 @@ const CheckOrderScreen = ({navigation, route}) => {
 
         <SpaceComponent height={20} />
         <TextComponent
-          text={item.status}
+          text={orderStatus}
           color={appColor.primary}
           fontsize={20}
           textAlign={'center'}
@@ -333,7 +335,7 @@ const CheckOrderScreen = ({navigation, route}) => {
           <FlatList
             scrollEnabled={false}
             data={order}
-            renderItem={({item}) => <OrderItem noTouch item={item} />}
+            renderItem={({ item }) => <OrderItem noTouch item={item} />}
             keyExtractor={item => item._id}
           />
         </View>
@@ -357,7 +359,7 @@ const CheckOrderScreen = ({navigation, route}) => {
           </RowComponent>
         </RowComponent>
         <SpaceComponent height={10} />
-        {item.status == 'Chờ thanh toán' ? (
+        {orderStatus == 'Chờ thanh toán' ? (
           <RowComponent justifyContent={'space-between'}>
             <ButtonComponent
               text={'HỦY ĐƠN HÀNG'}
@@ -382,7 +384,7 @@ const CheckOrderScreen = ({navigation, route}) => {
             fontFamily={fontFamilies.bold}
           />
           <SpaceComponent height={15} />
-          <View style={{paddingHorizontal: 10}}>
+          <View style={{ paddingHorizontal: 10 }}>
             <RowComponent justifyContent={'space-between'}>
               <TextComponent text={'Tạm tính'} />
               <TextComponent text={item.totalPrice} />
