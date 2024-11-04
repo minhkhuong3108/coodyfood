@@ -11,9 +11,10 @@ import ButtonComponent from './ButtonComponent'
 import { formatDistance } from './format/FormatDistance'
 import formatTime from './format/FormatTime'
 import { formatRating } from './format/FormatRate'
+import { formatPrice } from './format/FomatPrice'
 
 const ShopAndProductComponent = ({ item, onPress, type, favorite, inCart, order, onPressAdd, onPressReduce, onPressIncrease, quantity, onPressFavorite }) => {
-    const { _id, name, images, discount, rating, distance, time, sold, price, oldPrice, address } = item
+    const { _id, name, images, discount, rating, distance, time, soldOut, price, oldPrice, address } = item
     // console.log('item', item);
 
     return (
@@ -51,8 +52,8 @@ const ShopAndProductComponent = ({ item, onPress, type, favorite, inCart, order,
             <TouchableOpacity style={[styles.container, globalStyle.shawdow]} onPress={onPress}>
                 {images && <Image source={{ uri: images[0] }} style={styles.img} />}
                 <View style={{ flex: 1 }}>
-                    <TextComponent text={name} fontsize={16} />
-                    <TextComponent text={`${sold} đã bán`} fontsize={12} color={appColor.subText} styles={{ marginTop: 8, marginBottom: 10 }} />
+                    <TextComponent text={name} numberOfLines={1} ellipsizeMode={'tail'} />
+                    <TextComponent text={`${soldOut} đã bán`} fontsize={12} color={appColor.subText} styles={{ marginTop: 8, marginBottom: 10 }} />
                     <RowComponent justifyContent={'space-between'}>
                         <RowComponent>
                             {oldPrice &&
@@ -61,7 +62,7 @@ const ShopAndProductComponent = ({ item, onPress, type, favorite, inCart, order,
                                     <SpaceComponent width={5} />
                                 </RowComponent>
                             }
-                            <TextComponent text={`${price}đ`} fontsize={14} color={appColor.primary} />
+                            <TextComponent text={`${formatPrice(price)}`} fontsize={14} color={appColor.primary} />
                         </RowComponent>
 
                         {/* Test */}

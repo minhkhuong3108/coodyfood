@@ -7,15 +7,15 @@ import RowComponent from '../components/RowComponent'
 import SpaceComponent from '../components/SpaceComponent'
 import { fontFamilies } from '../constants/fontFamilies'
 
-const AlertChoiceModal = ({ title, onClose, visible, onPress }) => {
+const AlertChoiceModal = ({ title, onClose, visible, onPress, description }) => {
     return (
         <Modal visible={visible} transparent statusBarTranslucent onRequestClose={onClose} animationType='fade'>
             <TouchableWithoutFeedback onPress={onClose}>
                 <View style={styles.container}>
                     <TouchableOpacity style={styles.body} activeOpacity={1}>
-                        <TextComponent text={'Thông báo'} fontsize={24} fontFamily={fontFamilies.bold} textAlign={'center'} />
+                        <TextComponent text={title} fontsize={22} fontFamily={fontFamilies.bold} textAlign={'center'} />
                         <SpaceComponent height={20} />
-                        <TextComponent text={title} fontsize={18} fontFamily={fontFamilies.medium} textAlign={'center'} />
+                        <TextComponent text={description} fontsize={18}  textAlign={'center'} />
                         <SpaceComponent height={40} />
                         <RowComponent justifyContent={'space-between'}>
                             <ButtonComponent text={'Hủy'} width={'48%'} backgroundColor={appColor.white}
@@ -35,7 +35,7 @@ export default AlertChoiceModal
 
 const styles = StyleSheet.create({
     body: {
-        width: '80%',
+        width: '85%',
         backgroundColor: appColor.white,
         paddingHorizontal: 20,
         // alignItems: 'center',

@@ -102,6 +102,7 @@ const CheckOutScreen = ({ navigation, route }) => {
   ];
 
   const handlePayment = async () => {
+    setVisible(false);
     try {
       if (indexPay == 0) {
         setIsLoading(true);
@@ -208,10 +209,12 @@ const CheckOutScreen = ({ navigation, route }) => {
           console.log(error);
         }
       } else if (indexPay == 2) {
-        await addOrder();
+        const resutl = await addOrder();
         setIsLoading(false)
-        ToastAndroid.show('Đặt hàng thành công', ToastAndroid.SHORT);
-        navigation.navigate('Home')
+        if (resutl) {
+          ToastAndroid.show('Đặt hàng thành công', ToastAndroid.SHORT);
+          navigation.navigate('Home')
+        }
       }
     } catch (error) {
       console.log('error', error);
@@ -244,6 +247,7 @@ const CheckOutScreen = ({ navigation, route }) => {
       console.log('response', response);
       if (response.status == true) {
         const result = response.data;
+        handleDeleteCart();
         return result;
       }
     } catch (error) {
@@ -252,6 +256,15 @@ const CheckOutScreen = ({ navigation, route }) => {
       setIsLoading(false);
     }
   };
+
+  const handleDeleteCart = async () => {
+    try {
+      const response = await AxiosInstance().delete(`/carts/delete/${user._id}/${data.shopOwner._id}`);
+      console.log('response', response);
+    } catch (error) {
+      console.log('error', error);
+    }
+  }
 
   useEffect(() => {
     setOrder(data.products || data.items);
@@ -435,10 +448,15 @@ const CheckOutScreen = ({ navigation, route }) => {
           text={'Đặt hàng'}
           height={60}
           color={appColor.white}
-          onPress={handlePayment}
+          onPress={() => setVisible(true)}
         />
         <SpaceComponent height={70} />
-        {/* <AlertChoiceModal visible={visible} title={'Xác nhận'} onClose={() => setVisible(false)} /> */}
+        <AlertChoiceModal
+          visible={visible}
+          title={'Xác nhận đặt hàng'}
+          description={'Bạn có chắc chắn muốn đặt hàng không?'}
+          onClose={() => setVisible(false)}
+          onPress={handlePayment} />
         {/* <AlertModel visible={visible} title={'Thành công'} fail onRequestClose={() => setVisible(false)}  description={'Thanh toán thành công'} /> */}
       </ContainerComponent>
       <BottomSheet

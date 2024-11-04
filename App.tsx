@@ -25,7 +25,7 @@ const App = () => {
     const socket = getSocket();
 
     // Lắng nghe sự kiện thay đổi trạng thái đơn hàng
-    socket.on('order_confirmed', async (order: Order) => {
+    socket.on('order_status', async (order: Order) => {
       console.log('Order status updated:', order);
       const channelId = await notifee.createChannel({
         id: 'high-priority',
@@ -50,7 +50,7 @@ const App = () => {
 
 
     return () => {
-      socket.off('order_confirmed');
+      socket.off('order_status');
     };
   }, []);
   return (

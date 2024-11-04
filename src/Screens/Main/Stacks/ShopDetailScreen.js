@@ -17,6 +17,7 @@ import { formatRating } from '../../../components/format/FormatRate'
 import { formatSold } from '../../../components/format/FormatSold'
 import { useSelector } from 'react-redux'
 import LoadingModal from '../../../modal/LoadingModal'
+import { formatPrice } from '../../../components/format/FomatPrice'
 
 const ShopDetailScreen = ({ navigation, route }) => {
     const { id } = route.params
@@ -59,14 +60,10 @@ const ShopDetailScreen = ({ navigation, route }) => {
 
     const getCategoriesProduct = async () => {
         try {
-            setIsLoading(true);
             const response = await AxiosInstance().get(`/productCategories/shopOwner/${id}`)
             setCategory(response.data)
         } catch (error) {
             console.log('error', error);
-        }
-        finally {
-            setIsLoading(false);
         }
     }
     const getCart = async () => {
@@ -104,49 +101,24 @@ const ShopDetailScreen = ({ navigation, route }) => {
         }
     }
 
-    const handleAddShopFavorite = async () => {
-        const data = {
-            userId: user._id,
-            shopOwnerId: id
-        }
-        try {
-            setIsLoading(true);
-            const response = await AxiosInstance().post('/favorites/add', data)
-            if (response.status == true) {
-                ToastAndroid.show('Đã thêm vào shop yêu thích', ToastAndroid.SHORT)
-                setIsFavorite(true)
-            }
-        } catch (error) {
-            console.log('error', error);
-        } finally {
-            setIsLoading(false);
-        }
-    }
-
-    const handleRemoveShopFavorite = async () => {
-        const data = {
-            userId: user._id,
-            shopOwnerId: id
-        }
-        try {
-            setIsLoading(true);
-            const response = await AxiosInstance().delete('/favorites/delete', {data})
-            if (response.status == true) {
-                ToastAndroid.show('Đã xóa khỏi shop yêu thích', ToastAndroid.SHORT)
-                setIsFavorite(false)
-            }
-        } catch (error) {
-            console.log('error', error);
-        } finally {
-            setIsLoading(false);
-        }
-    }
-
     const handleShopFavorite = async () => {
-        if (isFavorite==true) {
-            handleRemoveShopFavorite()
-        } else {
-            handleAddShopFavorite()
+        const data = {
+            userId: user._id,
+            shopOwnerId: id
+        }
+        try {
+            setIsLoading(true);
+            const response = isFavorite
+                ? await AxiosInstance().delete('/favorites/delete', { data })
+                : await AxiosInstance().post('/favorites/add', data)
+            if (response.status == true) {
+                ToastAndroid.show(isFavorite ? 'Đã xóa khỏi shop yêu thích' : 'Đã thêm vào shop yêu thích', ToastAndroid.SHORT)
+                setIsFavorite(!isFavorite)
+            }
+        } catch (error) {
+            console.log('error', error);
+        } finally {
+            setIsLoading(false);
         }
     }
 
@@ -170,7 +142,8 @@ const ShopDetailScreen = ({ navigation, route }) => {
         try {
             setIsLoading(true);
             const response = await AxiosInstance().get(`/products/category/${selectedCategory}`)
-            setProducts(response.data)
+            const sortedProducts = response.data.sort((a, b) => b.soldOut - a.soldOut);
+            setProducts(sortedProducts)
         } catch (error) {
             console.log('error', error);
         } finally {
@@ -223,25 +196,18 @@ const ShopDetailScreen = ({ navigation, route }) => {
     }
 
     useEffect(() => {
-        getShopDetail()
-        getCart()
-        getShopFavorite()
-    }, [])
-
-    useEffect(() => {
-        if (shopDetail) {
-            getCategoriesProduct()
-        }
-    }, [shopDetail])
-
-    useEffect(() => {
         if (category.length > 0) {
             setSelectedCategory(category[0]._id);
-            getProducts()
         }
     }, [category]);
 
-    const { name, images, rating, distance, time, sold, price, oldPrice, countReview } = shopDetail
+    useEffect(() => {
+        if (selectedCategory) {
+            getProducts();
+        }
+    }, [selectedCategory]);
+
+    const { name, images, rating, distance, time, sold, price, countReview } = shopDetail
 
     const isProductInCart = (productId) => {
         return cart && cart.some(item => item._id === productId);
@@ -265,20 +231,20 @@ const ShopDetailScreen = ({ navigation, route }) => {
     }
 
     const renderPopularFood = ({ item }) => {
-        const { name, price, sold, images } = item
+        const { name, price, soldOut, images } = item
         return (
             <TouchableOpacity style={styles.containerPopularFood} onPress={() => navigation.navigate('Product')}>
                 <ImageBackground source={{ uri: images[0] }} style={styles.imgProduct}>
                     <View style={styles.viewSold}>
-                        <TextComponent text={`${formatSold(sold)} đã bán`} color={appColor.white} fontsize={10} />
+                        <TextComponent text={`${formatSold(soldOut)} đã bán`} color={appColor.white} fontsize={10} />
                     </View>
                 </ImageBackground>
                 <SpaceComponent width={15} />
                 <View style={{ flex: 1 }}>
-                    <TextComponent text={name} />
+                    <TextComponent text={name} fontsize={14} ellipsizeMode={'tail'} numberOfLines={1}/>
                     <SpaceComponent height={30} />
                     <RowComponent justifyContent={'space-between'}>
-                        <TextComponent text={`${price}.000đ`} color={appColor.primary} />
+                        <TextComponent text={`${formatPrice(price)}`} color={appColor.primary} />
                         <ButtonComponent type={'link'} styles={styles.btnAdd} image={require('../../../assets/images/shopDetail/add.png')} />
                     </RowComponent>
                 </View>
@@ -299,7 +265,7 @@ const ShopDetailScreen = ({ navigation, route }) => {
     useEffect(() => {
         const fetchData = async () => {
             setIsLoading(true);
-            await Promise.all([getShopDetail(), getCart()]);
+            await Promise.all([getShopDetail(), getCart(), getShopFavorite(), getCategoriesProduct()]);
             setIsLoading(false);
         };
         fetchData();
@@ -359,9 +325,9 @@ const ShopDetailScreen = ({ navigation, route }) => {
                         <FlatList
                             horizontal
                             showsHorizontalScrollIndicator={false}
-                            data={popularFood}
+                            data={products}
                             renderItem={renderPopularFood}
-                            keyExtractor={item => item.id}
+                            keyExtractor={item => item._id}
                         />
                     </View>
                     <SpaceComponent height={20} />
@@ -386,11 +352,11 @@ const ShopDetailScreen = ({ navigation, route }) => {
                     <SpaceComponent height={60} />
                 </ContainerComponent>
             </ContainerComponent>
-            {cart && <RowComponent onPress={handleOpenBottomSheet}
+            {cart && data && <RowComponent onPress={handleOpenBottomSheet}
                 activeOpacity={1} button justifyContent={'space-between'} styles={styles.containerCart}>
                 <View style={styles.viewCart}>
                     <View style={styles.viewQuantity}>
-                        <TextComponent text={data.totalItem} color={appColor.white} fontsize={10} />
+                        {data.totalItem && <TextComponent text={data.totalItem} color={appColor.white} fontsize={10} />}
                     </View>
                     <Image source={require('../../../assets/images/cart/cart.png')} />
                 </View>
@@ -401,7 +367,7 @@ const ShopDetailScreen = ({ navigation, route }) => {
                         onPress={() => navigation.navigate('CheckOut', { data })} />
                 </RowComponent>
             </RowComponent>}
-            <BottomSheet
+            {data && <BottomSheet
                 enablePanDownToClose
                 ref={bottomSheetRef}
                 snapPoints={snapPoint}
@@ -425,7 +391,7 @@ const ShopDetailScreen = ({ navigation, route }) => {
                     keyExtractor={item => item._id}
                     contentContainerStyle={{ paddingHorizontal: 16 }}
                 />
-            </BottomSheet>
+            </BottomSheet>}
             <LoadingModal visible={isLoading} />
         </ContainerComponent>
     )
