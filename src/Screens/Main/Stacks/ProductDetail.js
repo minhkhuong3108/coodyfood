@@ -165,20 +165,12 @@ const ProductDetail = ({ navigation, route }) => {
         <ContainerComponent styles={{ flex: 1, backgroundColor: appColor.white }}>
             <ContainerComponent isScroll>
                 {product.images && <ImageBackground style={styles.imageBackground} source={{ uri: product.images[0] }}>
-                    <RowComponent justifyContent={'space-between'} styles={styles.containerHead}>
                         <ButtonComponent
                             image={require('../../../assets/images/shopDetail/back.png')}
                             styles={styles.btnBack}
                             type={'link'}
                             onPress={() => navigation.goBack()}
                         />
-                        <ButtonComponent
-                            image={require('../../../assets/images/shopDetail/search.png')}
-                            styles={styles.btnBack}
-                            type={'link'}
-                        />
-
-                    </RowComponent>
                 </ImageBackground>}
                 <SpaceComponent height={15} />
                 <ContainerComponent styles={[globalStyle.container, { paddingTop: 0 }]}>
@@ -215,11 +207,11 @@ const ProductDetail = ({ navigation, route }) => {
                         scrollEnabled={false}
                         data={rate}
                         renderItem={({ item }) => <ReviewList item={item} />}
-                        keyExtractor={item => item.id}
+                        keyExtractor={item => item._id}
                     />
                 </ContainerComponent>
             </ContainerComponent>
-            {cart && <RowComponent onPress={handleOpenBottomSheet}
+            {cart && data && <RowComponent onPress={handleOpenBottomSheet}
                 activeOpacity={1} button justifyContent={'space-between'} styles={styles.containerCart}>
                 <View style={styles.viewCart}>
                     <View style={styles.viewQuantity}>
@@ -234,7 +226,7 @@ const ProductDetail = ({ navigation, route }) => {
                         onPress={() => navigation.navigate('CheckOut', { data })} />
                 </RowComponent>
             </RowComponent>}
-            <BottomSheet
+            {data && <BottomSheet
                 enablePanDownToClose
                 ref={bottomSheetRef}
                 snapPoints={snapPoint}
@@ -258,7 +250,7 @@ const ProductDetail = ({ navigation, route }) => {
                     keyExtractor={item => item._id}
                     contentContainerStyle={{ paddingHorizontal: 16 }}
                 />
-            </BottomSheet>
+            </BottomSheet>}
             <LoadingModal visible={isLoading} />
         </ContainerComponent>
     )
@@ -328,15 +320,11 @@ const styles = StyleSheet.create({
         width: '100%',
         height: 233
     },
-    containerHead: {
+    btnBack: {
         position: 'absolute',
         top: 50,
         left: 24,
-        right: 24,
         zIndex: 1,
-    },
-
-    btnBack: {
         justifyContent: 'center',
         alignItems: 'center',
         width: 40,

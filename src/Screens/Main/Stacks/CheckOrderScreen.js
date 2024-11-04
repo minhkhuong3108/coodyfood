@@ -3,6 +3,7 @@ import {
   Image,
   StyleSheet,
   Text,
+  ToastAndroid,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -25,6 +26,7 @@ import moment from 'moment';
 import crypto from 'crypto-js';
 import axios from 'axios';
 import { getSocket } from '../../../socket/socket';
+import AlertChoiceModal from '../../../modal/AlertChoiceModal';
 
 const CheckOrderScreen = ({ navigation, route }) => {
   const { item } = route.params;
@@ -35,6 +37,7 @@ const CheckOrderScreen = ({ navigation, route }) => {
   const [paymentMethod, setPaymentMethod] = useState('Tiền mặt');
   const [isLoading, setIsLoading] = useState(false);
   const [orderStatus, setOrderStatus] = useState(item.status);
+  const [visible, setVisible] = useState(false);
 
 
   const snapPoint = ['50%'];
@@ -206,10 +209,27 @@ const CheckOrderScreen = ({ navigation, route }) => {
     }
   };
 
+  const handleCancelOrder = async () => {
+    setVisible(false);
+    try {
+      setIsLoading(true);
+      const response = await AxiosInstance().patch(`/orders/customerCancel/${item._id}`);
+      console.log('response', response);
+      if (response.status == true) {
+        ToastAndroid.show('Hủy đơn hàng thành công', ToastAndroid.SHORT);
+        navigation.navigate('Home');
+      }
+    } catch (error) {
+      console.log('error', error);
+    }finally{
+      setIsLoading(false);
+    }
+  }
+
   useEffect(() => {
     getPayment();
     const socket = getSocket();
-    socket.on('order_confirmed', (order) => {
+    socket.on('order_status', (order) => {
       if (order.order._id === item._id) {
         setOrderStatus(order.status)
       }
@@ -375,7 +395,7 @@ const CheckOrderScreen = ({ navigation, route }) => {
             />
           </RowComponent>
         ) : (
-          <ButtonComponent text={'HỦY ĐƠN HÀNG'} color={appColor.white} />
+          <ButtonComponent text={'HỦY ĐƠN HÀNG'} color={appColor.white} onPress={()=>setVisible(true)}/>
         )}
         <SpaceComponent height={10} />
         <View style={[styles.viewPrice, globalStyle.shawdow]}>
@@ -480,6 +500,13 @@ const CheckOrderScreen = ({ navigation, route }) => {
         </ContainerComponent>
       </BottomSheet>
       <LoadingModal visible={isLoading} />
+      <AlertChoiceModal
+        title={'Hủy đơn hàng'}
+        description={'Bạn có chắc chắn muốn hủy đơn hàng này không?'}
+        visible={visible}
+        onPress={handleCancelOrder}
+        onClose={() => setVisible(false)}
+      />
     </ContainerComponent>
   );
 };

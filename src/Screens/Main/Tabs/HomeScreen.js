@@ -8,18 +8,18 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useCallback, useEffect, useState} from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import ButtonComponent from '../../../components/ButtonComponent';
-import {useDispatch, useSelector} from 'react-redux';
-import {logout} from '../../../Redux/Reducers/LoginSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { logout } from '../../../Redux/Reducers/LoginSlice';
 import ContainerComponent from '../../../components/ContainerComponent';
-import {globalStyle} from '../../../styles/globalStyle';
+import { globalStyle } from '../../../styles/globalStyle';
 import SpaceComponent from '../../../components/SpaceComponent';
 import RowComponent from '../../../components/RowComponent';
 import TextComponent from '../../../components/TextComponent';
-import {appColor} from '../../../constants/appColor';
+import { appColor } from '../../../constants/appColor';
 import SearchComponent from '../../../components/SearchComponent';
-import {fontFamilies} from '../../../constants/fontFamilies';
+import { fontFamilies } from '../../../constants/fontFamilies';
 import Swiper from 'react-native-swiper';
 import ShopRecomendList from '../../../components/ShopRecomendList';
 import ShopAndProductComponent from '../../../components/ShopAndProductComponent';
@@ -27,15 +27,15 @@ import Geolocation from 'react-native-geolocation-service';
 import MapAPI from '../../../core/apiMap/MapAPI';
 import AxiosInstance from '../../../helpers/AxiosInstance';
 import _ from 'lodash';
-import {CallConfig} from '../../Call/Callconfig';
+import { CallConfig } from '../../Call/Callconfig';
 import LoadingModal from '../../../modal/LoadingModal';
-import {Shop} from 'iconsax-react-native';
-import {useFocusEffect} from '@react-navigation/native';
-import {connectSocket, getSocket} from '../../../socket/socket';
+import { Shop } from 'iconsax-react-native';
+import { useFocusEffect } from '@react-navigation/native';
+import { connectSocket, getSocket } from '../../../socket/socket';
 
-const HomeScreen = ({navigation}) => {
+const HomeScreen = ({ navigation }) => {
   const dispatch = useDispatch();
-  const {user} = useSelector(state => state.login);
+  const { user } = useSelector(state => state.login);
   const [search, setSearch] = useState('');
   const [cate, setCate] = useState([]);
   const [cate2, setCate2] = useState(CATE2);
@@ -80,13 +80,13 @@ const HomeScreen = ({navigation}) => {
   const getUserLocation = () => {
     Geolocation.getCurrentPosition(
       position => {
-        const {latitude, longitude} = position.coords;
+        const { latitude, longitude } = position.coords;
         setUserLocation([longitude, latitude]);
       },
       error => {
         console.error(error);
       },
-      {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
     );
   };
 
@@ -116,9 +116,9 @@ const HomeScreen = ({navigation}) => {
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos(toRad(lat1)) *
-        Math.cos(toRad(lat2)) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
+      Math.cos(toRad(lat2)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const d = R * c;
 
@@ -136,7 +136,7 @@ const HomeScreen = ({navigation}) => {
     if (userLocation) {
       const distance = haversineDistance(userLocation, shopLocation);
       const minutes = calculateTravelTime(distance, 5);
-      return {distance, time: minutes};
+      return { distance, time: minutes };
     }
     return null;
   };
@@ -144,11 +144,11 @@ const HomeScreen = ({navigation}) => {
   const getNearByShops = async () => {
     if (shop && userLocation) {
       const updatedShops = shop.map(shop => {
-        const {distance, time} = calculateDistanceToShop([
+        const { distance, time } = calculateDistanceToShop([
           shop.latitude,
           shop.longitude,
         ]);
-        return {...shop, distance, time};
+        return { ...shop, distance, time };
       });
 
       // const filteredShops = updatedShops.filter(shop => shop.distance <= 5); // Lọc các shop trong bán kính 5 km
@@ -209,13 +209,13 @@ const HomeScreen = ({navigation}) => {
     }
   };
 
-  useEffect(() => {
-    requestLocationPermission().then(hasPermission => {
-      if (hasPermission) {
-        getUserLocation();
-      }
-    });
-  }, []);
+  // useEffect(() => {
+  //   requestLocationPermission().then(hasPermission => {
+  //     if (hasPermission) {
+  //       getUserLocation();
+  //     }
+  //   });
+  // }, []);
 
   useEffect(() => {
     if (userLocation) {
@@ -228,18 +228,26 @@ const HomeScreen = ({navigation}) => {
   }, [shop, userLocation]);
 
   useEffect(() => {
-    getShopPopular();
-  }, [nearShop]);
+    if (nearShop) {
+      getShopPopular();
+      handleSelectCate(selectedCate);
+    }
+  }, [nearShop, selectedCate]);
 
-  useEffect(() => {
-    handleSelectCate(selectedCate);
-  }, [selectedCate, addressUser]);
+  // useEffect(() => {
+  //   handleSelectCate(selectedCate);
+  // }, [selectedCate, userLocation, shop]);
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
+
       await Promise.all([getCategories(), getShop()]);
-      setIsLoading(false);
+      const hasPermission = await requestLocationPermission();
+      if (hasPermission) {
+        getUserLocation();
+      }
+      setIsLoading(false); // Tắt loading sau khi tất cả các hàm đã hoàn thành
     };
     fetchData();
   }, []);
@@ -250,50 +258,53 @@ const HomeScreen = ({navigation}) => {
     }, []),
   );
 
-  const groupedData = [];
-  for (let i = 0; i < cate.length; i += 2) {
-    groupedData.push(cate.slice(i, i + 2));
-  }
+  const groupedData = useMemo(() => {
+    const result = [];
+    for (let i = 0; i < cate.length; i += 2) {
+      result.push(cate.slice(i, i + 2));
+    }
+    return result;
+  }, [cate]);
 
-  const renderGroupedItem = ({item, index}) => (
+  const renderGroupedItem = ({ item, index }) => (
     <View key={index}>
       {item.map(subItem => (
         <View key={subItem._id} style={styles.item}>
-          {renderCate({item: subItem})}
+          {renderCate({ item: subItem })}
         </View>
       ))}
     </View>
   );
 
-  const renderCate = ({item}) => {
-    const {_id, name, image} = item;
+  const renderCate = ({ item }) => {
+    const { _id, name, image } = item;
     return (
       <TouchableOpacity
         key={_id}
         style={styles.btnCate}
-        onPress={() => navigation.navigate('ShopByCategory', {item})}>
+        onPress={() => navigation.navigate('ShopByCategory', { item })}>
         <View style={styles.viewImgCate}>
           {image && (
-            <Image source={{uri: image}} style={{width: 50, height: 50}} />
+            <Image source={{ uri: image }} style={{ width: 50, height: 50 }} />
           )}
         </View>
         <TextComponent
           text={name}
           fontsize={14}
-          styles={{width: 63}}
+          styles={{ width: 63 }}
           textAlign={'center'}
         />
       </TouchableOpacity>
     );
   };
 
-  const renderCate2 = ({item, index}) => {
-    const {id, name} = item;
+  const renderCate2 = ({ item, index }) => {
+    const { id, name } = item;
     return (
       <TouchableOpacity
         key={id}
         style={[
-          {marginRight: 20},
+          { marginRight: 20 },
           index == cate2.length - 1 && styles.itemLast,
         ]}
         onPress={() => handleSelectCate(id)}>
@@ -312,7 +323,7 @@ const HomeScreen = ({navigation}) => {
     <ContainerComponent styles={globalStyle.container}>
       <ContainerComponent isScroll>
         <RowComponent justifyContent={'space-between'}>
-          <View style={{flex: 1}}>
+          <View style={{ flex: 1 }}>
             <TextComponent
               text={'Giao đến'}
               fontsize={16}
@@ -322,11 +333,11 @@ const HomeScreen = ({navigation}) => {
             <RowComponent
               button
               onPress={() =>
-                navigation.navigate('EditAddress', {item: addressUser})
+                navigation.navigate('EditAddress', { item: addressUser })
               }>
               <Image
                 source={require('../../../assets/images/home/location.png')}
-                style={{marginRight: 10}}
+                style={{ marginRight: 10 }}
               />
               <TextComponent
                 text={`${addressUser}`}
@@ -390,13 +401,13 @@ const HomeScreen = ({navigation}) => {
             horizontal
             showsHorizontalScrollIndicator={false}
             data={shopRecomend}
-            renderItem={({item, index}) => (
+            renderItem={({ item, index }) => (
               <ShopRecomendList
                 item={item}
                 index={index}
                 type={'large'}
                 list={shopRecomend}
-                onpress={() => navigation.navigate('Address')}
+                onpress={() => navigation.navigate('Shop', { id: item._id })}
               />
             )}
             keyExtractor={item => item._id}
@@ -410,8 +421,12 @@ const HomeScreen = ({navigation}) => {
             horizontal
             showsHorizontalScrollIndicator={false}
             data={shopRecomend}
-            renderItem={({item, index}) => (
-              <ShopRecomendList item={item} index={index} list={shopRecomend} />
+            renderItem={({ item, index }) => (
+              <ShopRecomendList 
+              item={item} 
+              index={index} 
+              list={shopRecomend}  
+              onpress={() => navigation.navigate('Shop', { id: item._id })}/>
             )}
             key={item => item._id}
           />
@@ -430,11 +445,11 @@ const HomeScreen = ({navigation}) => {
         <View>
           <FlatList
             data={shopView}
-            renderItem={({item}) => (
+            renderItem={({ item }) => (
               <ShopAndProductComponent
                 type={'shop'}
                 item={item}
-                onPress={() => navigation.navigate('Shop', {id: item._id})}
+                onPress={() => navigation.navigate('Shop', { id: item._id })}
               />
             )}
             keyExtractor={item => item._id}

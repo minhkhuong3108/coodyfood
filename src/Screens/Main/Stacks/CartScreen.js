@@ -14,18 +14,52 @@ import { useSelector } from 'react-redux'
 import LoadingModal from '../../../modal/LoadingModal'
 import { appInfor } from '../../../constants/appInfor'
 import { formatPrice } from '../../../components/format/FomatPrice'
+import AlertChoiceModal from '../../../modal/AlertChoiceModal'
 
 const CartScreen = ({ navigation }) => {
     const { user } = useSelector(state => state.login)
     const [cart, setCart] = useState([])
     const [isLoading, setIsLoading] = useState(false)
+    const [visible, setVisible] = useState(false)
 
     const getCart = async () => {
         try {
             setIsLoading(true)
             const response = await AxiosInstance().get(`/carts/${user._id}`)
             console.log('cart', response.data);
-            setCart(response.data)
+            if (response.data != null) {
+                setCart(response.data)
+            } else {
+                setCart([])
+            }
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    const handleDeleteCart = async () => {
+        setVisible(false)
+        try {
+            setIsLoading(true)
+            const response = await AxiosInstance().delete(`/carts/${user._id}`)
+            if (response.status === true) {
+                setCart([])
+            }
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setIsLoading(false)
+        }
+    }
+    const handleDeleteItem = async (shopId) => {
+        try {
+            setIsLoading(true)
+            const response = await AxiosInstance().delete(`/carts/delete/${user._id}/${shopId}`)
+            if (response.status === true) {
+                getCart()
+            }
         } catch (error) {
             console.log(error);
         } finally {
@@ -42,7 +76,7 @@ const CartScreen = ({ navigation }) => {
         return (
             <TouchableOpacity
                 style={styles.item}
-                onPress={() => navigation.navigate('Shop', { id: shopId })}>
+                onPress={() => navigation.navigate('Shop', { id: shopId })} >
                 <RowComponent noAlign >
                     {shopImage && <Image source={{ uri: shopImage[0] }} style={styles.imgShop} />}
                     <SpaceComponent width={10} />
@@ -50,7 +84,8 @@ const CartScreen = ({ navigation }) => {
                         <RowComponent justifyContent={'space-between'} noAlign>
                             <TextComponent numberOfLines={2} ellipsizeMode={'tail'}
                                 text={shopName} fontFamilies={fontFamilies.bold} width={appInfor.sizes.width * 0.45} />
-                            <ButtonComponent type={'link'} image={require('../../../assets/images/myorder/close.png')} />
+                            <ButtonComponent type={'link'} image={require('../../../assets/images/myorder/close.png')}
+                                onPress={() => handleDeleteItem(shopId)} />
                         </RowComponent>
                         <TextComponent text={shopAddress} fontsize={14} color={appColor.subText} />
                         <RowComponent justifyContent={'space-between'} noAlign>
@@ -66,7 +101,8 @@ const CartScreen = ({ navigation }) => {
     }
     return (
         <ContainerComponent styles={globalStyle.container} isScroll>
-            <HeaderComponent text={'Giỏ hàng'} isback imgRight={require('../../../assets/images/cart/trash.png')} />
+            <HeaderComponent text={'Giỏ hàng'} isback imgRight={require('../../../assets/images/cart/trash.png')}
+                onPress={() => setVisible(true)} />
             {
                 cart.length === 0 &&
                 <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -84,6 +120,12 @@ const CartScreen = ({ navigation }) => {
                 keyExtractor={item => item.shopId}
             />
             <LoadingModal visible={isLoading} />
+            <AlertChoiceModal
+                visible={visible}
+                title={'Xóa giỏ hàng'}
+                description={'Bạn có chắc chắn muốn xóa giỏ hàng không?'}
+                onClose={() => setVisible(false)}
+                onPress={handleDeleteCart} />
         </ContainerComponent>
     )
 }
