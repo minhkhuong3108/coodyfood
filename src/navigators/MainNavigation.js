@@ -33,6 +33,7 @@ import CartScreen from '../Screens/Main/Stacks/CartScreen';
 import ListSearchScreen from '../Screens/Main/Stacks/ListSearchScreen';
 import RatingShopScreen from '../Screens/Main/Stacks/RatingShopScreen';
 import FavoriteScreen from '../Screens/Main/Tabs/FavoriteScreen';
+import Message from '../Screens/Main/Stacks/Message';
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -62,6 +63,7 @@ const MainNavigation = () => {
       <Stack.Screen name="Rating" component={RatingShopScreen} />
       <Stack.Screen name="Cart" component={CartScreen} />
       <Stack.Screen name="ListSearch" component={ListSearchScreen} />
+      <Stack.Screen name="Message" component={Message} />
       <Stack.Screen
         options={{ headerShown: false }}
         // DO NOT change the name

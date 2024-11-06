@@ -27,6 +27,9 @@ import crypto from 'crypto-js';
 import axios from 'axios';
 import { getSocket } from '../../../socket/socket';
 import AlertChoiceModal from '../../../modal/AlertChoiceModal';
+import { CallConfig } from '../../Call/Callconfig';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {ZegoSendCallInvitationButton} from '@zegocloud/zego-uikit-prebuilt-call-rn';
 
 const CheckOrderScreen = ({ navigation, route }) => {
   const { item } = route.params;
@@ -52,8 +55,59 @@ const CheckOrderScreen = ({ navigation, route }) => {
   const renderBackdrop = useCallback(props => (
     <BottomSheetBackdrop appearsOnIndex={0} disappearsOnIndex={-1} {...props} />
   ));
-  //gọi socket
+  //
+  useEffect(() => {
+    if (orderStatus == 'Đang giao hàng') {
+      CallConfig(item.user.phone, item.user.name,item.shipper.image[0]);
+    }
+  }, [orderStatus]);
 
+  useEffect(() => {
+    console.log(item)
+    // Kết nối socket
+    const socketInstance = getSocket();
+    // Tham gia room
+    socketInstance.emit('join_room', item._id);
+    // Lắng nghe socket tin nhắn và lưuu vào 
+    try {
+      socketInstance.on('receive_message', async data => {
+        // Lấy tin nhắn hiện tại từ AsyncStorage
+        const storedMessages = await AsyncStorage.getItem('messageList');
+        const messageList = storedMessages ? JSON.parse(storedMessages) : [];
+
+        // Thêm tin nhắn mới vào danh sách
+        const newMessageList = [...messageList, data];
+
+        // Lưu danh sách mới vào AsyncStorage
+        await AsyncStorage.setItem(
+          'messageList',
+          JSON.stringify(newMessageList),
+        );
+      });
+    } catch (error) {
+      console.log(error);
+    }
+    //kiểm tra  socket hoàn thành đơn hay chưa
+    socketInstance.on('order_completed',data=>{
+      console.log(data)
+      if(data.orderId==item._id){
+        const socketInstance = getSocket();
+        removemessage()
+        socketInstance.off('receive_message');
+        socketInstance.off('order_completed');
+      }
+    })
+  }, []);
+
+  //xoá tin nhắn 
+  const removemessage=async()=>{
+    try {
+      await AsyncStorage.removeItem('messageList');
+      console.log('Đã xoá AsyncStorage tin nhắn!');
+    } catch (error) {
+      console.error('Lỗi khi xoá AsyncStorage tin nhắn:', error);
+    }
+  }
 
   const options = [
     {
@@ -238,7 +292,6 @@ const CheckOrderScreen = ({ navigation, route }) => {
       socket.off('order_status');
     };
   }, [item.paymentMethod, item._id]);
-
   return (
     <ContainerComponent styles={{ flex: 1, backgroundColor: appColor.white }}>
       <ContainerComponent styles={globalStyle.container} isScroll>
@@ -264,13 +317,20 @@ const CheckOrderScreen = ({ navigation, route }) => {
             justifyContent={'space-between'}
             styles={[styles.viewShipper, globalStyle.shawdow]}>
             <RowComponent>
-              <Image
-                style={styles.imgShipper}
-                source={require('../../../assets/images/checkOrder/avatar.png')}
-              />
+           <View style={styles.imgShipper}>
+            <Image
+            style={{flex: 1}}
+            source={{
+              uri:
+                item.shipper.image
+                  ? item.shipper.image[0]
+                  : 'https://res.cloudinary.com/djywo5wza/image/upload/v1729757743/clone_viiphm.png',
+            }}
+            />
+          </View>
               <SpaceComponent width={10} />
               <View>
-                <TextComponent text={'Nguyễn Văn A'} fontsize={18} />
+                <TextComponent text={item.shipper.name} fontsize={18} />
                 <SpaceComponent height={20} />
                 <RowComponent>
                   <TextComponent text={`Đánh giá: 5 `} fontsize={14} />
@@ -281,14 +341,24 @@ const CheckOrderScreen = ({ navigation, route }) => {
               </View>
             </RowComponent>
             <RowComponent>
-              <ButtonComponent
-                type={'link'}
-                image={require('../../../assets/images/checkOrder/call.png')}
-              />
-              <SpaceComponent width={10} />
+            <ZegoSendCallInvitationButton
+                  invitees={[
+                    //{userID: Order.user.phone, userName: Order.user.name},
+                    {userID: item.shipper.phone, userName: item.shipper.name},
+                  ]}
+                  width={45}
+                  height={45}
+                  backgroundColor={'#EF2E2E'}
+                  icon={require('../../../assets/images/shipper/callicon.png')}
+                  borderRadius={10}
+                  isVideoCall={true}
+                  resourceID={'zego_data'}
+                />
+                <View style={{marginRight:15}}/>
               <ButtonComponent
                 type={'link'}
                 image={require('../../../assets/images/checkOrder/chat.png')}
+                onPress={()=>{navigation.navigate("Message",{items:item})}}
               />
             </RowComponent>
           </RowComponent>
@@ -552,6 +622,7 @@ const styles = StyleSheet.create({
     width: 85,
     height: 85,
     borderRadius: 10,
+    overflow: 'hidden',
   },
   viewShipper: {
     width: '100%',
