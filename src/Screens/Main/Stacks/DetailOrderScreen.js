@@ -20,6 +20,7 @@ const DetailOrderScreen = ({ navigation, route }) => {
   const shop = item.shopOwner
   const user = item.user
   const address = item.shippingAddress
+  const status = item.status
   console.log('item', item);
 
   // const [products, setProducts] = useState(PRODUCTS)
@@ -131,9 +132,17 @@ const DetailOrderScreen = ({ navigation, route }) => {
       </RowComponent>
       <SpaceComponent height={20} />
       <RowComponent justifyContent={'space-between'}>
-        <ButtonComponent text={'Đánh giá'} backgroundColor={appColor.white}
-          width={'48%'} height={51} borderColor={appColor.white} onPress={() => navigation.navigate('Rating', { order_id: item._id })} />
-        <ButtonComponent text={'Đặt lại'} color={appColor.white} width={'48%'} height={51} />
+        <ButtonComponent
+          text={status == 'Đã đánh giá đơn hàng' ? 'Đã đánh giá' :
+            status == 'Đơn hàng đã được giao hoàn tất' ? 'Đánh giá' : 'Đã hủy'}
+          backgroundColor={appColor.white}
+          width={'48%'} height={51} borderColor={appColor.white}
+          color={status == 'Đơn hàng đã được giao hoàn tất' ? appColor.text : appColor.subText}
+          onPress={() => navigation.navigate('Rating', { order_id: item._id })}
+          disabled={status == 'Đơn hàng đã được giao hoàn tất' ? false : true}
+          styles={status == 'Đơn hàng đã được giao hoàn tất' ? null : styles.btnDisabled} />
+        <ButtonComponent text={'Đặt lại'} color={appColor.white} width={'48%'} height={51}
+          onPress={() => navigation.navigate('CheckOut', { data: item })} />
       </RowComponent>
       <SpaceComponent height={70} />
     </ContainerComponent>
@@ -143,6 +152,10 @@ const DetailOrderScreen = ({ navigation, route }) => {
 export default DetailOrderScreen
 
 const styles = StyleSheet.create({
+  btnDisabled: {
+    opacity: 0.8,
+    // backgroundColor: appColor.opacity,
+  },
   viewAddress: {
     width: '100%',
     paddingHorizontal: 20,

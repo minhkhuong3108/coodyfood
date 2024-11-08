@@ -38,7 +38,7 @@
     "react-native-countdown-timer-hooks": "^1.0.5",
     "react-native-device-info": "^11.1.0",
     "react-native-draggable": "^3.3.0",
-    "react-native-element-dropdown": "^2.12.1",
+    "react-native-element-dropdown": "^2.12.2",
     "react-native-encrypted-storage": "^4.0.3",
     "react-native-fbsdk-next": "^13.0.0",
     "react-native-geolocation-service": "^5.3.1",
