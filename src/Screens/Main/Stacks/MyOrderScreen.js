@@ -30,6 +30,8 @@ import { useSelector } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
 import { formatDate } from '../../../components/format/FormatDate';
 import LoadingModal from '../../../modal/LoadingModal';
+import { Dropdown } from 'react-native-element-dropdown'
+import LineComponent from '../../../components/LineComponent';
 
 const MyOrderScreen = ({ navigation }) => {
   const { user } = useSelector(state => state.login)
@@ -38,6 +40,7 @@ const MyOrderScreen = ({ navigation }) => {
   const [selectedOrder, setSelectedOrder] = useState('Chưa giải quyết');
   const [isLoading, setIsLoading] = useState(false);
   const transx = useSharedValue(0);
+  const [valueDrop, setValueDrop] = useState(status[0].value)
   // console.log('data', data);
 
   const handleSelectOrder = orderType => {
@@ -62,7 +65,7 @@ const MyOrderScreen = ({ navigation }) => {
     if (selectedOrder == 'Đang giao hàng') {
       transx.value = withTiming(appInfor.sizes.width * 0.31, { duration: 300 });
     }
-    else if (selectedOrder == 'Đơn hàng đã được giao hoàn tất') {
+    else if (selectedOrder == 'Lịch sử') {
       transx.value = withTiming(appInfor.sizes.width * 0.62, { duration: 300 });
     } else {
       transx.value = withTiming(0, { duration: 300 });
@@ -92,6 +95,10 @@ const MyOrderScreen = ({ navigation }) => {
       filterCart()
     }, [selectedOrder])
   );
+
+useEffect(() => {
+  filterCart()
+}, [valueDrop]);
 
 
   const getOrder = async () => {
@@ -136,7 +143,28 @@ const MyOrderScreen = ({ navigation }) => {
   const getOrderFinished = async () => {
     try {
       if (order) {
-        const result = order.filter(item => item.status === 'Đơn hàng đã được giao hoàn tất')
+        const result = order.filter(item => {
+          if (valueDrop == 'all') {
+            return item.status === 'Đơn hàng đã được giao hoàn tất' ||
+              item.status === 'Đã đánh giá đơn hàng' ||
+              item.status === 'Người dùng đã hủy đơn' ||
+              item.status === 'Shipper đã hủy đơn' ||
+              item.status === 'Nhà hàng đã hủy đơn'
+          } else if (valueDrop == 'delivered') {
+            return item.status === 'Đơn hàng đã được giao hoàn tất'
+          } else if (valueDrop == 'rated') {
+            return item.status === 'Đã đánh giá đơn hàng'
+          } else if (valueDrop == 'cancel') {
+            return item.status === 'Người dùng đã hủy đơn' ||
+              item.status === 'Shipper đã hủy đơn' ||
+              item.status === 'Nhà hàng đã hủy đơn'
+          }
+          // valueDrop == 'rated' && item.status === 'Đơn hàng đã được giao hoàn tất' ||
+          // item.status === 'Đã đánh giá đơn hàng' ||
+          // item.status === 'Người dùng đã hủy đơn' ||
+          // item.status === 'Shipper đã hủy đơn' ||
+          // item.status === 'Nhà hàng đã hủy đơn'
+        })
         // console.log('result', result);
         setData(result)
       }
@@ -145,8 +173,10 @@ const MyOrderScreen = ({ navigation }) => {
     }
   }
 
+
+
   const rendreitem = ({ item }) => {
-    const { _id, shopId, status, date, price, time, img, payment, shopAddress, shopImage, shopName, totalItem, totalPrice } = item;
+    const { _id, status, price } = item;
     const products = item.items
     const { orderDate, paymentMethod } = item
     const { name, address, images, rating } = item.shopOwner
@@ -175,27 +205,30 @@ const MyOrderScreen = ({ navigation }) => {
               <TextComponent text={price} fontsize={14} color={appColor.primary} fontFamily={fontFamilies.bold} />
 
             </RowComponent>
-            {address ? (
-              <RowComponent>
-                {/* <Image source={require('../../../assets/images/address/location.png')}
-                  style={{ width: 20, height: 20, marginVertical: 5 }} /> */}
-                <SpaceComponent width={5} />
-                <TextComponent text={address} fontsize={14} color={appColor.subText} />
-              </RowComponent>
-            ) :
-              <TextComponent text={shopAddress} fontsize={14} color={appColor.subText} width={appInfor.sizes.width * 0.5} />
-            }
+
+            <TextComponent text={address} fontsize={14} color={appColor.subText} />
+
             <RowComponent justifyContent={'space-between'} noAlign>
               <TextComponent text={formatDate(orderDate)} width={appInfor.sizes.width * 0.3} fontsize={14} color={appColor.subText} />
 
-              <TextComponent text={`${paymentMethod}${status === 'Chờ thanh toán' ? ' (Chờ thanh toán)' : ''}`} fontsize={14} fontFamily={fontFamilies.bold} />
+              {
+                selectedOrder == 'Lịch sử' ?
+                  <TextComponent text={`${status == 'Đơn hàng đã được giao hoàn tất' ?
+                    'Đã giao hàng' :
+                    status == 'Đã đánh giá đơn hàng' ? 'Đã đánh giá' : 'Đã hủy'}`}
+                    color={status == 'Đơn hàng đã được giao hoàn tất' ?
+                      appColor.green :
+                      status == 'Đã đánh giá đơn hàng' ? appColor.yellow : appColor.primary}
+                    fontFamily={fontFamilies.bold} /> :
+                  <TextComponent text={`${paymentMethod}${status === 'Chờ thanh toán' ? ' (Chờ thanh toán)' : ''}`} fontsize={14} fontFamily={fontFamilies.bold} />
+              }
             </RowComponent>
           </View>
 
         </RowComponent>
 
         {/* nút đặt hàng lại_xem chi tiết */}
-        {status == 'Đơn hàng đã được giao hoàn tất' && (
+        {selectedOrder == 'Lịch sử' && (
           <RowComponent justifyContent={'space-between'} styles={{ width: '100%' }}>
             <ButtonComponent
               width={appInfor.sizes.width * 0.3}
@@ -239,11 +272,33 @@ const MyOrderScreen = ({ navigation }) => {
             handleSelectOrder={handleSelectOrder}
           />
           <OrderComponent
-            order={'Đơn hàng đã được giao hoàn tất'}
+            order={'Lịch sử'}
             selectedOrder={selectedOrder}
             handleSelectOrder={handleSelectOrder}
           />
         </View>
+        {selectedOrder == 'Lịch sử' &&
+          <View>
+            <SpaceComponent height={20} />
+            <Dropdown
+              style={styles.dropdown}
+              placeholderStyle={styles.placeholder}
+              selectedTextStyle={styles.selectedTextStyle}
+              iconStyle={{ tintColor: 'white' }}
+              data={status}
+              maxHeight={300}
+              labelField="label"
+              valueField="value"
+              placeholder={status[0].label}
+              value={valueDrop}
+              onChange={item => {
+                setValueDrop(item.value);
+              }}
+            />
+            <SpaceComponent height={10} />
+            <LineComponent />
+          </View>
+        }
         {/* flatlist */}
         {data.length == 0 && (
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -254,7 +309,7 @@ const MyOrderScreen = ({ navigation }) => {
           </View>
         )}
         <FlatList
-        showsVerticalScrollIndicator={false}
+          showsVerticalScrollIndicator={false}
           data={data}
           renderItem={rendreitem}
           keyExtractor={item => item._id}
@@ -267,6 +322,20 @@ const MyOrderScreen = ({ navigation }) => {
 
 export default MyOrderScreen;
 const styles = StyleSheet.create({
+  selectedTextStyle: {
+    color: appColor.white,
+    fontFamily: fontFamilies.bold,
+  },
+  placeholder: {
+    fontFamily: fontFamilies.bold,
+    color: appColor.white,
+  },
+  dropdown: {
+    backgroundColor: appColor.primary,
+    padding: 13,
+    width: '38%',
+    borderRadius: 10,
+  },
   imgShop: {
     width: 80,
     height: 80,
@@ -293,59 +362,78 @@ const styles = StyleSheet.create({
   },
 
 });
-const DATA = [
+// const DATA = [
+//   {
+//     id: 1,
+//     status: 'đã giao',
+//     name: 'Quán A',
+//     date: '01 thg 01, 00:00',
+//     price: '999.999đ',
+//     img: 'https://res.cloudinary.com/djywo5wza/image/upload/v1726317280/Rectangle_175_mcixkk.png',
+//     order: [
+//       { id: 1, count: 1, name: 'lục trà', price: '111.111.111đ' },
+//       { id: 2, count: 2, name: 'lục trà', price: '1.111đ' },
+//     ],
+//     payment: 'PayOS'
+//   },
+//   {
+//     id: 2,
+//     status: 'đang giao',
+//     name: 'Quán B',
+//     time: '18',
+//     img: 'https://res.cloudinary.com/djywo5wza/image/upload/v1726318386/Rectangle_175_xzn14n.jpg',
+//     date: 'Đơn hàng của bạn đã được nhận để giao hàng',
+//     price: '99.999.999đ',
+//     order: [
+//       { id: 1, count: 5, name: 'lục trà táo', price: '111.111.111đ' },
+//       { id: 2, count: 10, name: 'lục trà cam', price: '1.111đ' },
+//     ],
+//     payment: 'ZaloPay'
+//   },
+//   {
+//     id: 3,
+//     status: 'đã giao',
+//     name: 'Quán Cdgdfhf-fsf gfdg gfdg',
+//     date: '01 thg 01, 00:00',
+//     img: 'https://res.cloudinary.com/djywo5wza/image/upload/v1726318392/Rectangle_175_1_rspy6t.jpg',
+//     price: '9.999.999đ',
+//     order: [{ id: 1, count: 10, name: 'lục trà mạn', price: '111.111.111đ' }],
+//     payment: 'Tiền mặt'
+//   },
+//   {
+//     id: 4,
+//     name: 'Quán GG',
+//     date: '01 thg 01, 00:00',
+//     img: 'https://res.cloudinary.com/djywo5wza/image/upload/v1726318392/Rectangle_175_1_rspy6t.jpg',
+//     price: '9.999.999đ',
+//     order: [{ id: 1, count: 5, name: 'lục trà táo', price: '111.111.111đ' },
+//     { id: 2, count: 10, name: 'lục trà cam', price: '1.111đ' },],
+//   },
+//   {
+//     id: 5,
+//     name: 'Quán W',
+//     date: '01 thg 01, 00:00',
+//     img: 'https://res.cloudinary.com/djywo5wza/image/upload/v1726318392/Rectangle_175_1_rspy6t.jpg',
+//     price: '9.999.999đ',
+//     order: [{ id: 1, count: 10, name: 'lục trà mạn', price: '111.111.111đ' }],
+//   },
+// ];
+
+const status = [
   {
-    id: 1,
-    status: 'đã giao',
-    name: 'Quán A',
-    date: '01 thg 01, 00:00',
-    price: '999.999đ',
-    img: 'https://res.cloudinary.com/djywo5wza/image/upload/v1726317280/Rectangle_175_mcixkk.png',
-    order: [
-      { id: 1, count: 1, name: 'lục trà', price: '111.111.111đ' },
-      { id: 2, count: 2, name: 'lục trà', price: '1.111đ' },
-    ],
-    payment: 'PayOS'
+    label: 'Tất cả',
+    value: 'all'
   },
   {
-    id: 2,
-    status: 'đang giao',
-    name: 'Quán B',
-    time: '18',
-    img: 'https://res.cloudinary.com/djywo5wza/image/upload/v1726318386/Rectangle_175_xzn14n.jpg',
-    date: 'Đơn hàng của bạn đã được nhận để giao hàng',
-    price: '99.999.999đ',
-    order: [
-      { id: 1, count: 5, name: 'lục trà táo', price: '111.111.111đ' },
-      { id: 2, count: 10, name: 'lục trà cam', price: '1.111đ' },
-    ],
-    payment: 'ZaloPay'
+    label: 'Đã giao',
+    value: 'delivered'
   },
   {
-    id: 3,
-    status: 'đã giao',
-    name: 'Quán Cdgdfhf-fsf gfdg gfdg',
-    date: '01 thg 01, 00:00',
-    img: 'https://res.cloudinary.com/djywo5wza/image/upload/v1726318392/Rectangle_175_1_rspy6t.jpg',
-    price: '9.999.999đ',
-    order: [{ id: 1, count: 10, name: 'lục trà mạn', price: '111.111.111đ' }],
-    payment: 'Tiền mặt'
+    label: 'Đánh giá',
+    value: 'rated'
   },
   {
-    id: 4,
-    name: 'Quán GG',
-    date: '01 thg 01, 00:00',
-    img: 'https://res.cloudinary.com/djywo5wza/image/upload/v1726318392/Rectangle_175_1_rspy6t.jpg',
-    price: '9.999.999đ',
-    order: [{ id: 1, count: 5, name: 'lục trà táo', price: '111.111.111đ' },
-    { id: 2, count: 10, name: 'lục trà cam', price: '1.111đ' },],
-  },
-  {
-    id: 5,
-    name: 'Quán W',
-    date: '01 thg 01, 00:00',
-    img: 'https://res.cloudinary.com/djywo5wza/image/upload/v1726318392/Rectangle_175_1_rspy6t.jpg',
-    price: '9.999.999đ',
-    order: [{ id: 1, count: 10, name: 'lục trà mạn', price: '111.111.111đ' }],
-  },
-];
+    label: 'Đã hủy',
+    value: 'cancel'
+  }
+]

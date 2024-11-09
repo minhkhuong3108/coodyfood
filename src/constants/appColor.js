@@ -11,4 +11,5 @@ export const appColor = {
   green: '#34C759',
   note: '#EFEFEF',
   input: '#D9D9D9',
+  yellow: '#FFC529',
 };
