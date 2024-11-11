@@ -5,14 +5,15 @@ import { appColor } from '../../constants/appColor'
 import TextComponent from '../../components/TextComponent'
 import { fontFamilies } from '../../constants/fontFamilies'
 import ButtonComponent from '../../components/ButtonComponent'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
-const OnboardingScreen = ({ navigation }) => {
+const OnboardingScreen = ({ navigation, setIsFirshLauch }) => {
     const [index, setIndex] = useState(0)
     console.log('index', index);
 
-    const handleFinish = () => {
-        navigation.navigate('Login')
-
+    const handleNextOrFinish = () => {
+        AsyncStorage.setItem('hasLauched', 'true')
+        setIsFirshLauch(false)
     }
     return (
         <View style={styles.container}>
@@ -31,11 +32,11 @@ const OnboardingScreen = ({ navigation }) => {
                 <Image style={styles.img} source={require('../../assets/images/auth/onboarding/3.png')} />
             </Swiper>
             {index == 2 && <View style={{ position: 'absolute', bottom: 50 }}>
-                <TouchableOpacity onPress={handleFinish} style={styles.btnNext}>
+                <TouchableOpacity onPress={handleNextOrFinish} style={styles.btnNext}>
                     <Image source={require('../../assets/images/auth/onboarding/next.png')} />
                 </TouchableOpacity>
             </View>}
-            <ButtonComponent type={'link'} text={'Skip'} styles={styles.skip} onPress={() => navigation.navigate('Login')} />
+            <ButtonComponent type={'link'} text={'Skip'} styles={styles.skip} onPress={handleNextOrFinish} />
         </View>
     )
 }
