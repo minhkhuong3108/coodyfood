@@ -11,3 +11,7 @@ export const validatePhone = (phone) => {
     const phoneRegex = /^0\d{9,}$/
     return phoneRegex.test(phone)
 }
+
+export const validatePhoneOrEmail = (input) => {
+    return validateEmail(input) || validatePhone(input)
+}

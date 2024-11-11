@@ -1,6 +1,6 @@
-import {StyleSheet, Text, View} from 'react-native';
-import React from 'react';
-import {createStackNavigator} from '@react-navigation/stack';
+import { StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { createStackNavigator } from '@react-navigation/stack';
 import OnboardingScreen from '../Screens/Auth/OnboardingScreen';
 import LoginScreen from '../Screens/Auth/LoginScreen';
 import RegisterScreen from '../Screens/Auth/RegisterScreen';
@@ -9,20 +9,48 @@ import VerifyScreen from '../Screens/Auth/VerifyScreen';
 import ResetPasswordScreen from '../Screens/Auth/ResetPasswordScreen';
 import AddPhoneScreen from '../Screens/Auth/AddPhoneScreen';
 import TicketSaleScreen from '../Screens/Main/Stacks/TicketSaleScreen';
-
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const Stack = createStackNavigator();
 
 const AuthNavigation = () => {
+  const [isFirstLauch, setIsFirshLauch] = useState(null)
+
+  useEffect(() => {
+    const checkFirstLaunch = async () => {
+      try {
+        const hasLauched = await AsyncStorage.getItem('hasLauched')
+        console.log('hasLauched:', hasLauched);
+
+        if (hasLauched == null) {
+          AsyncStorage.setItem('hasLauched', 'true')
+          setIsFirshLauch(true)
+        } else {
+          setIsFirshLauch(false)
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    checkFirstLaunch()
+  }, [])
+
   return (
-    <Stack.Navigator screenOptions={{headerShown: false}}>
-      <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="Register" component={RegisterScreen} />
-      <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-      <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
-      <Stack.Screen name="Verify" component={VerifyScreen} />
-      <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
-      <Stack.Screen name="AddPhone" component={AddPhoneScreen} />
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+
+      {isFirstLauch ?
+        <Stack.Screen name="Onboarding" >
+          {props => <OnboardingScreen {...props} setIsFirshLauch={setIsFirshLauch} />}
+        </Stack.Screen> :
+        <>
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Register" component={RegisterScreen} />
+          <Stack.Screen name="Onboarding" component={OnboardingScreen} />
+          <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
+          <Stack.Screen name="Verify" component={VerifyScreen} />
+          <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
+          <Stack.Screen name="AddPhone" component={AddPhoneScreen} />
+        </>
+      }
     </Stack.Navigator>
   );
 };

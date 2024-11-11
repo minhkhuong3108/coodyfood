@@ -1,5 +1,5 @@
 import { Image, StyleSheet, Text, ToastAndroid, View } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import TextComponent from '../../components/TextComponent'
 import { fontFamilies } from '../../constants/fontFamilies'
 import { appColor } from '../../constants/appColor'
@@ -10,7 +10,7 @@ import ButtonComponent from '../../components/ButtonComponent'
 import { appInfor } from '../../constants/appInfor'
 import { globalStyle } from '../../styles/globalStyle'
 import ContainerComponent from '../../components/ContainerComponent'
-import { validateEmail, validatePass } from '../../utils/Validators'
+import { validateEmail, validatePass, validatePhoneOrEmail } from '../../utils/Validators'
 import { useDispatch, useSelector } from 'react-redux'
 import { login, loginWithFB, loginWithGG, loginWithSocial } from '../../Redux/API/UserAPI'
 import LoadingModal from '../../modal/LoadingModal'
@@ -59,29 +59,20 @@ const LoginScreen = ({ navigation }) => {
             setErrorPass('Password không được để trống')
             return
         }
-        if (!validateEmail(email)) {
-            setErrorEmail('Email không phù hợp')
+        if (!validatePhoneOrEmail(email)) {
+            setErrorEmail('Email hoặc số điện thoại không hợp lệ')
             return
         }
         if (!validatePass(password)) {
             setErrorPass('Password phải có trên 6 kí tự')
             return
         }
-        // setIsLoading(true)
         try {
             dispatch(login({ identifier: email, password }))
-            // if (status == 'loading') {
-            //     setIsLoading(true)
-            // }
-            // if (status == 'success') {
-            //     setIsLoading(false)
-            //     ToastAndroid.show('Đăng nhập thành công', ToastAndroid.SHORT)
-            // }
         } catch (error) {
 
         }
     }
-
     const handleLoginWithGG = async () => {
         await GoogleSignin.hasPlayServices({
             showPlayServicesUpdateDialog: true,
@@ -129,6 +120,21 @@ const LoginScreen = ({ navigation }) => {
             console.log(error);
         }
     }
+
+    useEffect(() => {
+        if (status === 'loading') {
+            setIsLoading(true);
+        }
+        if (status == 'success') {
+            setIsLoading(false)
+            ToastAndroid.show('Đăng nhập thành công', ToastAndroid.SHORT)
+            // navigation.navigate('Main')
+        }
+        if (status == 'failed') {
+            setIsLoading(false)
+            ToastAndroid.show('Tài khoản hoặc mật khẩu sai', ToastAndroid.SHORT)
+        }
+    }, [status])
     return (
         <ContainerComponent styles={globalStyle.container}>
             <Image source={require('../../assets/images/auth/login-regis/logo.png')} />

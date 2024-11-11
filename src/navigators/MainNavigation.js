@@ -9,16 +9,15 @@ import ProductDetail from '../Screens/Main/Stacks/ProductDetail';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import TextComponent from '../components/TextComponent';
 import { appColor } from '../constants/appColor';
-import EditProfile from '../Screens/Profile/EditProfile';
 import ReviewShopScreen from '../Screens/Main/Stacks/ReviewShopScreen';
 import TicketSaleScreen from '../Screens/Main/Stacks/TicketSaleScreen';
-import ProfileScreen from '../Screens/Main/Stacks/ProfileScreen';
+import ProfileScreen from '../Screens/Main/Tabs/ProfileScreen';
 import CheckOutScreen from '../Screens/Main/Stacks/CheckOutScreen';
 import CheckOrderScreen from '../Screens/Main/Stacks/CheckOrderScreen';
 import AddressScreen from '../Screens/Main/Stacks/AddressScreen';
 import EditAddressScreen from '../Screens/Main/Stacks/EditAddressScreen';
 import AddAddressScreen from '../Screens/Main/Stacks/AddAddressScreen';
-import MyOrderScreen from '../Screens/Main/Stacks/MyOrderScreen';
+import MyOrderScreen from '../Screens/Main/Tabs/MyOrderScreen';
 import DetailOrderScreen from '../Screens/Main/Stacks/DetailOrderScreen';
 import SearchAddressScreen from '../Screens/Main/Stacks/SearchAddressScreen';
 import PayOSPaymentScreen from '../Screens/Main/Stacks/PayOSPaymentScreen'
@@ -34,6 +33,8 @@ import ListSearchScreen from '../Screens/Main/Stacks/ListSearchScreen';
 import RatingShopScreen from '../Screens/Main/Stacks/RatingShopScreen';
 import FavoriteScreen from '../Screens/Main/Tabs/FavoriteScreen';
 import Message from '../Screens/Main/Stacks/Message';
+import EditProfile from '../Screens/Main/Stacks/EditProfile';
+import ChangePasswordScreen from '../Screens/Main/Stacks/ChangePasswordScreen';
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -64,6 +65,7 @@ const MainNavigation = () => {
       <Stack.Screen name="Cart" component={CartScreen} />
       <Stack.Screen name="ListSearch" component={ListSearchScreen} />
       <Stack.Screen name="Message" component={Message} />
+      <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
       <Stack.Screen
         options={{ headerShown: false }}
         // DO NOT change the name

@@ -24,3 +24,15 @@ export const loginWithSocial = createAsyncThunk(
         }
     }
 )
+
+export const updateProfile = createAsyncThunk(
+    'updateProfile',
+    async (data, { rejectedWithValue }) => {
+        try {
+            const response = await AxiosInstance().put(`/users/update/${data.id}`, data.data)
+            return response.data
+        } catch (error) {
+            return rejectedWithValue(error)
+        }
+    }
+)
