@@ -105,7 +105,6 @@ const MapScreen = () => {
     const handleGetDirections = () => {
         if (userLocation && customerLocation && shopLocation) {
             getDirections();
-            getGeocoding()
         }
     };
 

@@ -15,7 +15,6 @@ import { logout } from '../../../Redux/Reducers/LoginSlice'
 const ProfileScreen = ({ navigation }) => {
   const { user } = useSelector(state => state.login);
   const dispatch = useDispatch()
-  console.log(user);
   return (
     <ContainerComponent styles={globalStyle.container}>
       <RowComponent>
@@ -48,6 +47,7 @@ const ProfileScreen = ({ navigation }) => {
       <ProfileItem
         text={'Đổi mật khẩu'}
         image={require('../../../assets/images/profile/password.png')}
+        onpress={() => navigation.navigate('ChangePassword')}
       />
       <ProfileItem
         text={'Đăng xuất'}
