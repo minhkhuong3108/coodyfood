@@ -101,7 +101,7 @@ const ReviewShopScreen = ({ navigation, route }) => {
                 scrollEnabled={false}
                 data={data}
                 renderItem={({ item }) => <ReviewList item={item} />}
-                keyExtractor={item => item.id}
+                keyExtractor={item => item._id}
             />
             <LoadingModal visible={isLoading} />
         </ContainerComponent>

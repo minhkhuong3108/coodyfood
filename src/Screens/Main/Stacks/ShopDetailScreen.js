@@ -241,7 +241,7 @@ const ShopDetailScreen = ({ navigation, route }) => {
                 </ImageBackground>
                 <SpaceComponent width={15} />
                 <View style={{ flex: 1 }}>
-                    <TextComponent text={name} fontsize={14} ellipsizeMode={'tail'} numberOfLines={1}/>
+                    <TextComponent text={name} fontsize={14} ellipsizeMode={'tail'} numberOfLines={1} />
                     <SpaceComponent height={30} />
                     <RowComponent justifyContent={'space-between'}>
                         <TextComponent text={`${formatPrice(price)}`} color={appColor.primary} />
@@ -361,7 +361,7 @@ const ShopDetailScreen = ({ navigation, route }) => {
                     <Image source={require('../../../assets/images/cart/cart.png')} />
                 </View>
                 <RowComponent>
-                    <TextComponent text={data.totalPrice} />
+                    <TextComponent text={formatPrice(data.totalPrice)} />
                     <SpaceComponent width={10} />
                     <ButtonComponent text={'Giao hàng'} color={appColor.white} height={70} width={150} borderRadius={0}
                         onPress={() => navigation.navigate('CheckOut', { data })} />

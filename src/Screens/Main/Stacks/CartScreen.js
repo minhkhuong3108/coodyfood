@@ -87,7 +87,8 @@ const CartScreen = ({ navigation }) => {
                             <ButtonComponent type={'link'} image={require('../../../assets/images/myorder/close.png')}
                                 onPress={() => handleDeleteItem(shopId)} />
                         </RowComponent>
-                        <TextComponent text={shopAddress} fontsize={14} color={appColor.subText} />
+                        <TextComponent text={shopAddress} fontsize={14} color={appColor.subText} 
+                        numberOfLines={2} ellipsizeMode={'tail'} styles={{paddingRight:20}}/>
                         <RowComponent justifyContent={'space-between'} noAlign>
                             <TextComponent text={`${formatPrice(totalPrice)}`} color={appColor.primary} fontFamily={fontFamilies.bold} />
                             <TextComponent text={totalItem + ' sản phẩm'} />

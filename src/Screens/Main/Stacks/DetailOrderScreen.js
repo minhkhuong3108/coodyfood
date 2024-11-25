@@ -21,6 +21,7 @@ const DetailOrderScreen = ({ navigation, route }) => {
   const user = item.user
   const address = item.shippingAddress
   const status = item.status
+  const totalPrice = item.totalPrice + item.shippingfee - item.voucher
   console.log('item', item);
 
   // const [products, setProducts] = useState(PRODUCTS)
@@ -117,7 +118,12 @@ const DetailOrderScreen = ({ navigation, route }) => {
       <SpaceComponent height={10} />
       <RowComponent justifyContent={'space-between'} >
         <TextComponent text={'Phí giao hàng'} fontsize={14} />
-        <TextComponent text={'20.000đ'} fontsize={14} />
+        <TextComponent text={formatPrice(item.shippingfee)} fontsize={14} />
+      </RowComponent>
+      <SpaceComponent height={10} />
+      <RowComponent justifyContent={'space-between'} >
+        <TextComponent text={'Mã giảm giá'} fontsize={14} />
+        <TextComponent text={item.voucher ? formatPrice(item.voucher) : '0đ'} fontsize={14} />
       </RowComponent>
       <SpaceComponent height={10} />
       <LineComponent />
@@ -127,7 +133,7 @@ const DetailOrderScreen = ({ navigation, route }) => {
         <RowComponent>
           {images && <Image source={images} />}
           <SpaceComponent width={10} />
-          <TextComponent text={'220.000đ'} fontsize={14} fontFamily={fontFamilies.bold} />
+          <TextComponent text={formatPrice(totalPrice)} fontsize={14} fontFamily={fontFamilies.bold} />
         </RowComponent>
       </RowComponent>
       <SpaceComponent height={20} />
@@ -138,7 +144,7 @@ const DetailOrderScreen = ({ navigation, route }) => {
           backgroundColor={appColor.white}
           width={'48%'} height={51} borderColor={appColor.white}
           color={status == 'Đơn hàng đã được giao hoàn tất' ? appColor.text : appColor.subText}
-          onPress={() => navigation.navigate('Rating', { order_id: item._id })}
+          onPress={() => navigation.navigate('Rating', { item: item })}
           disabled={status == 'Đơn hàng đã được giao hoàn tất' ? false : true}
           styles={status == 'Đơn hàng đã được giao hoàn tất' ? null : styles.btnDisabled} />
         <ButtonComponent text={'Đặt lại'} color={appColor.white} width={'48%'} height={51}

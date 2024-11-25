@@ -28,7 +28,7 @@ const ShopAndProductComponent = ({ item, onPress, type, favorite, inCart, order,
                     </RowComponent>
                     {
                         order || favorite ? <TextComponent text={address} fontsize={12} color={appColor.subText}
-                            styles={{ marginVertical: 6 }} /> :
+                            styles={{ marginVertical: 6,marginRight:20 }} ellipsizeMode={'tail'} numberOfLines={2}/> :
                             <RowComponent styles={{ marginVertical: 8 }}>
                                 <Image source={require('../assets/images/home/star.png')} style={{ marginRight: 5 }} />
                                 <TextComponent
@@ -43,9 +43,16 @@ const ShopAndProductComponent = ({ item, onPress, type, favorite, inCart, order,
                                 <SpaceComponent width={4} />
                                 <Image source={require('../assets/images/shopDetail/star.png')} />
                             </RowComponent> :
-                            <View style={styles.viewDiscount}>
-                                <TextComponent text={`Mã giảm: ${20}%`} fontsize={12} fontFamily={fontFamilies.regular} color={appColor.primary} />
-                            </View>
+                            // <View style={styles.viewDiscount}>
+                            //     <TextComponent text={`Mã giảm: ${20}%`} fontsize={12} fontFamily={fontFamilies.regular} color={appColor.primary} />
+                            // </View>
+                            <RowComponent>
+                                <Image source={require('../assets/images/home/location_small.png')} 
+                                style={{ marginRight: 5 }} />
+                                <TextComponent text={address} fontsize={12} 
+                                color={appColor.subText} ellipsizeMode={'tail'} numberOfLines={1}
+                                styles={{paddingRight:20}}/>
+                            </RowComponent>
                     }
                 </View>
             </TouchableOpacity> :
@@ -126,7 +133,7 @@ const styles = StyleSheet.create({
         marginBottom: 20,
         flexDirection: 'row',
         alignItems: 'center',
-        paddingRight: 10,
+        paddingRight: 20,
         backgroundColor: appColor.white,
     }
 })

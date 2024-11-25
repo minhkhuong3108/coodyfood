@@ -36,17 +36,21 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { formatPrice } from '../../../components/format/FomatPrice';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSelector } from 'react-redux';
+import { calculateTravelTime, haversineDistance } from '../../../components/CaculateDistanceShop';
 
 const CheckOutScreen = ({ navigation, route }) => {
   const { data, sale } = route.params;
   const { user } = useSelector(state => state.login);
+  const { userLocation } = useSelector(state => state.userLocation);
+  console.log('userLocation', userLocation);
+
   const [voucher, setVoucher] = useState(0);
   const [order, setOrder] = useState();
   const [indexPay, setIndexPay] = useState(2);
   const [visible, setVisible] = useState(false);
   const [note, setNote] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [currentAddress, setCurrentAddress] = useState({});
+  const [currentAddress, setCurrentAddress] = useState(null);
   const snapPoint = ['50%'];
   const bottomSheetRef = useRef(null);
   // console.log('indexPay', indexPay);
@@ -57,11 +61,34 @@ const CheckOutScreen = ({ navigation, route }) => {
   // console.log('data', data);
 
   const { name, _id } = data.shopOwner;
+  const shopOwner = data.shopOwner;
+  console.log('shopOwner', shopOwner.latitude);
+
+  const shippingfee = 15000;
   const totalPrice = data.totalPrice;
-  const total = totalPrice - voucher;
+  const total = totalPrice - voucher + shippingfee;
+  const [distance, setDistance] = useState(null);
+  console.log('distance', distance);
+
+
+  const calculateDistanceToShop = (shopLocation) => {
+    console.log('shopLocation', shopLocation);
+
+    const distance = haversineDistance(userLocation, shopLocation);
+    return setDistance(distance);
+
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      calculateDistanceToShop([shopOwner.latitude, shopOwner.longitude]);
+    }, [shopOwner]),
+  )
+  // useEffect(() => {
+  //   calculateDistanceToShop([shopOwner.latitude, shopOwner.longtitude]);
+  // }, [shopOwner]);
 
   //TEST(phí giao hàng)
-  const shippingfee = '15000';
 
   const handleOpenBottomSheet = index => {
     setSelectedOrderIndex(index);
@@ -230,6 +257,7 @@ const CheckOutScreen = ({ navigation, route }) => {
       console.log('Error loading current address:', error);
     }
   };
+console.log('voucher', voucher);
 
   const addOrder = async () => {
     const body = {
@@ -240,6 +268,8 @@ const CheckOutScreen = ({ navigation, route }) => {
       shopOwner: data.shopOwner._id,
       totalPrice,
       shippingfee: shippingfee, //test
+      voucherId: voucher,
+      distance,
     };
     setIsLoading(true);
     try {
@@ -303,16 +333,17 @@ const CheckOutScreen = ({ navigation, route }) => {
             />
           </RowComponent>
           <SpaceComponent height={10} />
-          <TextComponent
+          {currentAddress ? <TextComponent
             text={`${currentAddress.name} | ${currentAddress.phone}`}
-            fontsize={12}
-          />
+            fontsize={12} /> :
+            <TextComponent text={'Chưa chọn địa chỉ'} fontsize={14} />
+          }
           <SpaceComponent height={10} />
-          <TextComponent
+          {currentAddress && <TextComponent
             text={currentAddress.address}
             fontsize={12}
             width={280}
-          />
+          />}
         </View>
         <SpaceComponent height={15} />
         <RowComponent justifyContent={'space-between'}>

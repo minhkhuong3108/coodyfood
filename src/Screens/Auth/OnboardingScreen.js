@@ -7,13 +7,13 @@ import { fontFamilies } from '../../constants/fontFamilies'
 import ButtonComponent from '../../components/ButtonComponent'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
-const OnboardingScreen = ({ navigation, setIsFirshLauch }) => {
+const OnboardingScreen = ({ navigation, setIsFirstLauch }) => {
     const [index, setIndex] = useState(0)
     console.log('index', index);
 
     const handleNextOrFinish = () => {
         AsyncStorage.setItem('hasLauched', 'true')
-        setIsFirshLauch(false)
+        setIsFirstLauch(false)
     }
     return (
         <View style={styles.container}>
@@ -31,11 +31,11 @@ const OnboardingScreen = ({ navigation, setIsFirshLauch }) => {
                 <Image style={styles.img} source={require('../../assets/images/auth/onboarding/2.png')} />
                 <Image style={styles.img} source={require('../../assets/images/auth/onboarding/3.png')} />
             </Swiper>
-            {index == 2 && <View style={{ position: 'absolute', bottom: 50 }}>
-                <TouchableOpacity onPress={handleNextOrFinish} style={styles.btnNext}>
+            {index == 2 && <TouchableOpacity onPress={handleNextOrFinish} style={{ position: 'absolute', bottom: 50 }}>
+                <TouchableOpacity style={styles.btnNext}>
                     <Image source={require('../../assets/images/auth/onboarding/next.png')} />
                 </TouchableOpacity>
-            </View>}
+            </TouchableOpacity>}
             <ButtonComponent type={'link'} text={'Skip'} styles={styles.skip} onPress={handleNextOrFinish} />
         </View>
     )

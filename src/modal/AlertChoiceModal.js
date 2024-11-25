@@ -16,7 +16,7 @@ const AlertChoiceModal = ({ title, onClose, visible, onPress, description }) => 
                         <TextComponent text={title} fontsize={22} fontFamily={fontFamilies.bold} textAlign={'center'} />
                         <SpaceComponent height={20} />
                         <TextComponent text={description} fontsize={18}  textAlign={'center'} />
-                        <SpaceComponent height={40} />
+                        <SpaceComponent height={30} />
                         <RowComponent justifyContent={'space-between'}>
                             <ButtonComponent text={'Hủy'} width={'48%'} backgroundColor={appColor.white}
                                 borderColor={appColor.white}

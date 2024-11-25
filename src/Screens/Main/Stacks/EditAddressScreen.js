@@ -127,9 +127,9 @@ const EditAddressScreen = ({ navigation, route }) => {
             <HeaderComponent text={'Chỉnh sửa địa chỉ'} isback />
             <TextComponent text={'Thông tin địa chỉ'} />
             <SpaceComponent height={20} />
-            <InputComponent value={name} placeholder={'Tên người dùng'} onchangeText={text => setName(text)} />
+            <InputComponent value={name} placeholder={'Tên người dùng'} onChangeText={text => setName(text)} label={'Tên người dủng'} />
             <SpaceComponent height={10} />
-            <InputComponent value={phone} placeholder={'Số điện thoại'} onchangeText={text => setPhone(text)} />
+            <InputComponent value={phone} placeholder={'Số điện thoại'} onChangeText={text => setPhone(text)} label={'Số điện thoại'} />
             <SpaceComponent height={10} />
             <SpaceComponent height={20} />
             <LineComponent />
