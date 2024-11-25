@@ -32,8 +32,6 @@ const ChangePasswordScreen = () => {
     const [visible, setVisible] = useState(false)
     console.log('user', user);
     
-
-
     const changePass = (data) => {
         setPassword(data)
         setErrorPass('')
