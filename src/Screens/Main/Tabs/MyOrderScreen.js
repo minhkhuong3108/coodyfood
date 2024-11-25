@@ -32,6 +32,7 @@ import { formatDate } from '../../../components/format/FormatDate';
 import LoadingModal from '../../../modal/LoadingModal';
 import { Dropdown } from 'react-native-element-dropdown'
 import LineComponent from '../../../components/LineComponent';
+import { formatPrice } from '../../../components/format/FomatPrice';
 
 const MyOrderScreen = ({ navigation }) => {
   const { user } = useSelector(state => state.login)
@@ -41,7 +42,7 @@ const MyOrderScreen = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
   const transx = useSharedValue(0);
   const [valueDrop, setValueDrop] = useState(status[0].value)
-  // console.log('data', data);
+  console.log('data', data);
 
   const handleSelectOrder = orderType => {
     setSelectedOrder(orderType);
@@ -96,9 +97,9 @@ const MyOrderScreen = ({ navigation }) => {
     }, [selectedOrder])
   );
 
-useEffect(() => {
-  filterCart()
-}, [valueDrop]);
+  useEffect(() => {
+    filterCart()
+  }, [valueDrop]);
 
 
   const getOrder = async () => {
@@ -176,7 +177,7 @@ useEffect(() => {
 
 
   const rendreitem = ({ item }) => {
-    const { _id, status, price } = item;
+    const { _id, status, totalPrice } = item;
     const products = item.items
     const { orderDate, paymentMethod } = item
     const { name, address, images, rating } = item.shopOwner
@@ -202,11 +203,10 @@ useEffect(() => {
           <View style={{ justifyContent: 'space-between', flex: 1 }}>
             <RowComponent justifyContent={'space-between'} noAlign>
               <TextComponent numberOfLines={2} ellipsizeMode={'tail'} text={name} fontFamilies={fontFamilies.bold} width={appInfor.sizes.width * 0.45} />
-              <TextComponent text={price} fontsize={14} color={appColor.primary} fontFamily={fontFamilies.bold} />
-
+              <TextComponent text={formatPrice(totalPrice)} fontsize={14} color={appColor.primary} fontFamily={fontFamilies.bold} />
             </RowComponent>
 
-            <TextComponent text={address} fontsize={14} color={appColor.subText} />
+            <TextComponent text={address} fontsize={12} color={appColor.subText} styles={{marginVertical:10}}/>
 
             <RowComponent justifyContent={'space-between'} noAlign>
               <TextComponent text={formatDate(orderDate)} width={appInfor.sizes.width * 0.3} fontsize={14} color={appColor.subText} />

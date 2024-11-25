@@ -32,10 +32,13 @@ import LoadingModal from '../../../modal/LoadingModal';
 import { Shop } from 'iconsax-react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { connectSocket, getSocket } from '../../../socket/socket';
+import { getUserLocation } from '../../../Redux/API/UserLocation';
+import { calculateTravelTime, haversineDistance } from '../../../components/CaculateDistanceShop';
 
 const HomeScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const { user } = useSelector(state => state.login);
+  const { status, userLocation } = useSelector(state => state.userLocation);
   const [search, setSearch] = useState('');
   const [cate, setCate] = useState([]);
   const [cate2, setCate2] = useState(CATE2);
@@ -43,11 +46,13 @@ const HomeScreen = ({ navigation }) => {
   const [shop, setShop] = useState();
   const [shopView, setShopView] = useState([]);
   const [selectedCate, setSelectedCate] = useState(1);
-  const [userLocation, setUserLocation] = useState(null);
+  // const [userLocation, setUserLocation] = useState(null);
   const [addressUser, setAddressUser] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [nearShop, setNearShop] = useState([]);
   const [cart, setCart] = useState([]);
+  console.log('userLocation', userLocation);
+  
 
   useEffect(() => {
     //callkeep
@@ -67,28 +72,30 @@ const HomeScreen = ({ navigation }) => {
   };
   const getGeocoding = async () => {
     if (userLocation) {
+      setIsLoading(true);
       let geocoding = await MapAPI.getGeocoding({
         description: encodeURIComponent(
           userLocation[1] + ',' + userLocation[0],
         ),
       });
       // console.log('geocoding', geocoding.results[0].formatted_address);
+      setIsLoading(false);
       setAddressUser(geocoding.results[0].formatted_address);
     }
   };
 
-  const getUserLocation = () => {
-    Geolocation.getCurrentPosition(
-      position => {
-        const { latitude, longitude } = position.coords;
-        setUserLocation([longitude, latitude]);
-      },
-      error => {
-        console.error(error);
-      },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
-    );
-  };
+  // const getUserLocation = () => {
+  //   Geolocation.getCurrentPosition(
+  //     position => {
+  //       const { latitude, longitude } = position.coords;
+  //       setUserLocation([longitude, latitude]);
+  //     },
+  //     error => {
+  //       console.error(error);
+  //     },
+  //     { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
+  //   );
+  // };
 
   const getShop = async () => {
     const response = await AxiosInstance().get('/shopOwner');
@@ -102,35 +109,7 @@ const HomeScreen = ({ navigation }) => {
     setCate(response.data);
   };
 
-  const haversineDistance = (coords1, coords2) => {
-    const toRad = x => (x * Math.PI) / 180;
 
-    const lat1 = coords1[1];
-    const lon1 = coords1[0];
-    const lat2 = coords2[0];
-    const lon2 = coords2[1];
-
-    const R = 6371; // Bán kính Trái Đất tính bằng km
-    const dLat = toRad(lat2 - lat1);
-    const dLon = toRad(lon2 - lon1);
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(toRad(lat1)) *
-      Math.cos(toRad(lat2)) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const d = R * c;
-
-    return d; // Khoảng cách tính bằng km
-  };
-
-  const calculateTravelTime = (distance, speed) => {
-    const time = distance / speed;
-    const hours = Math.floor(time);
-    const minutes = Math.floor((time - hours) * 60);
-    return minutes;
-  };
 
   const calculateDistanceToShop = shopLocation => {
     if (userLocation) {
@@ -245,12 +224,22 @@ const HomeScreen = ({ navigation }) => {
       await Promise.all([getCategories(), getShop()]);
       const hasPermission = await requestLocationPermission();
       if (hasPermission) {
-        getUserLocation();
+        dispatch(getUserLocation());
       }
       setIsLoading(false); // Tắt loading sau khi tất cả các hàm đã hoàn thành
     };
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (status === 'success') {
+      setIsLoading(false);
+    } else if (status === 'failed') {
+      setIsLoading(false);
+    } else {
+      setIsLoading(true);
+    }
+  }, [status]);
 
   useFocusEffect(
     useCallback(() => {
@@ -333,7 +322,7 @@ const HomeScreen = ({ navigation }) => {
             <RowComponent
               button
               onPress={() =>
-                navigation.navigate('EditAddress', { item: addressUser })
+                navigation.navigate('Address')
               }>
               <Image
                 source={require('../../../assets/images/home/location.png')}
@@ -422,11 +411,11 @@ const HomeScreen = ({ navigation }) => {
             showsHorizontalScrollIndicator={false}
             data={shopRecomend}
             renderItem={({ item, index }) => (
-              <ShopRecomendList 
-              item={item} 
-              index={index} 
-              list={shopRecomend}  
-              onpress={() => navigation.navigate('Shop', { id: item._id })}/>
+              <ShopRecomendList
+                item={item}
+                index={index}
+                list={shopRecomend}
+                onpress={() => navigation.navigate('Shop', { id: item._id })} />
             )}
             key={item => item._id}
           />

@@ -15,26 +15,26 @@ import AxiosInstance from '../../../helpers/AxiosInstance'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useSelector } from 'react-redux'
 import { useFocusEffect } from '@react-navigation/native'
+import { calculateTravelTime, haversineDistance } from '../../../components/CaculateDistanceShop'
 
-const SearchScreen = ({ navigation,route }) => {
+const SearchScreen = ({ navigation, route }) => {
     const { user } = useSelector(state => state.login)
-    const name = route.params?.name||''
+    const { userLocation } = useSelector(state => state.userLocation)
+    const name = route.params?.name || ''
     console.log('name', name);
-    
+
     const [search, setSearch] = useState(name)
     console.log('search', search);
-    
-    const [shop, setShop] = useState(FEATURE)
+
+    const [shop, setShop] = useState()
     const [suggested, setSuggested] = useState([])
     const [historySearch, setHistorySearch] = useState([])
     const [isModalVisible, setModalVisible] = useState(false);
+    const [nearShop, setNearShop] = useState([])
     const historyKey = `historySearch_${user._id}`
-    console.log('historySearch', historySearch);
-
-    // console.log('search', search.length);
-
-
+    // console.log('historySearch', historySearch);
     const refSearch = useRef()
+    // console.log('suggest', suggested);
 
     useFocusEffect(
         useCallback(() => {
@@ -60,6 +60,7 @@ const SearchScreen = ({ navigation,route }) => {
 
     useEffect(() => {
         loadHistorySearch()
+        getShop()
     }, [])
 
     const handleSearchChange = (text) => {
@@ -81,6 +82,46 @@ const SearchScreen = ({ navigation,route }) => {
             console.log(error);
         }
     }
+
+    const getShop = async () => {
+        try {
+            const response = await AxiosInstance().get('/shopOwner')
+            setShop(response.data)
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const calculateDistanceToShop = shopLocation => {
+        if (userLocation) {
+            const distance = haversineDistance(userLocation, shopLocation);
+            const minutes = calculateTravelTime(distance, 5);
+            return { distance, time: minutes };
+        }
+        return null;
+    };
+
+    const getNearByShops = async () => {
+        if (shop && userLocation) {
+            const updatedShops = shop.map(shop => {
+                const { distance, time } = calculateDistanceToShop([
+                    shop.latitude,
+                    shop.longitude,
+                ]);
+                return { ...shop, distance, time };
+            });
+
+            // const filteredShops = updatedShops.filter(shop => shop.distance <= 5); // Lọc các shop trong bán kính 5 km
+            const filteredShops = updatedShops.filter(
+                shop => shop.distance <= 1000000,
+            ); // Lọc các shop trong bán kính 5 km
+            setNearShop(filteredShops);
+        }
+    };
+
+    useEffect(() => {
+        getNearByShops();
+    }, [shop, userLocation]);
 
     const loadHistorySearch = async () => {
         try {
@@ -111,15 +152,21 @@ const SearchScreen = ({ navigation,route }) => {
     }
 
     const handleSuggestionsShop = (item) => {
+        console.log('yes');
+
         setHistorySearch(prevHistory => {
             const newHistory = [item, ...prevHistory.filter(prev => prev._id !== item._id)]
             saveHistorySearch(newHistory.slice(0, 3))
             return newHistory.slice(0, 3)
         })
         if (item.type === 'shop') {
+            console.log('shop');
+
             navigation.navigate('ListSearch', { type: 'shop', shopId: item._id, name: item.name })
         }
         else if (item.type === 'category') {
+            console.log('category');
+
             navigation.navigate('ListSearch', { type: 'category', category: item._id, name: item.name })
         }
     }
@@ -183,15 +230,16 @@ const SearchScreen = ({ navigation,route }) => {
                         <FlatList
                             horizontal
                             showsHorizontalScrollIndicator={false}
-                            data={shop}
+                            data={nearShop}
                             renderItem={({ item, index }) => <ShopRecomendList item={item} index={index} list={shop} />}
-                            keyExtractor={item => item.id}
+                            keyExtractor={item => item._id}
                         />
                     </View>
                 </View>
             }
         </ContainerComponent>
     )
+
 }
 
 export default SearchScreen
@@ -226,8 +274,9 @@ var FEATURE = [
         id: 2,
         name: 'Chicken salan',
         distance: 2,
+        time: 20,
         rating: 4.8,
-        images: ['https://mcdonalds.vn/uploads/2018/food/burgers/xcheesedlx_bb.png.pagespeed.ic.T9fdYoxRFN.webp'],
+        images: ['https://delivery.pizza4ps.com/_next/image?url=https%3A%2F%2Fstorage.googleapis.com%2Fdelivery-system-v2%2F03-04-2022-Image%2F20100005_2.jpg&w=1920&q=75'],
     },
     {
         id: 3,

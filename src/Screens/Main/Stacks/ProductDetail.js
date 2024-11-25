@@ -165,12 +165,12 @@ const ProductDetail = ({ navigation, route }) => {
         <ContainerComponent styles={{ flex: 1, backgroundColor: appColor.white }}>
             <ContainerComponent isScroll>
                 {product.images && <ImageBackground style={styles.imageBackground} source={{ uri: product.images[0] }}>
-                        <ButtonComponent
-                            image={require('../../../assets/images/shopDetail/back.png')}
-                            styles={styles.btnBack}
-                            type={'link'}
-                            onPress={() => navigation.goBack()}
-                        />
+                    <ButtonComponent
+                        image={require('../../../assets/images/shopDetail/back.png')}
+                        styles={styles.btnBack}
+                        type={'link'}
+                        onPress={() => navigation.goBack()}
+                    />
                 </ImageBackground>}
                 <SpaceComponent height={15} />
                 <ContainerComponent styles={[globalStyle.container, { paddingTop: 0 }]}>
@@ -220,7 +220,7 @@ const ProductDetail = ({ navigation, route }) => {
                     <Image source={require('../../../assets/images/cart/cart.png')} />
                 </View>
                 <RowComponent>
-                    <TextComponent text={data.totalPrice} />
+                    {data.totalPrice && <TextComponent text={formatPrice(data.totalPrice)} />}
                     <SpaceComponent width={10} />
                     <ButtonComponent text={'Giao hàng'} color={appColor.white} height={70} width={150} borderRadius={0}
                         onPress={() => navigation.navigate('CheckOut', { data })} />

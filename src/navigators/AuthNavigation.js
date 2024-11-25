@@ -13,7 +13,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const Stack = createStackNavigator();
 
 const AuthNavigation = () => {
-  const [isFirstLauch, setIsFirshLauch] = useState(null)
+  const [isFirstLaunch, setIsFirstLaunch] = useState(false);
 
   useEffect(() => {
     const checkFirstLaunch = async () => {
@@ -23,9 +23,9 @@ const AuthNavigation = () => {
 
         if (hasLauched == null) {
           AsyncStorage.setItem('hasLauched', 'true')
-          setIsFirshLauch(true)
+          setIsFirstLaunch(true)
         } else {
-          setIsFirshLauch(false)
+          setIsFirstLaunch(false)
         }
       } catch (error) {
         console.log(error);
@@ -37,9 +37,9 @@ const AuthNavigation = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
 
-      {isFirstLauch ?
+      {isFirstLaunch ?
         <Stack.Screen name="Onboarding" >
-          {props => <OnboardingScreen {...props} setIsFirshLauch={setIsFirshLauch} />}
+          {props => <OnboardingScreen {...props} setIsFirstLauch={setIsFirstLaunch} />}
         </Stack.Screen> :
         <>
           <Stack.Screen name="Login" component={LoginScreen} />
