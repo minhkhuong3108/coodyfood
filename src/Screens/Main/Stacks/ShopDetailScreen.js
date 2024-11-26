@@ -18,11 +18,15 @@ import { formatSold } from '../../../components/format/FormatSold'
 import { useSelector } from 'react-redux'
 import LoadingModal from '../../../modal/LoadingModal'
 import { formatPrice } from '../../../components/format/FomatPrice'
+import { calculateTravelTime, haversineDistance } from '../../../components/CaculateDistanceShop'
+import { formatDistance } from '../../../components/format/FormatDistance'
+import formatTime from '../../../components/format/FormatTime'
 
 const ShopDetailScreen = ({ navigation, route }) => {
     const { id } = route.params
 
     const { user } = useSelector(state => state.login)
+    const { userLocation } = useSelector(state => state.userLocation)
     const [popularFood, setPopularFood] = useState(POPULARFOOD)
     const [products, setProducts] = useState([])
     const [category, setCategory] = useState([])
@@ -32,6 +36,11 @@ const ShopDetailScreen = ({ navigation, route }) => {
     const [isLoading, setIsLoading] = useState(false)
     const [shopDetail, setShopDetail] = useState({})
     const [isFavorite, setIsFavorite] = useState(false)
+    const [distance, setDistance] = useState(null)
+    const [time, setTime] = useState(null)
+    // console.log('shopDetail', shopDetail);
+    
+    
 
     const snapPoint = ['80%']
     const bottomSheetRef = useRef(null)
@@ -57,6 +66,19 @@ const ShopDetailScreen = ({ navigation, route }) => {
             console.log('error', error);
         }
     }
+
+    const calculateDistanceToShop = shopLocation => {
+        if (userLocation) {
+          const distance = haversineDistance(userLocation, shopLocation);
+          const minutes = calculateTravelTime(distance, 5);
+          return setDistance(distance), setTime(minutes);
+        }
+        return null;
+      };
+      
+      useEffect(() => {
+        calculateDistanceToShop([shopDetail.latitude, shopDetail.longitude]);
+        }, [shopDetail, userLocation]);
 
     const getCategoriesProduct = async () => {
         try {
@@ -207,7 +229,7 @@ const ShopDetailScreen = ({ navigation, route }) => {
         }
     }, [selectedCategory]);
 
-    const { name, images, rating, distance, time, sold, price, countReview } = shopDetail
+    const { name, images, rating, sold, price, countReview } = shopDetail
 
     const isProductInCart = (productId) => {
         return cart && cart.some(item => item._id === productId);
@@ -298,13 +320,13 @@ const ShopDetailScreen = ({ navigation, route }) => {
                                 <RowComponent>
                                     <Image source={require('../../../assets/images/shopDetail/location.png')} />
                                     <SpaceComponent width={10} />
-                                    <TextComponent text={`4.6 km`} fontsize={14} />
+                                    <TextComponent text={formatDistance(distance)} fontsize={14} />
                                 </RowComponent>
                                 <SpaceComponent width={20} />
                                 <RowComponent>
                                     <Image source={require('../../../assets/images/shopDetail/time.png')} />
                                     <SpaceComponent width={10} />
-                                    <TextComponent text={`30 phút`} fontsize={14} />
+                                    <TextComponent text={`${time} phút`} fontsize={14} />
                                 </RowComponent>
                             </RowComponent>
                         </View>
