@@ -56,7 +56,7 @@ const CheckOutScreen = ({ navigation, route }) => {
   // console.log('indexPay', indexPay);
   const [paymentMethod, setPaymentMethod] = useState('Tiền mặt');
   const [selectedOrderIndex, setSelectedOrderIndex] = useState(null);
-  // console.log('currentAddress', currentAddress);
+  console.log('currentAddress', currentAddress);
   // console.log('paymentMethod', paymentMethod);
   // console.log('data', data);
 
@@ -129,10 +129,15 @@ const CheckOutScreen = ({ navigation, route }) => {
   ];
 
   const handlePayment = async () => {
+    if (!currentAddress) {
+      setVisible(false);
+      return Alert.alert('Thông báo', 'Vui lòng chọn địa chỉ giao hàng');
+    }
     setVisible(false);
     try {
       if (indexPay == 0) {
         setIsLoading(true);
+        // const result2 = await addOrder();
         const config = {
           appid: 2554,
           key1: 'sdngKKJmqEMzvh5QQcdD2A9XBSKUNaYn',
@@ -142,12 +147,13 @@ const CheckOutScreen = ({ navigation, route }) => {
         const transID = Math.floor(Math.random() * 1000000);
         let appid = config.appid;
         let app_trans_id = `${moment().format('YYMMDD')}_${transID}`;
-        let amount = 10000;
+        let amount = total;
         let appuser = 'ZaloPayDemo';
         let apptime = Date.now();
         let embeddata = '{}';
         let item = '[]';
         let callback_url = `coodyfood://success-payment`;
+        let return_url = `coodyfood://success-payment`;
         let description = 'Merchant description for order #' + app_trans_id;
         let hmacInput =
           appid +
@@ -174,7 +180,8 @@ const CheckOutScreen = ({ navigation, route }) => {
           embed_data: embeddata,
           description: description,
           mac: mac,
-          callback_url,
+          // callback_url: callback_url,
+          return_url: return_url,
         };
 
         const response = await axios.post(config.endpoint, order);
@@ -184,6 +191,8 @@ const CheckOutScreen = ({ navigation, route }) => {
         if (result.return_code == 1) {
           var ZaloPay = NativeModules.PayZaloBridge;
           ZaloPay.payOrder(result.zp_trans_token);
+          console.log('result', result);
+          
         } else {
           Alert.alert('Error', 'Failed  to create order');
         }
@@ -257,7 +266,7 @@ const CheckOutScreen = ({ navigation, route }) => {
       console.log('Error loading current address:', error);
     }
   };
-console.log('voucher', voucher);
+  console.log('voucher', voucher);
 
   const addOrder = async () => {
     const body = {

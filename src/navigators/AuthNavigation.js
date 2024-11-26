@@ -14,6 +14,8 @@ const Stack = createStackNavigator();
 
 const AuthNavigation = () => {
   const [isFirstLaunch, setIsFirstLaunch] = useState(false);
+  console.log('isFirstLaunch:', isFirstLaunch);
+  
 
   useEffect(() => {
     const checkFirstLaunch = async () => {
@@ -36,15 +38,13 @@ const AuthNavigation = () => {
 
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-
       {isFirstLaunch ?
         <Stack.Screen name="Onboarding" >
-          {props => <OnboardingScreen {...props} setIsFirstLauch={setIsFirstLaunch} />}
+          {props => <OnboardingScreen {...props} setIsFirstLaunch={setIsFirstLaunch} />}
         </Stack.Screen> :
         <>
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Register" component={RegisterScreen} />
-          <Stack.Screen name="Onboarding" component={OnboardingScreen} />
           <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
           <Stack.Screen name="Verify" component={VerifyScreen} />
           <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />

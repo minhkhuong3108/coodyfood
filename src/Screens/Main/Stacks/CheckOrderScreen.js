@@ -241,9 +241,9 @@ const CheckOrderScreen = ({ navigation, route }) => {
           console.log(error);
         }
       } else if (indexPay == 2) {
-        updatedOrder();
-        // setIsLoading(false)
-        // navigation.navigate('SuccessPayment')
+        await updatedOrder();
+        ToastAndroid.show('Đặt hàng thành công', ToastAndroid.SHORT);
+        navigation.navigate('Home')
       }
     } catch (error) {
       console.log('error', error);
@@ -565,7 +565,7 @@ const CheckOrderScreen = ({ navigation, route }) => {
               fontFamily={fontFamilies.bold}
             />
             <TextComponent
-              text={'600.000 đ'}
+              text={formatPrice(totalPrice)}
               fontsize={18}
               fontFamily={fontFamilies.bold}
             />
