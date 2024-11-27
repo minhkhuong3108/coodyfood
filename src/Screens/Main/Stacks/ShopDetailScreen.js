@@ -21,6 +21,7 @@ import { formatPrice } from '../../../components/format/FomatPrice'
 import { calculateTravelTime, haversineDistance } from '../../../components/CaculateDistanceShop'
 import { formatDistance } from '../../../components/format/FormatDistance'
 import formatTime from '../../../components/format/FormatTime'
+import { useFocusEffect } from '@react-navigation/native'
 
 const ShopDetailScreen = ({ navigation, route }) => {
     const { id } = route.params
@@ -39,6 +40,8 @@ const ShopDetailScreen = ({ navigation, route }) => {
     const [distance, setDistance] = useState(null)
     const [time, setTime] = useState(null)
     // console.log('shopDetail', shopDetail);
+    console.log('cart', cart);
+    
     
     
 
@@ -284,14 +287,16 @@ const ShopDetailScreen = ({ navigation, route }) => {
         )
     }
 
-    useEffect(() => {
-        const fetchData = async () => {
-            setIsLoading(true);
-            await Promise.all([getShopDetail(), getCart(), getShopFavorite(), getCategoriesProduct()]);
-            setIsLoading(false);
-        };
-        fetchData();
-    }, []);
+    useFocusEffect(
+        useCallback(() => {
+            const fetchData = async () => {
+                setIsLoading(true);
+                await Promise.all([getShopDetail(), getCart(), getShopFavorite(), getCategoriesProduct()]);
+                setIsLoading(false);
+            };
+            fetchData();
+        }, [])
+    )
 
     return (
         <ContainerComponent styles={{ flex: 1, backgroundColor: appColor.white }}>
@@ -308,9 +313,10 @@ const ShopDetailScreen = ({ navigation, route }) => {
                 <ContainerComponent styles={[globalStyle.container, { paddingTop: 0 }]}>
                     <RowComponent justifyContent={'space-between'}>
                         <View>
-                            <TextComponent text={name} fontsize={18} fontFamily={fontFamilies.bold} />
+                            <TextComponent text={name} fontsize={18} fontFamily={fontFamilies.bold}
+                             numberOfLines={1} ellipsizeMode={'tail'} styles={{paddingRight:20}}/>
                             <SpaceComponent height={15} />
-                            <RowComponent button onPress={() => navigation.navigate('ReviewShop', { id })}>
+                            <RowComponent button onPress={() => navigation.navigate('ReviewShop', { item:shopDetail })}>
                                 <Image source={require('../../../assets/images/shopDetail/star.png')} />
                                 {rating && <TextComponent text={formatRating(rating)} fontsize={14} styles={{ marginHorizontal: 5 }} />}
                                 <TextComponent text={`(${countReview} đánh giá)`} fontsize={12} color={appColor.subText} />

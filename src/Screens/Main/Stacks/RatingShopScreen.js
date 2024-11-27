@@ -33,10 +33,6 @@ const RatingShopScreen = ({ navigation, route }) => {
             ToastAndroid.show('Vui lòng đánh giá', ToastAndroid.SHORT)
             return
         }
-        if (commentShop == '') {
-            ToastAndroid.show('Vui lòng nhập bình luận', ToastAndroid.SHORT)
-            return
-        }
         const dataShop = {
             order_id: item._id,
             user_id: user._id,

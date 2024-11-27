@@ -1,6 +1,6 @@
 
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import ContainerComponent from '../../../components/ContainerComponent';
 import RowComponent from '../../../components/RowComponent';
 import TextComponent from '../../../components/TextComponent';
@@ -10,17 +10,21 @@ import { globalStyle } from '../../../styles/globalStyle';
 import ProfileItem from '../../../components/ProfileItem';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../../../Redux/Reducers/LoginSlice'
+import AlertChoiceModal from '../../../modal/AlertChoiceModal';
 
 
 const ProfileScreen = ({ navigation }) => {
   const { user } = useSelector(state => state.login);
+  console.log('user', user);
+  
+  const [visible, setVisible] = useState(false);
   const dispatch = useDispatch()
   return (
     <ContainerComponent styles={globalStyle.container}>
       <RowComponent>
         <Image
           style={styles.imgAvatar}
-          source={require('../../../assets/images/profile/avatar.png')}
+          source={{uri:user.image}}
         />
         <View>
           {/*Chỗ này là tên nhưng lúc đăng kí chưa có tên */}
@@ -52,8 +56,12 @@ const ProfileScreen = ({ navigation }) => {
       <ProfileItem
         text={'Đăng xuất'}
         image={require('../../../assets/images/profile/logout.png')}
-        onpress={() => dispatch(logout())}
+        onpress={() => setVisible(true)}
       />
+      <AlertChoiceModal visible={visible} onClose={()=>setVisible(false)}
+      title={'Đăng xuất'}
+      description={'Bạn có chắc muốn đăng xuất?'}
+      onPress={() => dispatch(logout())} />
     </ContainerComponent>
   );
 };

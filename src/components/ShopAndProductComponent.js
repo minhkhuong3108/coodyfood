@@ -23,8 +23,9 @@ const ShopAndProductComponent = ({ item, onPress, type, favorite, inCart, order,
                 {images && <Image source={{ uri: images[0] }} style={styles.img} />}
                 <View style={{ flex: 1 }}>
                     <RowComponent>
-                        <TextComponent text={name} fontsize={16} styles={{ flex: 1 }} ellipsizeMode={'tail'} numberOfLines={1} />
-                        {favorite && <ButtonComponent type={'link'} image={require('../assets/images/favoriteProduct/heart.png')} onPress={onPressFavorite} />}
+                        <TextComponent text={name} fontsize={16} styles={{ flex: 1, marginRight: 20 }} 
+                        ellipsizeMode={'tail'} numberOfLines={1} />
+                        {favorite && <ButtonComponent type={'link'} image={require('../assets/images/favoriteProduct/heart2.png')} onPress={onPressFavorite} />}
                     </RowComponent>
                     {
                         order || favorite ? <TextComponent text={address} fontsize={12} color={appColor.subText}

@@ -1,5 +1,8 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import Geolocation from 'react-native-geolocation-service';
+import MapAPI from "../../core/apiMap/MapAPI";
+import { useSelector } from "react-redux";
+
 
 export const getUserLocation = createAsyncThunk(
     'getUserLocation',
@@ -18,3 +21,4 @@ export const getUserLocation = createAsyncThunk(
         });
     }
 )
+
