@@ -15,15 +15,22 @@ import LoadingModal from '../../../modal/LoadingModal'
 
 
 const ReviewShopScreen = ({ navigation, route }) => {
-    const { id } = route.params
+    const { item } = route.params
 
-    const [data, setData] = useState()
+    const [data, setData] = useState([])
     const [isLoading, setIsLoading] = useState(false)
+    const [count5, setCount5] = useState(0)
+    const [count4, setCount4] = useState(0)
+    const [count3, setCount3] = useState(0)
+    const [count2, setCount2] = useState(0)
+    const [count1, setCount1] = useState(0)
+
+
 
     const getReviewShop = async () => {
         try {
             setIsLoading(true)
-            const respnse = await AxiosInstance().get(`/productReviews/shop/${id}`)
+            const respnse = await AxiosInstance().get(`/productReviews/shop/${item._id}`)
             console.log('respnse', respnse.data);
             setData(respnse.data)
         } catch (error) {
@@ -37,58 +44,90 @@ const ReviewShopScreen = ({ navigation, route }) => {
         getReviewShop()
     }, [])
 
+    useEffect(() => {
+        if (data.length > 0) {
+            let count5 = 0, count4 = 0, count3 = 0, count2 = 0, count1 = 0;
+            data.forEach(review => {
+                switch (review.rating) {
+                    case 5:
+                        count5++;
+                        break;
+                    case 4:
+                        count4++;
+                        break;
+                    case 3:
+                        count3++;
+                        break;
+                    case 2:
+                        count2++;
+                        break;
+                    case 1:
+                        count1++;
+                        break;
+                    default:
+                        break;
+                }
+            });
+            setCount5(count5);
+            setCount4(count4);
+            setCount3(count3);
+            setCount2(count2);
+            setCount1(count1);
+        }
+    }, [data]);
+
     return (
         <ContainerComponent isScroll styles={globalStyle.container}>
             <HeaderComponent isback={true} text={'Đánh giá cửa hàng'} />
             <RowComponent styles={[styles.containerRate, globalStyle.shawdow]} justifyContent={'space-between'}>
                 <View >
                     <RowComponent>
-                        <TextComponent text={'4.5'} fontsize={30} />
+                        <TextComponent text={`${item.rating}`} fontsize={30} />
                         <SpaceComponent width={7} />
                         <Image source={require('../../../assets/images/rateShop/starLarge.png')} />
                     </RowComponent>
                     <SpaceComponent height={5} />
-                    <TextComponent text={10 + ' Đánh giá'} fontsize={12} color={appColor.subText} />
+                    <TextComponent text={item.countReview + ' Đánh giá'} fontsize={12} color={appColor.subText} />
                 </View>
                 <View>
                     <RowComponent>
-                        <TextComponent text={5} color={appColor.subText} />
+                        <TextComponent text={5} color={appColor.subText} width={10} />
                         <SpaceComponent width={5} />
                         <Image source={require('../../../assets/images/rateShop/starSmall.png')} />
                         <SpaceComponent width={5} />
-                        <TextComponent text={`(5 đánh giá)`} color={appColor.subText} fontsize={12} />
+                        <TextComponent text={`${count5} đánh giá`} color={appColor.subText} fontsize={12} />
                     </RowComponent>
                     <SpaceComponent height={5} />
                     <RowComponent>
-                        <TextComponent text={5} color={appColor.subText} />
+                        <TextComponent text={4} color={appColor.subText} width={10} />
                         <SpaceComponent width={5} />
                         <Image source={require('../../../assets/images/rateShop/starSmall.png')} />
                         <SpaceComponent width={5} />
-                        <TextComponent text={`(5 đánh giá)`} color={appColor.subText} fontsize={12} />
+                        <TextComponent text={`${count4} đánh giá`} color={appColor.subText} fontsize={12} />
                     </RowComponent>
                     <SpaceComponent height={5} />
                     <RowComponent>
-                        <TextComponent text={5} color={appColor.subText} />
+                        <TextComponent text={3} color={appColor.subText} width={10} />
                         <SpaceComponent width={5} />
                         <Image source={require('../../../assets/images/rateShop/starSmall.png')} />
                         <SpaceComponent width={5} />
-                        <TextComponent text={`(5 đánh giá)`} color={appColor.subText} fontsize={12} />
+                        <TextComponent text={`${count3} đánh giá`} color={appColor.subText} fontsize={12} />
                     </RowComponent>
                     <SpaceComponent height={5} />
                     <RowComponent>
-                        <TextComponent text={5} color={appColor.subText} />
+                        <TextComponent text={2} color={appColor.subText} width={10} />
                         <SpaceComponent width={5} />
                         <Image source={require('../../../assets/images/rateShop/starSmall.png')} />
                         <SpaceComponent width={5} />
-                        <TextComponent text={`(5 đánh giá)`} color={appColor.subText} fontsize={12} />
+                        <TextComponent text={`${count2} đánh giá`} color={appColor.subText} fontsize={12} />
                     </RowComponent>
                     <SpaceComponent height={5} />
                     <RowComponent>
-                        <TextComponent text={5} color={appColor.subText} />
+                        <TextComponent text={1} color={appColor.subText} width={10} />
                         <SpaceComponent width={5} />
                         <Image source={require('../../../assets/images/rateShop/starSmall.png')} />
                         <SpaceComponent width={5} />
-                        <TextComponent text={`(5 đánh giá)`} color={appColor.subText} fontsize={12} />
+                        <TextComponent text={`${count1} đánh giá`} color={appColor.subText} fontsize={12} />
                     </RowComponent>
                 </View>
             </RowComponent>

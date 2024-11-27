@@ -5,10 +5,11 @@ import HeaderComponent from '../../../components/HeaderComponent'
 import { globalStyle } from '../../../styles/globalStyle'
 import ShopAndProductComponent from '../../../components/ShopAndProductComponent'
 import AxiosInstance from '../../../helpers/AxiosInstance'
+import TextComponent from '../../../components/TextComponent'
 
 const ShopByCategoryScreen = ({ navigation, route }) => {
     const { item } = route.params
-    const [shops, setShops] = useState([])
+    const [shops, setShops] = useState(null)
     console.log('item', item);
 
     const getShopByCategory = async () => {
@@ -27,11 +28,16 @@ const ShopByCategoryScreen = ({ navigation, route }) => {
     return (
         <ContainerComponent styles={globalStyle.container}>
             <HeaderComponent text={item.name} isback />
-            <FlatList
+           {shops? <FlatList
                 data={shops}
                 renderItem={({ item }) => <ShopAndProductComponent item={item} type={'shop'} order onPress={() => navigation.navigate('Shop', { id: item._id })} />}
                 keyExtractor={(item, index) => index.toString()}
-            />
+            />:
+            <View style={{flex:1, justifyContent:'center', alignItems:'center'}}>
+                <TextComponent text={'Danh mục này chưa có shop'}/>
+            </View>
+        }
+
         </ContainerComponent>
     )
 }

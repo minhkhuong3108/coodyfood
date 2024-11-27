@@ -20,11 +20,14 @@ import LoadingModal from '../../../modal/LoadingModal'
 const ProductDetail = ({ navigation, route }) => {
     const { user } = useSelector(state => state.login)
     const { id, shopOwnerId } = route.params
-    const [rate, setRate] = useState([])
+    const [rate, setRate] = useState(null)
     const [product, setProduct] = useState({})
     const [isLoading, setIsLoading] = useState(false)
     const [data, setData] = useState({})
     const [cart, setCart] = useState([])
+    console.log('product', product);
+    
+    
 
     const snapPoint = ['80%']
     const bottomSheetRef = useRef(null)
@@ -176,7 +179,7 @@ const ProductDetail = ({ navigation, route }) => {
                 <ContainerComponent styles={[globalStyle.container, { paddingTop: 0 }]}>
                     {product.name && <TextComponent text={product.name} fontsize={18} />}
                     <SpaceComponent height={15} />
-                    <TextComponent text={'400 đã bán | 10 đánh giá'} fontsize={12} color={appColor.subText} />
+                    <TextComponent text={`${product.soldOut} đã bán | ${product.rating} đánh giá`} fontsize={12} color={appColor.subText} />
                     <SpaceComponent height={15} />
                     <RowComponent justifyContent={'space-between'}>
                         {product.price && <TextComponent text={formatPrice(product.price)} />}
@@ -202,13 +205,17 @@ const ProductDetail = ({ navigation, route }) => {
                     <SpaceComponent height={20} />
                     <TextComponent text={'Đánh giá'} fontsize={18} fontFamily={fontFamilies.bold} />
                     <SpaceComponent height={20} />
-                    <FlatList
+                    {rate?<FlatList
                         showsVerticalScrollIndicator={false}
                         scrollEnabled={false}
                         data={rate}
                         renderItem={({ item }) => <ReviewList item={item} />}
                         keyExtractor={item => item._id}
-                    />
+                    />:
+                   <View style={{height:'100%',justifyContent:'center',alignItems:'center'}}>
+                     <TextComponent text={'Chưa có đánh giá nào'} fontsize={18} color={appColor.subText} />
+                   </View>
+                }
                 </ContainerComponent>
             </ContainerComponent>
             {cart && data && <RowComponent onPress={handleOpenBottomSheet}

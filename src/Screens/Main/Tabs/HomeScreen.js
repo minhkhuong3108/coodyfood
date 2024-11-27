@@ -34,6 +34,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { connectSocket, getSocket } from '../../../socket/socket';
 import { getUserLocation } from '../../../Redux/API/UserLocation';
 import { calculateTravelTime, haversineDistance } from '../../../components/CaculateDistanceShop';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const HomeScreen = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -52,7 +53,7 @@ const HomeScreen = ({ navigation }) => {
   const [nearShop, setNearShop] = useState([]);
   const [cart, setCart] = useState([]);
   console.log('userLocation', userLocation);
-  
+
 
   useEffect(() => {
     //callkeep
@@ -78,9 +79,10 @@ const HomeScreen = ({ navigation }) => {
           userLocation[1] + ',' + userLocation[0],
         ),
       });
-      // console.log('geocoding', geocoding.results[0].formatted_address);
+      console.log('geocoding', geocoding.results[0]);
       setIsLoading(false);
       setAddressUser(geocoding.results[0].formatted_address);
+      await AsyncStorage.setItem('@user_address', JSON.stringify(geocoding.results[0]));
     }
   };
 

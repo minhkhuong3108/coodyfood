@@ -108,7 +108,7 @@ const EditProfile = ({ navigation }) => {
               <Image
                 style={{ flex: 1 }}
                 source={{
-                  uri: 'https://res.cloudinary.com/djywo5wza/image/upload/v1726318840/Rectangle_201_ltuozm.jpg',
+                  uri: user.image,
                 }}
               />
             </View>
