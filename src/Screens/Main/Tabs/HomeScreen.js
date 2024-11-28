@@ -82,7 +82,16 @@ const HomeScreen = ({ navigation }) => {
       console.log('geocoding', geocoding.results[0]);
       setIsLoading(false);
       setAddressUser(geocoding.results[0].formatted_address);
-      await AsyncStorage.setItem('@user_address', JSON.stringify(geocoding.results[0]));
+      const formatAddress = {
+        address: geocoding.results[0].formatted_address,
+        latitude: geocoding.results[0].geometry.location.lat,
+        longitude: geocoding.results[0].geometry.location.lng,
+        name: user.name,
+        phone: user.phone,
+        title: 'Nhà'
+      }
+      await AsyncStorage.setItem('@user_address', JSON.stringify(formatAddress));
+      await AsyncStorage.setItem('@current_address', JSON.stringify(formatAddress));
     }
   };
 

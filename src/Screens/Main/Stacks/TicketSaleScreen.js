@@ -18,6 +18,10 @@ const TicketSaleScreen = ({ navigation, route }) => {
     const { data } = route.params
     const { totalPrice } = route.params
     const [voucher, setVoucher] = useState([])
+    console.log('data', data);
+    
+    console.log('voucher', voucher);
+    
 
     const getVoucher = async () => {
         const response = await AxiosInstance().get(`/voucher/available/${totalPrice}`)
@@ -54,7 +58,7 @@ const TicketSaleScreen = ({ navigation, route }) => {
                         <ButtonComponent text={'Sử dụng'} width={60} height={25}
                             color={appColor.white} fontsize={10} borderRadius={5}
                             onPress={() => {
-                                navigation.navigate('CheckOut', { sale: discountAmount, data })
+                                navigation.navigate('CheckOut', { sale: item, data })
                             }} />
                     </View>
                 </RowComponent>

@@ -192,7 +192,7 @@ const CheckOutScreen = ({ navigation, route }) => {
           var ZaloPay = NativeModules.PayZaloBridge;
           ZaloPay.payOrder(result.zp_trans_token);
           console.log('result', result);
-          
+
         } else {
           Alert.alert('Error', 'Failed  to create order');
         }
@@ -259,6 +259,7 @@ const CheckOutScreen = ({ navigation, route }) => {
   const loadCurrentAddress = async () => {
     try {
       const jsonValue = await AsyncStorage.getItem('@current_address');
+      console.log('jsonValue', jsonValue);
       if (jsonValue != null) {
         setCurrentAddress(JSON.parse(jsonValue));
       }
@@ -272,13 +273,18 @@ const CheckOutScreen = ({ navigation, route }) => {
     const body = {
       userId: user._id,
       order: order,
-      shippingAddressId: currentAddress._id,
       paymentMethod,
       shopOwner: data.shopOwner._id,
       totalPrice,
-      shippingfee: shippingfee, //test
-      voucherId: voucher,
+      shippingfee,
+      voucher: sale ? sale._id : null,
       distance,
+      recipientName: currentAddress.name,
+      phone: currentAddress.phone,
+      address: currentAddress.address,
+      latitude: currentAddress.latitude,
+      longitude: currentAddress.longitude,
+      label: currentAddress.title,
     };
     setIsLoading(true);
     try {
@@ -311,7 +317,7 @@ const CheckOutScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     if (sale) {
-      setVoucher(sale);
+      setVoucher(sale.discountAmount);
     }
   }, [sale]);
 

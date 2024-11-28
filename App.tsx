@@ -12,8 +12,10 @@ import notifee, { AndroidImportance, AndroidVisibility } from '@notifee/react-na
 import { appColor } from './src/constants/appColor'
 
 interface Order {
-  orderId: string;
-  status: string;
+  order: {
+    id: string;
+    status: string;
+  };
   // Các thuộc tính khác của đơn hàng
 }
 
@@ -22,10 +24,20 @@ const App = () => {
     // Kết nối socket khi ứng dụng khởi động
     connectSocket();
 
-    const socket = getSocket();
+    const socketInstance = getSocket();
+    console.log('get');
 
+    socketInstance.on('connect', () => {
+      console.log('Socket connected');
+    });
+
+    socketInstance.on('disconnect', () => {
+      console.log('Socket disconnected');
+    });
+
+    notifee.requestPermission()
     // Lắng nghe sự kiện thay đổi trạng thái đơn hàng
-    socket.on('order_status', async (order: Order) => {
+    socketInstance.on('order_status', async (order: Order) => {
       console.log('Order status updated:', order);
       const channelId = await notifee.createChannel({
         id: 'high-priority',
@@ -35,7 +47,7 @@ const App = () => {
       });
       await notifee.displayNotification({
         title: 'Thông báo đơn hàng',
-        body: `Trạng thái đơn hàng: ${order.status}`,
+        body: `Trạng thái đơn hàng: ${order.order.status}`,
         android: {
           channelId,
           smallIcon: 'ic_small_icon', // optional, defaults to 'ic_launcher'.
@@ -50,7 +62,7 @@ const App = () => {
 
 
     return () => {
-      socket.off('order_status');
+      socketInstance.off('order_status');
     };
   }, []);
   return (

@@ -35,15 +35,15 @@ import { opacity } from 'react-native-reanimated/lib/typescript/Colors';
 
 const CheckOrderScreen = ({ navigation, route }) => {
   const { item } = route.params;
-  console.log('item', item);
-  const order = item.items;
+  const [order,setOrder] = useState(item.items);
   const [imagePayment, setImagePayment] = useState('');
   const [indexPay, setIndexPay] = useState(2);
   const [paymentMethod, setPaymentMethod] = useState('Tiền mặt');
   const [isLoading, setIsLoading] = useState(false);
   const [orderStatus, setOrderStatus] = useState(item.status);
   const [visible, setVisible] = useState(false);
-  const totalPrice = item.totalPrice + item.shippingfee - item.voucher;
+  const voucher = item.voucher != null ? item.voucher.discountAmount : 0;
+  const totalPrice = item.totalPrice + item.shippingfee - voucher;
 
 
   const snapPoint = ['50%'];
@@ -64,9 +64,23 @@ const CheckOrderScreen = ({ navigation, route }) => {
       CallConfig(item.user.phone, item.user.name, item.shipper.image[0]);
     }
   }, [orderStatus]);
+  const getOrderDetail = async () => {
+    try {
+      setIsLoading(true)
+      const response = await AxiosInstance().get(`/orders/${item._id}`,);
+      console.log('response', response.data.status);
+      setOrderStatus(response.data.status);
+      setOrder(response.data.items);
+    } catch (error) {
+      console.log('error', error);
+    } finally {
+      setIsLoading(false)
+    }
+  };
+
 
   useEffect(() => {
-    console.log(item)
+    // console.log(item)
     // Kết nối socket
     const socketInstance = getSocket();
     // Tham gia room
@@ -87,12 +101,17 @@ const CheckOrderScreen = ({ navigation, route }) => {
           JSON.stringify(newMessageList),
         );
       });
+      socketInstance.on('order_status', (order) => {
+        if (order.order._id === item._id) {
+          getOrderDetail()
+        }
+      })
     } catch (error) {
       console.log(error);
     }
     //kiểm tra  socket hoàn thành đơn hay chưa
     socketInstance.on('order_completed', data => {
-      console.log(data)
+      // console.log(data)
       if (data.orderId == item._id) {
         const socketInstance = getSocket();
         removemessage()
@@ -496,7 +515,7 @@ const CheckOrderScreen = ({ navigation, route }) => {
             <SpaceComponent height={10} />
             <RowComponent justifyContent={'space-between'}>
               <TextComponent text={'Mã giảm giá'} />
-              <TextComponent text={item.voucher ? formatPrice(item.voucher) : '0đ'} />
+              <TextComponent text={item.voucher ? formatPrice(voucher) : '0đ'} />
             </RowComponent>
           </View>
           <SpaceComponent height={15} />
