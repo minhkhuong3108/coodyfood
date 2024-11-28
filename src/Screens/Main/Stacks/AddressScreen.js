@@ -46,11 +46,14 @@ const AddressScreen = ({ navigation }) => {
     const loadCurrentAddress = async () => {
         try {
             const jsonValue = await AsyncStorage.getItem('@current_address');
+            const userAddress = await AsyncStorage.getItem('@user_address');
+            console.log('userAddress', userAddress);
+            
             if (jsonValue != null) {
                 setCurrentAddress(JSON.parse(jsonValue));
             }
             if (jsonValue == null) {
-                setCurrentAddress(address[0]);
+                setCurrentAddress(JSON.parse(userAddress));
             }
         } catch (error) {
             console.log('Error loading current address:', error);
@@ -72,7 +75,9 @@ const AddressScreen = ({ navigation }) => {
             title: item.label,
             address: item.address,
             name: item.recipientName,
-            phone: item.phone
+            phone: item.phone,
+            latitude: item.latitude,
+            longitude: item.longitude
         };
         setCurrentAddress(selectedAddress);
         saveCurrentAddress(selectedAddress); // Lưu địa chỉ hiện tại vào AsyncStorage
@@ -102,6 +107,9 @@ const AddressScreen = ({ navigation }) => {
             loadCurrentAddress(); // Load địa chỉ hiện tại từ AsyncStorage
         }, [])
     );
+
+    // console.log('currentAddress', currentAddress.title);
+    
 
     return (
         <ContainerComponent styles={globalStyle.container} isScroll>

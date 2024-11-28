@@ -21,7 +21,8 @@ const DetailOrderScreen = ({ navigation, route }) => {
   const user = item.user
   const address = item.shippingAddress
   const status = item.status
-  const totalPrice = item.totalPrice + item.shippingfee - item.voucher
+  const voucher = item.voucher != null ? item.voucher.discountAmount : 0
+  const totalPrice = item.totalPrice + item.shippingfee - voucher
   console.log('item', item);
 
   // const [products, setProducts] = useState(PRODUCTS)
@@ -123,7 +124,7 @@ const DetailOrderScreen = ({ navigation, route }) => {
       <SpaceComponent height={10} />
       <RowComponent justifyContent={'space-between'} >
         <TextComponent text={'Mã giảm giá'} fontsize={14} />
-        <TextComponent text={item.voucher ? formatPrice(item.voucher) : '0đ'} fontsize={14} />
+        <TextComponent text={item.voucher ? formatPrice(voucher) : '0đ'} fontsize={14} />
       </RowComponent>
       <SpaceComponent height={10} />
       <LineComponent />

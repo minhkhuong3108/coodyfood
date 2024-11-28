@@ -33,6 +33,7 @@ import LoadingModal from '../../../modal/LoadingModal';
 import { Dropdown } from 'react-native-element-dropdown'
 import LineComponent from '../../../components/LineComponent';
 import { formatPrice } from '../../../components/format/FomatPrice';
+import { getSocket } from '../../../socket/socket';
 
 const MyOrderScreen = ({ navigation }) => {
   const { user } = useSelector(state => state.login)
@@ -42,7 +43,13 @@ const MyOrderScreen = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
   const transx = useSharedValue(0);
   const [valueDrop, setValueDrop] = useState(status[0].value)
-  console.log('data', data);
+
+  useEffect(() => {
+    const socketInstance = getSocket()
+    socketInstance.on('order_status', (data) => {
+      getOrder()
+    })
+  }, [])
 
   const handleSelectOrder = orderType => {
     setSelectedOrder(orderType);
@@ -119,7 +126,8 @@ const MyOrderScreen = ({ navigation }) => {
     try {
       if (order) {
         const result = order.filter(item => item.status === 'Chưa giải quyết' ||
-          item.status === 'Chờ thanh toán')
+          item.status === 'Chờ thanh toán' ||
+          item.status === 'Tìm người giao hàng')
         // console.log('result', result);
         setData(result)
       }
@@ -131,8 +139,7 @@ const MyOrderScreen = ({ navigation }) => {
   const getOrderShipping = async () => {
     try {
       if (order) {
-        const result = order.filter(item => item.status === 'Đang giao hàng' ||
-          item.status === 'Tìm người giao hàng')
+        const result = order.filter(item => item.status === 'Đang giao hàng')
         // console.log('result', result);
         setData(result)
       }
@@ -206,7 +213,7 @@ const MyOrderScreen = ({ navigation }) => {
               <TextComponent text={formatPrice(totalPrice)} fontsize={14} color={appColor.primary} fontFamily={fontFamilies.bold} />
             </RowComponent>
 
-            <TextComponent text={address} fontsize={12} color={appColor.subText} styles={{marginVertical:10}}/>
+            <TextComponent text={address} fontsize={12} color={appColor.subText} styles={{ marginVertical: 10 }} />
 
             <RowComponent justifyContent={'space-between'} noAlign>
               <TextComponent text={formatDate(orderDate)} width={appInfor.sizes.width * 0.3} fontsize={14} color={appColor.subText} />
@@ -223,8 +230,9 @@ const MyOrderScreen = ({ navigation }) => {
                   <TextComponent text={`${paymentMethod}${status === 'Chờ thanh toán' ? ' (Chờ thanh toán)' : ''}`} fontsize={14} fontFamily={fontFamilies.bold} />
               }
             </RowComponent>
+            <SpaceComponent height={10} />
+            {selectedOrder != 'Lịch sử' && <TextComponent text={`${status}`} fontsize={14} color={appColor.primary} />}
           </View>
-
         </RowComponent>
 
         {/* nút đặt hàng lại_xem chi tiết */}
