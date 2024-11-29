@@ -16,15 +16,16 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useSelector } from 'react-redux'
 import { useFocusEffect } from '@react-navigation/native'
 import { calculateTravelTime, haversineDistance } from '../../../components/CaculateDistanceShop'
+import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry'
 
 const SearchScreen = ({ navigation, route }) => {
     const { user } = useSelector(state => state.login)
     const { userLocation } = useSelector(state => state.userLocation)
     const name = route.params?.name || ''
-    console.log('name', name);
+    // console.log('name', name);
 
     const [search, setSearch] = useState(name)
-    console.log('search', search);
+    // console.log('search', search);
 
     const [shop, setShop] = useState()
     const [suggested, setSuggested] = useState([])
@@ -32,6 +33,7 @@ const SearchScreen = ({ navigation, route }) => {
     const [isModalVisible, setModalVisible] = useState(false);
     const [nearShop, setNearShop] = useState([])
     const historyKey = `historySearch_${user._id}`
+    // const [shopSearch, setShopSearch] = useState([])
     // console.log('historySearch', historySearch);
     const refSearch = useRef()
     // console.log('suggest', suggested);
@@ -53,8 +55,11 @@ const SearchScreen = ({ navigation, route }) => {
 
     useFocusEffect(
         useCallback(() => {
-            setSearch(name);
-            getSearch(name) // Cập nhật giá trị của search khi màn hình được focus
+            if (name) {
+                setSearch(name);
+                getSearch(name) // Cập nhật giá trị của search khi màn hình được focus
+                getSearch2(name)
+            }
         }, [name])
     );
 
@@ -68,6 +73,7 @@ const SearchScreen = ({ navigation, route }) => {
         if (text.length > 0) {
             setModalVisible(true);
             getSearch(text)
+            getSearch2(text)
         } else {
             setModalVisible(false);
         }
@@ -76,12 +82,23 @@ const SearchScreen = ({ navigation, route }) => {
     const getSearch = async (keyword) => {
         try {
             const response = await AxiosInstance().post(`/shopOwner/search?keyword=${keyword}`)
-            console.log('search', response.data);
-            setSuggested(response.data)
+            // console.log('search', response.data);
+            // setSuggested(response.data)
         } catch (error) {
             console.log(error);
         }
     }
+
+    const getSearch2 = async (keyword) => {
+        try {
+            const response = await AxiosInstance().get(`/products/search?keyword=${keyword}`)
+            console.log('search2', response.data);
+            setSuggested(response.data.suggestions)
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
 
     const getShop = async () => {
         try {
@@ -151,25 +168,53 @@ const SearchScreen = ({ navigation, route }) => {
         }
     }
 
-    const handleSuggestionsShop = (item) => {
+    const handleSuggestionsShop = async (item) => {
         console.log('yes');
+        console.log('item', typeof item);
 
-        setHistorySearch(prevHistory => {
-            const newHistory = [item, ...prevHistory.filter(prev => prev._id !== item._id)]
-            saveHistorySearch(newHistory.slice(0, 3))
-            return newHistory.slice(0, 3)
-        })
-        if (item.type === 'shop') {
-            console.log('shop');
 
-            navigation.navigate('ListSearch', { type: 'shop', shopId: item._id, name: item.name })
-        }
-        else if (item.type === 'category') {
-            console.log('category');
+        // if (item.type === 'shop') {
+        //     console.log('shop');
 
-            navigation.navigate('ListSearch', { type: 'category', category: item._id, name: item.name })
+        //     navigation.navigate('ListSearch', { type: 'shop', shopId: item._id, name: item.name })
+        // }
+        // else if (item.type === 'category') {
+        //     console.log('category');
+
+        //     navigation.navigate('ListSearch', { type: 'category', category: item._id, name: item.name })
+        // }
+        if (typeof item !== 'object') {
+            const response = await AxiosInstance().get(`/products/search?keyword=${item}`)
+            const shopSearch = response.data.results
+            navigation.navigate('ListSearch', { shop: shopSearch, name: item })
+            setHistorySearch(prevHistory => {
+                const newHistory = [{ name: item }, ...prevHistory.filter(prev => prev.name !== item)]
+                saveHistorySearch(newHistory.slice(0, 3))
+                return newHistory.slice(0, 3)
+            }
+            )
+        } else {
+            const response = await AxiosInstance().get(`/products/search?keyword=${item.name}`)
+
+            // Lưu lịch sử tìm kiếm
+            setHistorySearch(prevHistory => {
+                const newHistory = [item, ...prevHistory.filter(prev => prev.name !== item.name)]
+                saveHistorySearch(newHistory.slice(0, 3))
+                return newHistory.slice(0, 3)
+            })
+
+            const shopSearch = response.data.results
+            navigation.navigate('ListSearch', { shop: shopSearch, name: item.name })
         }
     }
+
+    const handleKeyPress = ({ nativeEvent }) => {
+        if (nativeEvent.key === 'Enter') {
+            // Thực hiện hành động khi ấn phím Enter
+            console.log('Enter pressed');
+            handleSuggestionsShop(search);
+        }
+    };
 
     const renderSuggestionItem = ({ item }) => (
         <TouchableOpacity style={styles.productContainer} onPress={() => handleSuggestionsShop(item)}>
@@ -196,7 +241,9 @@ const SearchScreen = ({ navigation, route }) => {
                     onPress={() => navigation.goBack()}
                 />
                 <SpaceComponent width={10} />
-                <SearchComponent placeholder={'Tìm kiếm'} value={search} onchangeText={text => handleSearchChange(text)} ref={refSearch} />
+                <SearchComponent placeholder={'Tìm kiếm'}
+                    value={search} onchangeText={text => handleSearchChange(text)} ref={refSearch}
+                    onSubmitEditing={()=>handleSuggestionsShop(search)} />
             </RowComponent>
             {search.length > 0 ?
                 <View>
@@ -204,7 +251,7 @@ const SearchScreen = ({ navigation, route }) => {
                     <FlatList
                         data={suggested}
                         renderItem={renderSuggestionItem}
-                        keyExtractor={item => item._id}
+                        keyExtractor={item => item.product_id}
                     />
                 </View> :
                 <View>

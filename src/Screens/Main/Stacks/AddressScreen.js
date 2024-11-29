@@ -48,7 +48,7 @@ const AddressScreen = ({ navigation }) => {
             const jsonValue = await AsyncStorage.getItem('@current_address');
             const userAddress = await AsyncStorage.getItem('@user_address');
             console.log('userAddress', userAddress);
-            
+
             if (jsonValue != null) {
                 setCurrentAddress(JSON.parse(jsonValue));
             }
@@ -71,7 +71,6 @@ const AddressScreen = ({ navigation }) => {
 
     const handleSelectAddress = (item) => {
         const selectedAddress = {
-            _id: item._id,
             title: item.label,
             address: item.address,
             name: item.recipientName,
@@ -81,24 +80,25 @@ const AddressScreen = ({ navigation }) => {
         };
         setCurrentAddress(selectedAddress);
         saveCurrentAddress(selectedAddress); // Lưu địa chỉ hiện tại vào AsyncStorage
+        navigation.goBack();
     };
 
-    useEffect(() => {
-        if (address.length == 1) {
-            setCurrentAddress({
-                title: address[0].label,
-                address: address[0].address,
-                name: address[0].recipientName,
-                phone: address[0].phone
-            });
-            saveCurrentAddress({
-                title: address[0].label,
-                address: address[0].address,
-                name: address[0].recipientName,
-                phone: address[0].phone
-            });
-        }
-    }, [address]);
+    // useEffect(() => {
+    //     if (address.length == 1) {
+    //         setCurrentAddress({
+    //             title: address[0].label,
+    //             address: address[0].address,
+    //             name: address[0].recipientName,
+    //             phone: address[0].phone
+    //         });
+    //         saveCurrentAddress({
+    //             title: address[0].label,
+    //             address: address[0].address,
+    //             name: address[0].recipientName,
+    //             phone: address[0].phone
+    //         });
+    //     }
+    // }, [address]);
 
 
     useFocusEffect(
@@ -109,7 +109,7 @@ const AddressScreen = ({ navigation }) => {
     );
 
     // console.log('currentAddress', currentAddress.title);
-    
+
 
     return (
         <ContainerComponent styles={globalStyle.container} isScroll>
@@ -118,8 +118,7 @@ const AddressScreen = ({ navigation }) => {
             <SpaceComponent height={10} />
             <LineComponent />
             <SpaceComponent height={10} /> */}
-            {address.length > 0 ? <View>
-
+            <View>
                 <RowComponent>
                     <Image source={require('../../../assets/images/address/location.png')} />
                     <SpaceComponent width={8} />
@@ -145,16 +144,13 @@ const AddressScreen = ({ navigation }) => {
             <AddressItem title={item.title} address={item.address} name={item.name} phone={item.phone} edit />}
             keyExtractor={item => item.id}
             /> */}
-                {address && address.map((item, index) => (
+                {address.length>0 ? address.map((item, index) => (
                     <AddressItem key={index} title={item.label}
                         address={item.address} name={item.recipientName}
                         phone={item.phone} save
                         onPressEdit={() => navigation.navigate('EditAddress', { addressInfo: item })}
                         onPress={() => handleSelectAddress(item)} />
-                ))}
-                <SpaceComponent height={20} />
-
-            </View> :
+                )) :
                 <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                     <SpaceComponent height={appInfor.sizes.height * 0.2} />
                     <Image source={require('../../../assets/images/address/address.png')} style={{ width: 100, height: 100 }} />
@@ -163,6 +159,10 @@ const AddressScreen = ({ navigation }) => {
                     <SpaceComponent height={40} />
                 </View>
             }
+                <SpaceComponent height={20} />
+
+            </View>
+
             <ButtonComponent text={'Thêm địa chỉ mới'}
                 color={appColor.white}
                 onPress={() => navigation.navigate('AddAddress', { userId: user._id })} />

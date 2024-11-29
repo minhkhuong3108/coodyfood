@@ -12,38 +12,40 @@ import SearchComponent from '../../../components/SearchComponent'
 import { useFocusEffect } from '@react-navigation/native'
 
 const ListSearchScreen = ({ navigation, route }) => {
-    const { type, category, shopId, name } = route.params
+    // const { type, category, shopId, name } = route.params
+    const {shop,name} = route.params
+
     const [shops, setShops] = useState([])
-    console.log('shops', shops);
+    console.log('shops', shop);
 
 
-    const getShopsByCategory = async () => {
-        try {
-            const response = await AxiosInstance().get(`/shopCategories/shop/${category}`)
-            setShops(response.data)
-        } catch (error) {
-            console.log(error);
-        }
-    }
+    // const getShopsByCategory = async () => {
+    //     try {
+    //         const response = await AxiosInstance().get(`/shopCategories/shop/${category}`)
+    //         setShops(response.data)
+    //     } catch (error) {
+    //         console.log(error);
+    //     }
+    // }
 
-    const getShopsById = async () => {
-        try {
-            const response = await AxiosInstance().get(`/shopOwner/${shopId}`)
-            setShops([response.data])
-        } catch (error) {
-            console.log(error);
-        }
-    }
+    // const getShopsById = async () => {
+    //     try {
+    //         const response = await AxiosInstance().get(`/shopOwner/${shopId}`)
+    //         setShops([response.data])
+    //     } catch (error) {
+    //         console.log(error);
+    //     }
+    // }
 
-    useFocusEffect(
-        useCallback(() => {
-            if (type == 'category') {
-                getShopsByCategory()
-            } else {
-                getShopsById()
-            }
-        }, [type, category, shopId])
-    )
+    // useFocusEffect(
+    //     useCallback(() => {
+    //         if (type == 'category') {
+    //             getShopsByCategory()
+    //         } else {
+    //             getShopsById()
+    //         }
+    //     }, [type, category, shopId])
+    // )
 
     return (
         <ContainerComponent styles={globalStyle.container}>
@@ -58,7 +60,7 @@ const ListSearchScreen = ({ navigation, route }) => {
             </RowComponent>
             <SpaceComponent height={20} />
             <FlatList
-                data={shops}
+                data={shop}
                 renderItem={({ item }) => <ShopAndProductComponent type={'shop'} item={item} />}
             />
         </ContainerComponent>
