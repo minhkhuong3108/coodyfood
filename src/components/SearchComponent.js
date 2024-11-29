@@ -4,7 +4,7 @@ import RowComponent from './RowComponent'
 import { appColor } from '../constants/appColor'
 import { fontFamilies } from '../constants/fontFamilies'
 
-const SearchComponent = forwardRef(({ placeholder, value, onchangeText, styles, icon, onPress }, ref) => {
+const SearchComponent = forwardRef(({ placeholder, value, onchangeText, styles, icon, onPress, onSubmitEditing }, ref) => {
     return (
         <RowComponent styles={styless.container}>
             <Image source={require('../assets/images/home/search.png')} />
@@ -16,6 +16,7 @@ const SearchComponent = forwardRef(({ placeholder, value, onchangeText, styles, 
                 style={styless.input}
                 onPress={onPress}
                 ref={ref}
+                onSubmitEditing={onSubmitEditing}
             />
 
         </RowComponent>
@@ -34,7 +35,7 @@ const styless = StyleSheet.create({
     },
     container: {
         height: 50,
-        flex:1,
+        flex: 1,
         paddingHorizontal: 20,
         borderWidth: 1,
         borderColor: appColor.gray,

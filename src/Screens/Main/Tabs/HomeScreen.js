@@ -72,6 +72,7 @@ const HomeScreen = ({ navigation }) => {
     return true;
   };
   const getGeocoding = async () => {
+   try {
     if (userLocation) {
       setIsLoading(true);
       let geocoding = await MapAPI.getGeocoding({
@@ -80,7 +81,6 @@ const HomeScreen = ({ navigation }) => {
         ),
       });
       console.log('geocoding', geocoding.results[0]);
-      setIsLoading(false);
       setAddressUser(geocoding.results[0].formatted_address);
       const formatAddress = {
         address: geocoding.results[0].formatted_address,
@@ -93,7 +93,22 @@ const HomeScreen = ({ navigation }) => {
       await AsyncStorage.setItem('@user_address', JSON.stringify(formatAddress));
       await AsyncStorage.setItem('@current_address', JSON.stringify(formatAddress));
     }
+   } catch (error) {
+    console.log('error', error);
+   }finally {
+    setIsLoading(false);
+   }
   };
+  const loadCurrentAddress = async () => {
+    try {
+        const jsonValue = await AsyncStorage.getItem('@current_address');
+        if (jsonValue != null) {
+            setAddressUser(JSON.parse(jsonValue).address);
+        }
+    } catch (error) {
+        console.log('Error loading current address:', error);
+    }
+}
 
   // const getUserLocation = () => {
   //   Geolocation.getCurrentPosition(
@@ -230,18 +245,19 @@ const HomeScreen = ({ navigation }) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      setIsLoading(true);
 
       await Promise.all([getCategories(), getShop()]);
       const hasPermission = await requestLocationPermission();
       if (hasPermission) {
         dispatch(getUserLocation());
       }
-      setIsLoading(false); // Tắt loading sau khi tất cả các hàm đã hoàn thành
     };
     fetchData();
   }, []);
+console.log('isLoading', isLoading);
+console.log('status', status);
 
+  
   useEffect(() => {
     if (status === 'success') {
       setIsLoading(false);
@@ -254,6 +270,7 @@ const HomeScreen = ({ navigation }) => {
 
   useFocusEffect(
     useCallback(() => {
+      loadCurrentAddress();
       getCart();
     }, []),
   );
