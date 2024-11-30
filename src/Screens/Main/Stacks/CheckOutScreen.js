@@ -275,7 +275,7 @@ const CheckOutScreen = ({ navigation, route }) => {
       order: order,
       paymentMethod,
       shopOwner: data.shopOwner._id,
-      totalPrice,
+      totalPrice:total,
       shippingfee,
       voucher: sale ? sale._id : null,
       distance,

@@ -16,6 +16,7 @@ interface Order {
     id: string;
     status: string;
   };
+  status: string;
   // Các thuộc tính khác của đơn hàng
 }
 
@@ -38,7 +39,7 @@ const App = () => {
     notifee.requestPermission()
     // Lắng nghe sự kiện thay đổi trạng thái đơn hàng
     socketInstance.on('order_status', async (order: Order) => {
-      console.log('Order status updated:', order);
+      console.log('Order status updated:', order.status);
       const channelId = await notifee.createChannel({
         id: 'high-priority',
         name: 'High Priority Channel',
@@ -47,7 +48,7 @@ const App = () => {
       });
       await notifee.displayNotification({
         title: 'Thông báo đơn hàng',
-        body: `Trạng thái đơn hàng: ${order.order.status}`,
+        body: `Trạng thái đơn hàng: ${order.status}`,
         android: {
           channelId,
           smallIcon: 'ic_small_icon', // optional, defaults to 'ic_launcher'.

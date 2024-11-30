@@ -25,6 +25,7 @@ import { useFocusEffect } from '@react-navigation/native'
 
 const ShopDetailScreen = ({ navigation, route }) => {
     const { id } = route.params
+console.log('id', id);
 
     const { user } = useSelector(state => state.login)
     const { userLocation } = useSelector(state => state.userLocation)
