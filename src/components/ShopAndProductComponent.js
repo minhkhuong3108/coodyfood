@@ -12,50 +12,75 @@ import { formatDistance } from './format/FormatDistance'
 import formatTime from './format/FormatTime'
 import { formatRating } from './format/FormatRate'
 import { formatPrice } from './format/FomatPrice'
+import LineComponent from './LineComponent'
 
-const ShopAndProductComponent = ({ item, onPress, type, favorite, inCart, order, onPressAdd, onPressReduce, onPressIncrease, quantity, onPressFavorite, search }) => {
+const ShopAndProductComponent = ({ item, onPress, type, favorite, inCart, order, onPressAdd, onPressReduce, onPressIncrease, quantity, onPressFavorite, search, typeSearch, onPressProduct }) => {
     const { _id, name, images, discount, rating, distance, time, soldOut, price, oldPrice, address } = item
-    // console.log('item', item);
+    console.log('item', item);
 
     return (
         type == 'shop' ?
-            <TouchableOpacity style={[styles.container, globalStyle.shawdow]} onPress={onPress}>
-                {images && <Image source={{ uri: images[0] }} style={styles.img} />}
-                <View style={{ flex: 1 }}>
-                    <RowComponent>
-                        <TextComponent text={name} fontsize={16} styles={{ flex: 1, marginRight: 20 }}
-                            ellipsizeMode={'tail'} numberOfLines={1} />
-                        {favorite && <ButtonComponent type={'link'} image={require('../assets/images/favoriteProduct/heart2.png')} onPress={onPressFavorite} />}
-                    </RowComponent>
-                    {
-                        order || favorite || search ? <TextComponent text={address} fontsize={12} color={appColor.subText}
-                            styles={{ marginVertical: 6, marginRight: 20 }} ellipsizeMode={'tail'} numberOfLines={2} /> :
-                            <RowComponent styles={{ marginVertical: 8 }}>
-                                <Image source={require('../assets/images/home/star.png')} style={{ marginRight: 5 }} />
-                                <TextComponent
-                                    text={`${rating && formatRating(rating)} | ${distance && formatDistance(distance)} | ${time} phút`}
-                                    fontsize={12} color={appColor.subText} />
-                            </RowComponent>
-                    }
-                    {
-                        order || favorite||search ?
-                            <RowComponent>
-                                <TextComponent text={`Đánh giá: ${rating && formatRating(rating)}`} fontsize={12} />
-                                <SpaceComponent width={4} />
-                                <Image source={require('../assets/images/shopDetail/star.png')} />
-                            </RowComponent> :
-                            // <View style={styles.viewDiscount}>
-                            //     <TextComponent text={`Mã giảm: ${20}%`} fontsize={12} fontFamily={fontFamilies.regular} color={appColor.primary} />
-                            // </View>
-                            <RowComponent>
-                                <Image source={require('../assets/images/home/location_small.png')}
-                                    style={{ marginRight: 5 }} />
-                                <TextComponent text={address} fontsize={12}
-                                    color={appColor.subText} ellipsizeMode={'tail'} numberOfLines={1}
-                                    styles={{ paddingRight: 20 }} />
-                            </RowComponent>
-                    }
+            <TouchableOpacity onPress={onPress}>
+                <View style={[typeSearch ? item.product.length > 0 ? styles.containerSearch : styles.containerSearchShop : styles.container, typeSearch ? null : globalStyle.shawdow]} >
+                    {images && <Image source={{ uri: images[0] }} style={styles.img} />}
+                    <View style={{ flex: 1 }}>
+                        <RowComponent>
+                            <TextComponent text={name} fontsize={16} styles={{ flex: 1, marginRight: 20 }}
+                                ellipsizeMode={'tail'} numberOfLines={1} />
+                            {favorite && <ButtonComponent type={'link'} image={require('../assets/images/favoriteProduct/heart2.png')} onPress={onPressFavorite} />}
+                        </RowComponent>
+                        {
+                            order || favorite || search ? <TextComponent text={address} fontsize={12} color={appColor.subText}
+                                styles={{ marginVertical: typeSearch > 0 ? 12 : 6, marginRight: 20 }} ellipsizeMode={'tail'} numberOfLines={2} /> :
+                                <RowComponent styles={{ marginVertical: 8 }}>
+                                    <Image source={require('../assets/images/home/star.png')} style={{ marginRight: 5 }} />
+                                    <TextComponent
+                                        text={`${rating && formatRating(rating)} | ${distance && formatDistance(distance)} | ${time} phút`}
+                                        fontsize={12} color={appColor.subText} />
+                                </RowComponent>
+                        }
+                        {
+                            order || favorite || search ?
+                                <RowComponent>
+                                    <TextComponent text={`Đánh giá: ${rating && formatRating(rating)}`} fontsize={12} />
+                                    <SpaceComponent width={4} />
+                                    <Image source={require('../assets/images/shopDetail/star.png')} />
+                                </RowComponent> :
+                                // <View style={styles.viewDiscount}>
+                                //     <TextComponent text={`Mã giảm: ${20}%`} fontsize={12} fontFamily={fontFamilies.regular} color={appColor.primary} />
+                                // </View>
+                                <RowComponent>
+                                    <Image source={require('../assets/images/home/location_small.png')}
+                                        style={{ marginRight: 5 }} />
+                                    <TextComponent text={address} fontsize={12}
+                                        color={appColor.subText} ellipsizeMode={'tail'} numberOfLines={1}
+                                        styles={{ paddingRight: 20 }} />
+                                </RowComponent>
+                        }
+
+                    </View>
                 </View>
+                {typeSearch && item.product.length > 0 &&
+                    <View key={item.product_id} style={{ paddingLeft: 133 }}>
+                        <RowComponent button onPress={onPressProduct}>
+                            <Image source={{ uri: item.product[0].image }} style={{ width: 60, height: 60, borderRadius: 8 }} />
+                            <SpaceComponent width={5} />
+                            <View>
+                                <TextComponent text={item.product[0].name} fontsize={12} />
+                                <SpaceComponent height={10} />
+                                <TextComponent text={formatPrice(item.product[0].price)} fontsize={12} />
+                            </View>
+                        </RowComponent>
+                    </View>
+                }
+                {
+                    typeSearch && 
+                    <View>
+                        <SpaceComponent height={20} />
+                        <LineComponent />
+                        <SpaceComponent height={20} />
+                    </View>
+                }
             </TouchableOpacity> :
             <TouchableOpacity style={[styles.container, globalStyle.shawdow]} onPress={onPress}>
                 {images && <Image source={{ uri: images[0] }} style={styles.img} />}
@@ -125,6 +150,21 @@ const styles = StyleSheet.create({
         height: 102,
         borderRadius: 15,
         marginRight: 20
+    },
+    containerSearchShop: {
+        // marginBottom: 20,
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingRight: 20,
+        backgroundColor: appColor.white,
+
+    },
+    containerSearch: {
+        marginBottom: 0,
+        flexDirection: 'row',
+        // alignItems: 'center',
+        paddingRight: 20,
+        backgroundColor: appColor.white
     },
     container: {
         // flex: 1,

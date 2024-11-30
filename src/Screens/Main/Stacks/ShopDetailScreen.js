@@ -25,11 +25,11 @@ import { useFocusEffect } from '@react-navigation/native'
 
 const ShopDetailScreen = ({ navigation, route }) => {
     const { id } = route.params
-console.log('id', id);
+    console.log('id', id);
 
     const { user } = useSelector(state => state.login)
     const { userLocation } = useSelector(state => state.userLocation)
-    const [popularFood, setPopularFood] = useState(POPULARFOOD)
+    const [productPopular, setproductPopular] = useState([])
     const [products, setProducts] = useState([])
     const [category, setCategory] = useState([])
     const [selectedCategory, setSelectedCategory] = useState(null)
@@ -42,9 +42,9 @@ console.log('id', id);
     const [time, setTime] = useState(null)
     // console.log('shopDetail', shopDetail);
     console.log('cart', cart);
-    
-    
-    
+
+
+
 
     const snapPoint = ['80%']
     const bottomSheetRef = useRef(null)
@@ -73,16 +73,16 @@ console.log('id', id);
 
     const calculateDistanceToShop = shopLocation => {
         if (userLocation) {
-          const distance = haversineDistance(userLocation, shopLocation);
-          const minutes = calculateTravelTime(distance, 5);
-          return setDistance(distance), setTime(minutes);
+            const distance = haversineDistance(userLocation, shopLocation);
+            const minutes = calculateTravelTime(distance, 5);
+            return setDistance(distance), setTime(minutes);
         }
         return null;
-      };
-      
-      useEffect(() => {
+    };
+
+    useEffect(() => {
         calculateDistanceToShop([shopDetail.latitude, shopDetail.longitude]);
-        }, [shopDetail, userLocation]);
+    }, [shopDetail, userLocation]);
 
     const getCategoriesProduct = async () => {
         try {
@@ -164,16 +164,25 @@ console.log('id', id);
             console.log('error', error);
         }
     }
-    const getProducts = async () => {
+    const getProductsByCategory = async () => {
         try {
             setIsLoading(true);
             const response = await AxiosInstance().get(`/products/category/${selectedCategory}`)
-            const sortedProducts = response.data.sort((a, b) => b.soldOut - a.soldOut);
-            setProducts(sortedProducts)
+            // const sortedProducts = response.data.sort((a, b) => b.soldOut - a.soldOut);
+            setProducts(response.data)
         } catch (error) {
             console.log('error', error);
         } finally {
             setIsLoading(false);
+        }
+    }
+
+    const getProductByShop = async () => {
+        try {
+            const response = await AxiosInstance().get(`/products/shopOwner/${id}`)
+            setproductPopular(response.data)
+        } catch (error) {
+            console.log('error', error);
         }
     }
 
@@ -229,9 +238,12 @@ console.log('id', id);
 
     useEffect(() => {
         if (selectedCategory) {
-            getProducts();
+            getProductsByCategory();
         }
     }, [selectedCategory]);
+    useEffect(() => {
+        getProductByShop()
+    }, [])
 
     const { name, images, rating, sold, price, countReview } = shopDetail
 
@@ -315,9 +327,9 @@ console.log('id', id);
                     <RowComponent justifyContent={'space-between'}>
                         <View>
                             <TextComponent text={name} fontsize={18} fontFamily={fontFamilies.bold}
-                             numberOfLines={1} ellipsizeMode={'tail'} styles={{paddingRight:20}}/>
+                                numberOfLines={1} ellipsizeMode={'tail'} styles={{ paddingRight: 20 }} />
                             <SpaceComponent height={15} />
-                            <RowComponent button onPress={() => navigation.navigate('ReviewShop', { item:shopDetail })}>
+                            <RowComponent button onPress={() => navigation.navigate('ReviewShop', { item: shopDetail })}>
                                 <Image source={require('../../../assets/images/shopDetail/star.png')} />
                                 {rating && <TextComponent text={formatRating(rating)} fontsize={14} styles={{ marginHorizontal: 5 }} />}
                                 <TextComponent text={`(${countReview} đánh giá)`} fontsize={12} color={appColor.subText} />
@@ -354,7 +366,7 @@ console.log('id', id);
                         <FlatList
                             horizontal
                             showsHorizontalScrollIndicator={false}
-                            data={products}
+                            data={productPopular}
                             renderItem={renderPopularFood}
                             keyExtractor={item => item._id}
                         />

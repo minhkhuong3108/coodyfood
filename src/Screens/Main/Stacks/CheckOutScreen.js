@@ -249,7 +249,7 @@ const CheckOutScreen = ({ navigation, route }) => {
         setIsLoading(false)
         if (resutl) {
           ToastAndroid.show('Đặt hàng thành công', ToastAndroid.SHORT);
-          navigation.navigate('Home')
+          navigation.navigate('Order')
         }
       }
     } catch (error) {
