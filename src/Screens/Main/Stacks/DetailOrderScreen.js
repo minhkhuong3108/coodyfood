@@ -140,14 +140,14 @@ const DetailOrderScreen = ({ navigation, route }) => {
       <SpaceComponent height={20} />
       <RowComponent justifyContent={'space-between'}>
         <ButtonComponent
-          text={status == 'Đã đánh giá đơn hàng' ? 'Đã đánh giá' :
+          text={item.statusReview==true ? 'Đã đánh giá' :
             status == 'Đơn hàng đã được giao hoàn tất' ? 'Đánh giá' : 'Đã hủy'}
           backgroundColor={appColor.white}
           width={'48%'} height={51} borderColor={appColor.white}
           color={status == 'Đơn hàng đã được giao hoàn tất' ? appColor.text : appColor.subText}
           onPress={() => navigation.navigate('Rating', { item: item })}
-          disabled={status == 'Đơn hàng đã được giao hoàn tất' ? false : true}
-          styles={status == 'Đơn hàng đã được giao hoàn tất' ? null : styles.btnDisabled} />
+          disabled={item.statusReview==true ? true : false}
+          styles={item.statusReview==true ? styles.btnDisabled : null} />
         <ButtonComponent text={'Đặt lại'} color={appColor.white} width={'48%'} height={51}
           onPress={() => navigation.navigate('CheckOut', { data: item })} />
       </RowComponent>

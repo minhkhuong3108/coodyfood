@@ -94,7 +94,7 @@ const RegisterScreen = ({ navigation }) => {
         }
         setIsLoading(true)
         try {
-            const response = await AxiosInstance().post('/users/register', { email, password, phone })
+            const response = await AxiosInstance().post('/users/register', { email, password, phone,name })
             if (response.status == true) {
                 ToastAndroid.show('Đăng ký thành công', ToastAndroid.SHORT)
                 setIsLoading(false)

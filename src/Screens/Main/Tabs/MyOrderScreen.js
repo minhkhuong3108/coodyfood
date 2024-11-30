@@ -127,7 +127,9 @@ const MyOrderScreen = ({ navigation }) => {
       if (order) {
         const result = order.filter(item => item.status === 'Chưa giải quyết' ||
           item.status === 'Chờ thanh toán' ||
-          item.status === 'Tìm người giao hàng')
+          item.status === 'Tìm tài xế'||
+          item.status === 'Đang đến nhà hàng'||
+          item.status === 'Tài xế đã đến nhà hàng')
         // console.log('result', result);
         setData(result)
       }
@@ -139,7 +141,9 @@ const MyOrderScreen = ({ navigation }) => {
   const getOrderShipping = async () => {
     try {
       if (order) {
-        const result = order.filter(item => item.status === 'Đang giao hàng')
+        const result = order.filter(item => item.status === 'Đang giao hàng'||
+          item.status === 'Shipper đã đến điểm giao hàng'
+        )
         // console.log('result', result);
         setData(result)
       }
@@ -154,14 +158,13 @@ const MyOrderScreen = ({ navigation }) => {
         const result = order.filter(item => {
           if (valueDrop == 'all') {
             return item.status === 'Đơn hàng đã được giao hoàn tất' ||
-              item.status === 'Đã đánh giá đơn hàng' ||
               item.status === 'Người dùng đã hủy đơn' ||
               item.status === 'Shipper đã hủy đơn' ||
               item.status === 'Nhà hàng đã hủy đơn'
           } else if (valueDrop == 'delivered') {
             return item.status === 'Đơn hàng đã được giao hoàn tất'
           } else if (valueDrop == 'rated') {
-            return item.status === 'Đã đánh giá đơn hàng'
+            return item.statusReview === true
           } else if (valueDrop == 'cancel') {
             return item.status === 'Người dùng đã hủy đơn' ||
               item.status === 'Shipper đã hủy đơn' ||
@@ -188,7 +191,6 @@ const MyOrderScreen = ({ navigation }) => {
     const products = item.items
     const { orderDate, paymentMethod } = item
     const { name, address, images, rating } = item.shopOwner
-    // console.log('item', item);
 
     // const totalQuantity = item.reduce((acc, cur) => acc + cur.count, 0);
     // console.log(totalQuantity);
@@ -220,9 +222,8 @@ const MyOrderScreen = ({ navigation }) => {
 
               {
                 selectedOrder == 'Lịch sử' ?
-                  <TextComponent text={`${status == 'Đơn hàng đã được giao hoàn tất' ?
-                    'Đã giao hàng' :
-                    status == 'Đã đánh giá đơn hàng' ? 'Đã đánh giá' : 'Đã hủy'}`}
+                  <TextComponent text={`${
+                    status == 'Đơn hàng đã được giao hoàn tất' ? 'Đã giao hàng' : 'Đã hủy'}`}
                     color={status == 'Đơn hàng đã được giao hoàn tất' ?
                       appColor.green :
                       status == 'Đã đánh giá đơn hàng' ? appColor.yellow : appColor.primary}

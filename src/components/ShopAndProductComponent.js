@@ -13,7 +13,7 @@ import formatTime from './format/FormatTime'
 import { formatRating } from './format/FormatRate'
 import { formatPrice } from './format/FomatPrice'
 
-const ShopAndProductComponent = ({ item, onPress, type, favorite, inCart, order, onPressAdd, onPressReduce, onPressIncrease, quantity, onPressFavorite }) => {
+const ShopAndProductComponent = ({ item, onPress, type, favorite, inCart, order, onPressAdd, onPressReduce, onPressIncrease, quantity, onPressFavorite, search }) => {
     const { _id, name, images, discount, rating, distance, time, soldOut, price, oldPrice, address } = item
     // console.log('item', item);
 
@@ -23,13 +23,13 @@ const ShopAndProductComponent = ({ item, onPress, type, favorite, inCart, order,
                 {images && <Image source={{ uri: images[0] }} style={styles.img} />}
                 <View style={{ flex: 1 }}>
                     <RowComponent>
-                        <TextComponent text={name} fontsize={16} styles={{ flex: 1, marginRight: 20 }} 
-                        ellipsizeMode={'tail'} numberOfLines={1} />
+                        <TextComponent text={name} fontsize={16} styles={{ flex: 1, marginRight: 20 }}
+                            ellipsizeMode={'tail'} numberOfLines={1} />
                         {favorite && <ButtonComponent type={'link'} image={require('../assets/images/favoriteProduct/heart2.png')} onPress={onPressFavorite} />}
                     </RowComponent>
                     {
-                        order || favorite ? <TextComponent text={address} fontsize={12} color={appColor.subText}
-                            styles={{ marginVertical: 6,marginRight:20 }} ellipsizeMode={'tail'} numberOfLines={2}/> :
+                        order || favorite || search ? <TextComponent text={address} fontsize={12} color={appColor.subText}
+                            styles={{ marginVertical: 6, marginRight: 20 }} ellipsizeMode={'tail'} numberOfLines={2} /> :
                             <RowComponent styles={{ marginVertical: 8 }}>
                                 <Image source={require('../assets/images/home/star.png')} style={{ marginRight: 5 }} />
                                 <TextComponent
@@ -38,7 +38,7 @@ const ShopAndProductComponent = ({ item, onPress, type, favorite, inCart, order,
                             </RowComponent>
                     }
                     {
-                        order || favorite ?
+                        order || favorite||search ?
                             <RowComponent>
                                 <TextComponent text={`Đánh giá: ${rating && formatRating(rating)}`} fontsize={12} />
                                 <SpaceComponent width={4} />
@@ -48,11 +48,11 @@ const ShopAndProductComponent = ({ item, onPress, type, favorite, inCart, order,
                             //     <TextComponent text={`Mã giảm: ${20}%`} fontsize={12} fontFamily={fontFamilies.regular} color={appColor.primary} />
                             // </View>
                             <RowComponent>
-                                <Image source={require('../assets/images/home/location_small.png')} 
-                                style={{ marginRight: 5 }} />
-                                <TextComponent text={address} fontsize={12} 
-                                color={appColor.subText} ellipsizeMode={'tail'} numberOfLines={1}
-                                styles={{paddingRight:20}}/>
+                                <Image source={require('../assets/images/home/location_small.png')}
+                                    style={{ marginRight: 5 }} />
+                                <TextComponent text={address} fontsize={12}
+                                    color={appColor.subText} ellipsizeMode={'tail'} numberOfLines={1}
+                                    styles={{ paddingRight: 20 }} />
                             </RowComponent>
                     }
                 </View>

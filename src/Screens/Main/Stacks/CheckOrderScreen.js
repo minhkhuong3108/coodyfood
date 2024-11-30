@@ -35,15 +35,16 @@ import { opacity } from 'react-native-reanimated/lib/typescript/Colors';
 
 const CheckOrderScreen = ({ navigation, route }) => {
   const { item } = route.params;
-  const [order,setOrder] = useState(item.items);
+  const [order, setOrder] = useState(item.items);
   const [imagePayment, setImagePayment] = useState('');
   const [indexPay, setIndexPay] = useState(2);
+  const [shipper, setShipper] = useState(item.shipper);
   const [paymentMethod, setPaymentMethod] = useState('Tiền mặt');
   const [isLoading, setIsLoading] = useState(false);
   const [orderStatus, setOrderStatus] = useState(item.status);
   const [visible, setVisible] = useState(false);
   const voucher = item.voucher != null ? item.voucher.discountAmount : 0;
-  const totalPrice = item.totalPrice + item.shippingfee - voucher;
+  const totalPrice = item.totalPrice -item.shippingfee + voucher;
 
 
   const snapPoint = ['50%'];
@@ -71,12 +72,20 @@ const CheckOrderScreen = ({ navigation, route }) => {
       console.log('response', response.data.status);
       setOrderStatus(response.data.status);
       setOrder(response.data.items);
+      setShipper(response.data.shipper);
     } catch (error) {
       console.log('error', error);
     } finally {
       setIsLoading(false)
     }
   };
+console.log('order',order);
+
+  useEffect(()=>{
+    if(shipper){
+      item.shipper=shipper
+    }
+  },[shipper])
 
 
   useEffect(() => {
@@ -102,9 +111,8 @@ const CheckOrderScreen = ({ navigation, route }) => {
         );
       });
       socketInstance.on('order_status', (order) => {
-        if (order.order._id === item._id) {
-          getOrderDetail()
-        }
+        getOrderDetail()
+
       })
     } catch (error) {
       console.log(error);
@@ -306,19 +314,20 @@ const CheckOrderScreen = ({ navigation, route }) => {
     getPayment();
     const socket = getSocket();
     socket.on('order_status', (order) => {
-      if (order.order._id === item._id) {
-        setOrderStatus(order.status)
-      }
+      setOrderStatus(order.status)
+
     })
     return () => {
       socket.off('order_status');
     };
   }, [item.paymentMethod, item._id]);
+  console.log('item', item);
+
   return (
     <ContainerComponent styles={{ flex: 1, backgroundColor: appColor.white }}>
       <ContainerComponent styles={globalStyle.container} isScroll>
         <HeaderComponent text={'Đơn hàng chi tiết'} isback />
-        {orderStatus !== 'Đang giao hàng' ? (
+        {orderStatus == 'Tìm tài xế' || orderStatus == 'Chờ thanh toán' || orderStatus == 'Chưa giải quyết' ? (
           <View style={[styles.viewWait, globalStyle.shawdow]}>
             <TextComponent
               text={'Đang xử lý đơn hàng của bạn...'}
@@ -340,7 +349,7 @@ const CheckOrderScreen = ({ navigation, route }) => {
             styles={[styles.viewShipper, globalStyle.shawdow]}>
             <RowComponent>
               <View style={styles.imgShipper}>
-                <Image
+                {item.shipper && <Image
                   style={{ flex: 1 }}
                   source={{
                     uri:
@@ -348,11 +357,11 @@ const CheckOrderScreen = ({ navigation, route }) => {
                         ? item.shipper.image[0]
                         : 'https://res.cloudinary.com/djywo5wza/image/upload/v1729757743/clone_viiphm.png',
                   }}
-                />
+                />}
               </View>
               <SpaceComponent width={10} />
               <View>
-                <TextComponent text={item.shipper.name} fontsize={18} />
+                {item.shipper && <TextComponent text={item.shipper.name} fontsize={18} />}
                 <SpaceComponent height={20} />
                 <RowComponent>
                   <TextComponent text={`Đánh giá: 5 `} fontsize={14} />
@@ -363,7 +372,7 @@ const CheckOrderScreen = ({ navigation, route }) => {
               </View>
             </RowComponent>
             <RowComponent>
-              <ZegoSendCallInvitationButton
+              {item.shipper&&<ZegoSendCallInvitationButton
                 invitees={[
                   //{userID: Order.user.phone, userName: Order.user.name},
                   { userID: item.shipper.phone, userName: item.shipper.name },
@@ -375,7 +384,7 @@ const CheckOrderScreen = ({ navigation, route }) => {
                 borderRadius={10}
                 isVideoCall={true}
                 resourceID={'zego_data'}
-              />
+              />}
               <View style={{ marginRight: 15 }} />
               <ButtonComponent
                 type={'link'}
@@ -505,7 +514,7 @@ const CheckOrderScreen = ({ navigation, route }) => {
           <View style={{ paddingHorizontal: 10 }}>
             <RowComponent justifyContent={'space-between'}>
               <TextComponent text={'Tạm tính'} />
-              <TextComponent text={formatPrice(item.totalPrice)} />
+              <TextComponent text={formatPrice(totalPrice)} />
             </RowComponent>
             <SpaceComponent height={10} />
             <RowComponent justifyContent={'space-between'}>
@@ -528,7 +537,7 @@ const CheckOrderScreen = ({ navigation, route }) => {
               fontFamily={fontFamilies.bold}
             />
             <TextComponent
-              text={formatPrice(totalPrice)}
+              text={formatPrice(item.totalPrice)}
               fontsize={18}
               fontFamily={fontFamilies.bold}
             />
@@ -584,7 +593,7 @@ const CheckOrderScreen = ({ navigation, route }) => {
               fontFamily={fontFamilies.bold}
             />
             <TextComponent
-              text={formatPrice(totalPrice)}
+              text={formatPrice(item.totalPrice)}
               fontsize={18}
               fontFamily={fontFamilies.bold}
             />
