@@ -124,10 +124,17 @@ const HomeScreen = ({ navigation }) => {
   // };
 
   const getShop = async () => {
-    const response = await AxiosInstance().get('/shopOwner');
-    const shop = response.data;
-
-    setShop(response.data);
+    try {
+      setIsLoading(true);
+      const response = await AxiosInstance().get('/shopOwner');
+      const shop = response.data;
+  
+      setShop(response.data);
+    } catch (error) {
+      console.log('error', error);
+    }finally {
+      setIsLoading(false);
+    }
   };
 
   const getCategories = async () => {

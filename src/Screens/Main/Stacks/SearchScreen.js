@@ -92,7 +92,7 @@ const SearchScreen = ({ navigation, route }) => {
     const getSearch2 = async (keyword) => {
         try {
             const response = await AxiosInstance().get(`/products/search?keyword=${keyword}`)
-            console.log('search2', response.data);
+            console.log('search2', response.data.results[0].product);
             setSuggested(response.data.suggestions)
         } catch (error) {
             console.log(error);
@@ -204,7 +204,7 @@ const SearchScreen = ({ navigation, route }) => {
             })
 
             const shopSearch = response.data.results
-            navigation.navigate('ListSearch', { shop: shopSearch, name: item.name })
+            navigation.navigate('ListSearch', { shop: shopSearch, name: item.name,type:item.type })
         }
     }
 

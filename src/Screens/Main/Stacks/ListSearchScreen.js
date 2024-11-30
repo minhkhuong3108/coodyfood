@@ -13,7 +13,7 @@ import { useFocusEffect } from '@react-navigation/native'
 
 const ListSearchScreen = ({ navigation, route }) => {
     // const { type, category, shopId, name } = route.params
-    const { shop, name } = route.params
+    const { shop, name,type } = route.params
 
     const [shops, setShops] = useState([])
     console.log('shops', shop);
@@ -61,7 +61,8 @@ const ListSearchScreen = ({ navigation, route }) => {
             <SpaceComponent height={20} />
             <FlatList
                 data={shop}
-                renderItem={({ item }) => <ShopAndProductComponent type={'shop'} item={item} search={true} onPress={() => navigation.navigate('Shop', { id: item.shopId })} />}
+                renderItem={({ item }) => <ShopAndProductComponent typeSearch={true} type={'shop'} item={item} search={true}
+                 onPress={() => navigation.navigate('Shop', { id: item.shopId })} onPressProduct={()=>navigation.navigate('Product',{id:item.product[0].product_id,shopOwnerId:item.shopId})}/>}
             />
         </ContainerComponent>
     )
