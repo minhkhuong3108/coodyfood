@@ -12,16 +12,16 @@ import * as ZPNs from 'zego-zpns-react-native';
 export const CallConfig = async (userID, userName, image) => {
   try {
     await ZegoUIKitPrebuiltCallService.init(
-      1174464780, //AppID
-      'a13abce8327d63610fdcc01effb642e7cc6bf0e9817aa0843b74c69a1e5dd59a', //AppSign
+      1749442627, //AppID
+      'bf27fd038a353193aa1de595443eb8c4bc78676b60d73a02c4dd99d546ab91bc', //AppSign
       userID,
       userName,
       [ZIM, ZPNs],
       {
         innerText: {
-          incomingVideoCallDialogTitle: '%0',
-          incomingVideoCallDialogMessage: 'Đang gọi đến bạn',
-          outgoingVideoCallPageMessage: 'Đang gọi...',
+          incomingVoiceCallDialogTitle: '%0',
+          incomingVoiceCallDialogMessage: 'Đang gọi đến bạn',
+          outgoingVoiceCallPageMessage: 'Đang gọi...',
           incomingCallPageDeclineButton: 'Từ chối',
           incomingCallPageAcceptButton: 'Trả lời',
         },
@@ -40,9 +40,7 @@ export const CallConfig = async (userID, userName, image) => {
                 style={{width: '100%', height: '100%'}}
                 resizeMode="cover"
                 source={{
-                  uri: image
-                    ? image
-                    : `https://res.cloudinary.com/djywo5wza/image/upload/v1729757743/clone_viiphm.png`,
+                  uri: `https://static.vecteezy.com/system/resources/previews/005/005/788/non_2x/user-icon-in-trendy-flat-style-isolated-on-grey-background-user-symbol-for-your-web-site-design-logo-app-ui-illustration-eps10-free-vector.jpg`,
                 }}
               />
             </View>

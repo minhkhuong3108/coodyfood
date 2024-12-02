@@ -315,7 +315,6 @@ console.log('order',order);
     const socket = getSocket();
     socket.on('order_status', (order) => {
       setOrderStatus(order.status)
-
     })
     return () => {
       socket.off('order_status');
@@ -382,7 +381,7 @@ console.log('order',order);
                 backgroundColor={'#EF2E2E'}
                 icon={require('../../../assets/images/shipper/callicon.png')}
                 borderRadius={10}
-                isVideoCall={true}
+                isVideoCall={false}
                 resourceID={'zego_data'}
               />}
               <View style={{ marginRight: 15 }} />
