@@ -34,6 +34,7 @@ import { Dropdown } from 'react-native-element-dropdown'
 import LineComponent from '../../../components/LineComponent';
 import { formatPrice } from '../../../components/format/FomatPrice';
 import { getSocket } from '../../../socket/socket';
+import { CallConfig } from '../../Call/Callconfig';
 
 const MyOrderScreen = ({ navigation }) => {
   const { user } = useSelector(state => state.login)
@@ -49,6 +50,7 @@ const MyOrderScreen = ({ navigation }) => {
     socketInstance.on('order_status', (data) => {
       getOrder()
     })
+    CallConfig(user.phone, user.name);
   }, [])
 
   const handleSelectOrder = orderType => {
