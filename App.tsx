@@ -10,6 +10,8 @@ import ZaloPay from './src/utils/ZaloPay'
 import { connectSocket, getSocket } from './src/socket/socket'
 import notifee, { AndroidImportance, AndroidVisibility } from '@notifee/react-native';
 import { appColor } from './src/constants/appColor'
+import { CallConfig } from './src/Screens/Call/Callconfig'
+
 
 interface Order {
   order: {
@@ -17,6 +19,9 @@ interface Order {
     status: string;
     user:{
       _id:string;
+    };
+    shipper?: { 
+      image: string[]; 
     };
   };
   status: string;
@@ -28,7 +33,8 @@ const App = () => {
   useEffect(() => {
     // Kết nối socket khi ứng dụng khởi động
     connectSocket();
-
+    //đề phòng call lỗi
+    CallConfig(user.phone, user.name);
     const socketInstance = getSocket();
     console.log('get');
 
@@ -36,14 +42,18 @@ const App = () => {
       console.log('Socket connected');
     });
 
-    socketInstance.on('disconnect', () => {
-      console.log('Socket disconnected');
-    });
-
     notifee.requestPermission()
     // Lắng nghe sự kiện thay đổi trạng thái đơn hàng
     socketInstance.on('order_status', async (order: Order) => {
       console.log('Order status updated:', order)
+      if (order.order.shipper) {
+        const shipperImage = order.order.shipper.image?.[0];
+        if (shipperImage) {
+          CallConfig(user.phone, user.name, shipperImage);
+        } else {
+          CallConfig(user.phone, user.name);
+        }
+      }
       if (order.order.user._id == user._id) {
         const channelId = await notifee.createChannel({
           id: 'high-priority',
@@ -66,11 +76,6 @@ const App = () => {
         });
       }
     });
-
-
-    return () => {
-      socketInstance.off('order_status');
-    };
   }, []);
   return (
     <>

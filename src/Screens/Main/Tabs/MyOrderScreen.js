@@ -50,7 +50,6 @@ const MyOrderScreen = ({ navigation }) => {
     socketInstance.on('order_status', (data) => {
       getOrder()
     })
-    CallConfig(user.phone, user.name);
   }, [])
 
   const handleSelectOrder = orderType => {
