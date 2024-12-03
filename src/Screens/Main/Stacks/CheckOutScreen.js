@@ -37,6 +37,8 @@ import { formatPrice } from '../../../components/format/FomatPrice';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSelector } from 'react-redux';
 import { calculateTravelTime, haversineDistance } from '../../../components/CaculateDistanceShop';
+import { ArrowRight2 } from 'iconsax-react-native';
+import { formatVoucher } from '../../../components/format/formatVoucher';
 
 const CheckOutScreen = ({ navigation, route }) => {
   const { data, sale } = route.params;
@@ -137,65 +139,77 @@ const CheckOutScreen = ({ navigation, route }) => {
     try {
       if (indexPay == 0) {
         setIsLoading(true);
-        // const result2 = await addOrder();
-        const config = {
-          appid: 2554,
-          key1: 'sdngKKJmqEMzvh5QQcdD2A9XBSKUNaYn',
-          key2: 'trMrHtvjo6myautxDUiAcYsVtaeQ8nhf',
-          endpoint: 'https://sb-openapi.zalopay.vn/v2/create',
-        };
-        const transID = Math.floor(Math.random() * 1000000);
-        let appid = config.appid;
-        let app_trans_id = `${moment().format('YYMMDD')}_${transID}`;
-        let amount = total;
-        let appuser = 'ZaloPayDemo';
-        let apptime = Date.now();
-        let embeddata = '{}';
-        let item = '[]';
-        let callback_url = `coodyfood://success-payment`;
-        let return_url = `coodyfood://success-payment`;
-        let description = 'Merchant description for order #' + app_trans_id;
-        let hmacInput =
-          appid +
-          '|' +
-          app_trans_id +
-          '|' +
-          appuser +
-          '|' +
-          amount +
-          '|' +
-          apptime +
-          '|' +
-          embeddata +
-          '|' +
-          item;
-        let mac = crypto.HmacSHA256(hmacInput, config.key1).toString();
-        const order = {
-          app_id: appid,
-          app_trans_id: app_trans_id,
-          app_user: appuser,
-          amount: amount,
-          app_time: apptime,
-          item: item,
-          embed_data: embeddata,
-          description: description,
-          mac: mac,
-          // callback_url: callback_url,
-          return_url: return_url,
-        };
-
-        const response = await axios.post(config.endpoint, order);
+        const response = await AxiosInstance().post('/zaloPay/payment')
         setIsLoading(false);
-        // Handle response from server
-        const result = response.data;
-        if (result.return_code == 1) {
+        if (response.return_code == 1) {
           var ZaloPay = NativeModules.PayZaloBridge;
-          ZaloPay.payOrder(result.zp_trans_token);
-          console.log('result', result);
-
+          ZaloPay.payOrder(response.zp_trans_token);
         } else {
           Alert.alert('Error', 'Failed  to create order');
         }
+        console.log('response', response);
+
+        // const result2 = await addOrder();
+        // const config = {
+        //   appid: 2554,
+        //   key1: 'sdngKKJmqEMzvh5QQcdD2A9XBSKUNaYn',
+        //   key2: 'trMrHtvjo6myautxDUiAcYsVtaeQ8nhf',
+        //   endpoint: 'https://sb-openapi.zalopay.vn/v2/create',
+        // };
+        // const embed_data = `{"redirecturl": "https://docs.zalopay.vn/result"}`
+        // console.log('embed_data', embed_data.toString());
+
+        // const transID = Math.floor(Math.random() * 1000000);
+        // let appid = config.appid;
+        // let app_trans_id = `${moment().format('YYMMDD')}_${transID}`;
+        // let amount = total;
+        // let appuser = 'ZaloPayDemo';
+        // let apptime = Date.now();
+        // // let embeddata = '{}';
+        // let item = '[]';
+        // let callback_url = `https://d1d8-2405-4803-c75b-a410-b521-5adb-e7ec-1049.ngrok-free.app/zaloPay/callback`;
+        // let description = 'CoodyFood - Thanh toán cho đơn hàng #' + app_trans_id;
+        // let hmacInput =
+        //   appid +
+        //   '|' +
+        //   app_trans_id +
+        //   '|' +
+        //   appuser +
+        //   '|' +
+        //   amount +
+        //   '|' +
+        //   apptime +
+        //   '|' +
+        //   embed_data +
+        //   '|' +
+        //   item;
+        // let mac = crypto.HmacSHA256(hmacInput, config.key1).toString();
+        // const order = {
+        //   app_id: appid,
+        //   app_trans_id: app_trans_id,
+        //   app_user: appuser,
+        //   amount: amount,
+        //   app_time: apptime,
+        //   item: item,
+        //   embed_data: embed_data,
+        //   // embed_data: JSON.stringify(embeddata),
+        //   description: description,
+        //   mac: mac,
+        //   callback_url: callback_url,
+        //   // return_url: return_url,
+        // };
+
+        // const response = await axios.post(config.endpoint, order);
+        // setIsLoading(false);
+        // // Handle response from server
+        // const result = response.data;
+        // console.log('result', result);
+        // if (result.return_code == 1) {
+        //   var ZaloPay = NativeModules.PayZaloBridge;
+        //   ZaloPay.payOrder(result.zp_trans_token);
+        // } else {
+        //   Alert.alert('Error', 'Failed  to create order');
+        // }
       } else if (indexPay == 1) {
         // Handle payment with PayOS
         setIsLoading(true);
@@ -275,7 +289,7 @@ const CheckOutScreen = ({ navigation, route }) => {
       order: order,
       paymentMethod,
       shopOwner: data.shopOwner._id,
-      totalPrice:total,
+      totalPrice: total,
       shippingfee,
       voucher: sale ? sale._id : null,
       distance,
@@ -326,6 +340,7 @@ const CheckOutScreen = ({ navigation, route }) => {
       loadCurrentAddress(); // Load địa chỉ hiện tại từ AsyncStorage
     }, []),
   );
+
   // console.log('order', order);
 
   return (
@@ -366,20 +381,6 @@ const CheckOutScreen = ({ navigation, route }) => {
             text={'Sản phẩm'}
             fontsize={20}
             fontFamily={fontFamilies.bold}
-          />
-          <ButtonComponent
-            width={132}
-            height={30}
-            borderColor={appColor.subText}
-            backgroundColor={appColor.white}
-            text={'Thêm voucher'}
-            fontsize={11}
-            onPress={() =>
-              navigation.navigate('TicketSale', {
-                totalPrice: data.totalPrice,
-                data,
-              })
-            }
           />
         </RowComponent>
         <SpaceComponent height={20} />
@@ -442,6 +443,31 @@ const CheckOutScreen = ({ navigation, route }) => {
         ))}
         <SpaceComponent height={10} />
         <LineComponent />
+        <SpaceComponent height={20} />
+        <RowComponent justifyContent={'space-between'} button onPress={() =>
+          navigation.navigate('TicketSale', {
+            totalPrice: data.totalPrice,
+            data,
+          })
+        }>
+          <RowComponent>
+            <Image source={require('../../../assets/images/checkout/voucher.png')} />
+            <SpaceComponent width={10} />
+            <TextComponent text={'Thêm voucher'} fontsize={14} />
+          </RowComponent>
+          {voucher <= 0 ? <RowComponent>
+            <TextComponent text={'Chọn voucher'} fontsize={14} color={appColor.subText} />
+            <SpaceComponent width={10} />
+            <ArrowRight2 color={appColor.subText} size={14} />
+          </RowComponent> :
+            <View style={{ paddingHorizontal: 8, paddingVertical: 3, borderWidth: 1, borderColor: appColor.primary }}>
+              <TextComponent text={`Mã giảm: ${sale.code}`} fontsize={12} color={appColor.primary} />
+            </View>
+
+          }
+        </RowComponent>
+        <SpaceComponent height={20} />
+        <LineComponent />
         <SpaceComponent height={10} />
         <RowComponent justifyContent={'space-between'}>
           <TextComponent text={'Tổng cộng'} fontsize={16} />
@@ -453,22 +479,21 @@ const CheckOutScreen = ({ navigation, route }) => {
         </RowComponent>
         <SpaceComponent height={10} />
         <RowComponent justifyContent={'space-between'}>
-          <TextComponent text={'Mã khuyến mãi'} fontsize={16} />
           <TextComponent
-            text={formatPrice(voucher)}
+            text={'Phí giao hàng'}
+            fontsize={16}
+          />
+          <TextComponent
+            text={formatPrice(shippingfee)}
             fontsize={16}
             fontFamily={fontFamilies.bold}
           />
         </RowComponent>
         <SpaceComponent height={10} />
         <RowComponent justifyContent={'space-between'}>
+          <TextComponent text={'Mã khuyến mãi'} fontsize={16} />
           <TextComponent
-            text={'Phí giao hàng'}
-            fontsize={16}
-            color={appColor.green}
-          />
-          <TextComponent
-            text={formatPrice(shippingfee)}
+            text={voucher > 0 ? `-${formatPrice(voucher)}` : formatPrice(voucher)}
             fontsize={16}
             fontFamily={fontFamilies.bold}
             color={appColor.green}

@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet, Text, View } from 'react-native'
+import { FlatList, Image, StyleSheet, Text, View } from 'react-native'
 import React, { useCallback, useEffect, useState } from 'react'
 import ContainerComponent from '../../../components/ContainerComponent'
 import HeaderComponent from '../../../components/HeaderComponent'
@@ -10,10 +10,12 @@ import RowComponent from '../../../components/RowComponent'
 import ButtonComponent from '../../../components/ButtonComponent'
 import SearchComponent from '../../../components/SearchComponent'
 import { useFocusEffect } from '@react-navigation/native'
+import TextComponent from '../../../components/TextComponent'
+import { appColor } from '../../../constants/appColor'
 
 const ListSearchScreen = ({ navigation, route }) => {
     // const { type, category, shopId, name } = route.params
-    const { shop, name,type } = route.params
+    const { shop, name, type } = route.params
 
     const [shops, setShops] = useState([])
     console.log('shops', shop);
@@ -59,11 +61,28 @@ const ListSearchScreen = ({ navigation, route }) => {
                 <SearchComponent placeholder={'Tìm kiếm'} value={name} onPress={() => navigation.push('Search', { name })} />
             </RowComponent>
             <SpaceComponent height={20} />
-            <FlatList
+            {shop.length > 0 ? <FlatList
                 data={shop}
                 renderItem={({ item }) => <ShopAndProductComponent typeSearch={true} type={'shop'} item={item} search={true}
-                 onPress={() => navigation.navigate('Shop', { id: item.shopId })} onPressProduct={()=>navigation.navigate('Product',{id:item.product[0].product_id,shopOwnerId:item.shopId})}/>}
-            />
+                    onPress={() => navigation.navigate('Shop', { id: item.shopId })} onPressProduct={() => navigation.navigate('Product', { id: item.product[0].product_id, shopOwnerId: item.shopId })} />}
+            /> :
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    <Image source={require('../../../assets/images/search/search.png')} />
+                    <SpaceComponent height={40} />
+                    <TextComponent text={'Không tìm thấy từ khóa'} fontsize={14} color={appColor.subText} />
+                    <SpaceComponent height={10} />
+                    <TextComponent text={'Bạn vui lòng tìm từ khóa khác và thử lại nhé'} fontsize={14} color={appColor.subText} />
+                    <SpaceComponent height={20} />
+                    <ButtonComponent text={'Nhập từ khác'}
+                        onPress={() => navigation.push('Search')}
+                        width={'25%'}
+                        fontsize={14}
+                        height={40}
+                        color={appColor.white}
+                        borderRadius={0}
+                    />
+                </View>
+            }
         </ContainerComponent>
     )
 }

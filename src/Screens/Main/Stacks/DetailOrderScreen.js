@@ -22,7 +22,7 @@ const DetailOrderScreen = ({ navigation, route }) => {
   const address = item.shippingAddress
   const status = item.status
   const voucher = item.voucher != null ? item.voucher.discountAmount : 0
-  const totalPrice = item.totalPrice + item.shippingfee - voucher
+  const totalPrice = item.totalPrice -item.shippingfee + voucher;
   console.log('item', item);
 
   // const [products, setProducts] = useState(PRODUCTS)
@@ -114,7 +114,7 @@ const DetailOrderScreen = ({ navigation, route }) => {
       <SpaceComponent height={10} />
       <RowComponent justifyContent={'space-between'} >
         <TextComponent text={'Tạm tính'} fontsize={14} />
-        <TextComponent text={formatPrice(item.totalPrice)} fontsize={14} />
+        <TextComponent text={formatPrice(totalPrice)} fontsize={14} />
       </RowComponent>
       <SpaceComponent height={10} />
       <RowComponent justifyContent={'space-between'} >
@@ -134,7 +134,7 @@ const DetailOrderScreen = ({ navigation, route }) => {
         <RowComponent>
           {images && <Image source={images} />}
           <SpaceComponent width={10} />
-          <TextComponent text={formatPrice(totalPrice)} fontsize={14} fontFamily={fontFamilies.bold} />
+          <TextComponent text={formatPrice(item.totalPrice)} fontsize={14} fontFamily={fontFamilies.bold} />
         </RowComponent>
       </RowComponent>
       <SpaceComponent height={20} />

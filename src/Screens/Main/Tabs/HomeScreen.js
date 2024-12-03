@@ -1,6 +1,8 @@
 import {
+  Alert,
   FlatList,
   Image,
+  Linking,
   PermissionsAndroid,
   StyleSheet,
   Text,
@@ -35,6 +37,7 @@ import { connectSocket, getSocket } from '../../../socket/socket';
 import { getUserLocation } from '../../../Redux/API/UserLocation';
 import { calculateTravelTime, haversineDistance } from '../../../components/CaculateDistanceShop';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import AlertNoChoiceModal from '../../../modal/AlertNoChoiceModal';
 
 const HomeScreen = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -52,7 +55,10 @@ const HomeScreen = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [nearShop, setNearShop] = useState([]);
   const [cart, setCart] = useState([]);
-  console.log('userLocation', userLocation);
+  const [visible, setVisible] = useState(false);
+  const [visible2, setVisible2] = useState(false);
+  const [allow, setAllow] = useState(false);
+  // console.log('userLocation', userLocation);
 
 
   useEffect(() => {
@@ -64,75 +70,75 @@ const HomeScreen = ({ navigation }) => {
 
   const requestLocationPermission = async () => {
     if (Platform.OS === 'android') {
+      setVisible(false);
+      setVisible2(false);
       const granted = await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
       );
+      setAllow(granted);
+      if (granted === PermissionsAndroid.RESULTS.DENIED) {
+
+        setVisible(true);
+      }
+      if (granted === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) {
+        setVisible2(true);
+      }
       return granted === PermissionsAndroid.RESULTS.GRANTED;
     }
     return true;
   };
   const getGeocoding = async () => {
-   try {
-    if (userLocation) {
-      setIsLoading(true);
-      let geocoding = await MapAPI.getGeocoding({
-        description: encodeURIComponent(
-          userLocation[1] + ',' + userLocation[0],
-        ),
-      });
-      console.log('geocoding', geocoding.results[0]);
-      setAddressUser(geocoding.results[0].formatted_address);
-      const formatAddress = {
-        address: geocoding.results[0].formatted_address,
-        latitude: geocoding.results[0].geometry.location.lat,
-        longitude: geocoding.results[0].geometry.location.lng,
-        name: user.name,
-        phone: user.phone,
-        title: 'Nhà'
+    try {
+      if (userLocation) {
+        setIsLoading(true);
+        let geocoding = await MapAPI.getGeocoding({
+          description: encodeURIComponent(
+            userLocation[1] + ',' + userLocation[0],
+          ),
+        });
+        // console.log('geocoding', geocoding.results[0]);
+        setAddressUser(geocoding.results[0].formatted_address);
+        const formatAddress = {
+          address: geocoding.results[0].formatted_address,
+          latitude: geocoding.results[0].geometry.location.lat,
+          longitude: geocoding.results[0].geometry.location.lng,
+          name: user.name,
+          phone: user.phone,
+          title: 'Nhà'
+        }
+        await AsyncStorage.setItem('@user_address', JSON.stringify(formatAddress));
+        await AsyncStorage.setItem('@current_address', JSON.stringify(formatAddress));
       }
-      await AsyncStorage.setItem('@user_address', JSON.stringify(formatAddress));
-      await AsyncStorage.setItem('@current_address', JSON.stringify(formatAddress));
+    } catch (error) {
+      console.log('error', error);
+    } finally {
+      setIsLoading(false);
     }
-   } catch (error) {
-    console.log('error', error);
-   }finally {
-    setIsLoading(false);
-   }
+  };
+  const handleOpenSetting = () => {
+    Linking.openSettings();
   };
   const loadCurrentAddress = async () => {
     try {
-        const jsonValue = await AsyncStorage.getItem('@current_address');
-        if (jsonValue != null) {
-            setAddressUser(JSON.parse(jsonValue).address);
-        }
+      const jsonValue = await AsyncStorage.getItem('@current_address');
+      if (jsonValue != null) {
+        setAddressUser(JSON.parse(jsonValue).address);
+      }
     } catch (error) {
-        console.log('Error loading current address:', error);
+      console.log('Error loading current address:', error);
     }
-}
-
-  // const getUserLocation = () => {
-  //   Geolocation.getCurrentPosition(
-  //     position => {
-  //       const { latitude, longitude } = position.coords;
-  //       setUserLocation([longitude, latitude]);
-  //     },
-  //     error => {
-  //       console.error(error);
-  //     },
-  //     { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
-  //   );
-  // };
+  }
 
   const getShop = async () => {
     try {
       setIsLoading(true);
       const response = await AxiosInstance().get('/shopOwner');
       const shop = response.data;
-  
+
       setShop(response.data);
     } catch (error) {
       console.log('error', error);
-    }finally {
+    } finally {
       setIsLoading(false);
     }
   };
@@ -221,14 +227,6 @@ const HomeScreen = ({ navigation }) => {
     }
   };
 
-  // useEffect(() => {
-  //   requestLocationPermission().then(hasPermission => {
-  //     if (hasPermission) {
-  //       getUserLocation();
-  //     }
-  //   });
-  // }, []);
-
   useEffect(() => {
     if (userLocation) {
       getGeocoding();
@@ -255,16 +253,23 @@ const HomeScreen = ({ navigation }) => {
 
       await Promise.all([getCategories(), getShop()]);
       const hasPermission = await requestLocationPermission();
-      if (hasPermission) {
-        dispatch(getUserLocation());
-      }
+      // console.log('hasPermission', hasPermission);
+
+      // if (hasPermission) {
+      //   dispatch(getUserLocation());
+      // }
     };
     fetchData();
   }, []);
-console.log('isLoading', isLoading);
-console.log('status', status);
+  useFocusEffect(
+    useCallback(() => {
+      console.log('allow', allow);
+      if (allow) {
+        dispatch(getUserLocation());
+      }
+    }, [allow]),
+  );
 
-  
   useEffect(() => {
     if (status === 'success') {
       setIsLoading(false);
@@ -371,10 +376,12 @@ console.log('status', status);
               />
             </RowComponent>
           </View>
-          <Image
-            source={require('../../../assets/images/home/avatar.png')}
-            style={styles.imgAvatar}
-          />
+          <TouchableOpacity onPress={() => navigation.navigate('EditProfile')}>
+            <Image
+              source={{ uri: user.image }}
+              style={styles.imgAvatar}
+            />
+          </TouchableOpacity>
         </RowComponent>
         <SpaceComponent height={25} />
         <SearchComponent
@@ -495,6 +502,11 @@ console.log('status', status);
         </View>
       </TouchableOpacity>
       <LoadingModal visible={isLoading} />
+      <AlertNoChoiceModal visible={visible} title={'Thông báo'} description={'Bạn cần cho phép truy cập địa chỉ hiện tại để tiếp tục'}
+        onPress={requestLocationPermission} />
+      <AlertNoChoiceModal visible={visible2} title={'Từ chối truy cập'}
+        description={'Bạn cần bật quyền truy cập vị trí từ cài đặt để tiếp tục'}
+        onPress={() => Linking.openSettings()} />
     </ContainerComponent>
   );
 };

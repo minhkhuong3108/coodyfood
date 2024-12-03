@@ -31,7 +31,7 @@ const ChangePasswordScreen = () => {
     const dispatch = useDispatch()
     const [visible, setVisible] = useState(false)
     console.log('user', user);
-    
+
     const changePass = (data) => {
         setPassword(data)
         setErrorPass('')
@@ -54,13 +54,6 @@ const ChangePasswordScreen = () => {
         }
         if (!password) {
             setErrorPass('Mật khẩu không được để trống')
-            return
-        }
-        setIsLoading(true)
-        const isMatch = await bcryptjs.compare(password, user.password)
-        setIsLoading(false)
-        if (!isMatch) {
-            setErrorPass('Mật khẩu hiện tại không đúng')
             return
         }
         if (password === newPassword) {
@@ -86,11 +79,18 @@ const ChangePasswordScreen = () => {
             setIsLoading(true)
             const data = {
                 email: user.email,
-                password: newPassword
+                oldPassword: password,
+                newPassword
             }
-            const response = await AxiosInstance().post(`users/reset-password`, data)
-            if (response.status == true) {
-                setVisible(true)
+            const response = await AxiosInstance().post(`users/change-password`, data)
+            console.log('response', response.data);
+            
+            if (response.data) {
+                if (response.data == 'Mật khẩu cũ không đúng') {
+                    setErrorPass('Mật khẩu cũ không đúng')
+                } else {
+                    setVisible(true)
+                }
             }
         } catch (error) {
             console.log('error', error);
