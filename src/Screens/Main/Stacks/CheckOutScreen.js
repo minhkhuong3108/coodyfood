@@ -10,16 +10,16 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import ContainerComponent from '../../../components/ContainerComponent';
 import HeaderComponent from '../../../components/HeaderComponent';
 import RowComponent from '../../../components/RowComponent';
 import TextComponent from '../../../components/TextComponent';
-import { fontFamilies } from '../../../constants/fontFamilies';
+import {fontFamilies} from '../../../constants/fontFamilies';
 import ButtonComponent from '../../../components/ButtonComponent';
-import { appColor } from '../../../constants/appColor';
+import {appColor} from '../../../constants/appColor';
 import SpaceComponent from '../../../components/SpaceComponent';
-import { globalStyle } from '../../../styles/globalStyle';
+import {globalStyle} from '../../../styles/globalStyle';
 import OrderItem from '../../../components/OrderItem';
 import LineComponent from '../../../components/LineComponent';
 import NoteModel from '../../../modal/NoteModel';
@@ -30,20 +30,24 @@ import axios from 'axios';
 import moment from 'moment';
 import crypto from 'crypto-js';
 import LoadingModal from '../../../modal/LoadingModal';
-import BottomSheet, { BottomSheetBackdrop } from '@gorhom/bottom-sheet';
-import { appInfor } from '../../../constants/appInfor';
+import BottomSheet, {BottomSheetBackdrop} from '@gorhom/bottom-sheet';
+import {appInfor} from '../../../constants/appInfor';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { formatPrice } from '../../../components/format/FomatPrice';
-import { useFocusEffect } from '@react-navigation/native';
-import { useSelector } from 'react-redux';
-import { calculateTravelTime, haversineDistance } from '../../../components/CaculateDistanceShop';
-import { ArrowRight2 } from 'iconsax-react-native';
-import { formatVoucher } from '../../../components/format/formatVoucher';
+import {formatPrice} from '../../../components/format/FomatPrice';
+import {useFocusEffect} from '@react-navigation/native';
+import {useSelector} from 'react-redux';
+import {
+  calculateTravelTime,
+  haversineDistance,
+} from '../../../components/CaculateDistanceShop';
+import {ArrowRight2} from 'iconsax-react-native';
+import {formatVoucher} from '../../../components/format/formatVoucher';
+import {Removemess} from '../../../components/Removemess';
 
-const CheckOutScreen = ({ navigation, route }) => {
-  const { data, sale } = route.params;
-  const { user } = useSelector(state => state.login);
-  const { userLocation } = useSelector(state => state.userLocation);
+const CheckOutScreen = ({navigation, route}) => {
+  const {data, sale} = route.params;
+  const {user} = useSelector(state => state.login);
+  const {userLocation} = useSelector(state => state.userLocation);
   console.log('userLocation', userLocation);
 
   const [voucher, setVoucher] = useState(0);
@@ -62,7 +66,7 @@ const CheckOutScreen = ({ navigation, route }) => {
   // console.log('paymentMethod', paymentMethod);
   // console.log('data', data);
 
-  const { name, _id } = data.shopOwner;
+  const {name, _id} = data.shopOwner;
   const shopOwner = data.shopOwner;
   console.log('shopOwner', shopOwner.latitude);
 
@@ -72,20 +76,18 @@ const CheckOutScreen = ({ navigation, route }) => {
   const [distance, setDistance] = useState(null);
   console.log('distance', distance);
 
-
-  const calculateDistanceToShop = (shopLocation) => {
+  const calculateDistanceToShop = shopLocation => {
     console.log('shopLocation', shopLocation);
 
     const distance = haversineDistance(userLocation, shopLocation);
     return setDistance(distance);
-
   };
 
   useFocusEffect(
     useCallback(() => {
       calculateDistanceToShop([shopOwner.latitude, shopOwner.longitude]);
     }, [shopOwner]),
-  )
+  );
   // useEffect(() => {
   //   calculateDistanceToShop([shopOwner.latitude, shopOwner.longtitude]);
   // }, [shopOwner]);
@@ -107,7 +109,7 @@ const CheckOutScreen = ({ navigation, route }) => {
   const handleNote = () => {
     const updatedOrder = order.map((item, index) => {
       if (index === selectedOrderIndex) {
-        return { ...item, note: note };
+        return {...item, note: note};
       }
       return item;
     });
@@ -139,7 +141,7 @@ const CheckOutScreen = ({ navigation, route }) => {
     try {
       if (indexPay == 0) {
         setIsLoading(true);
-        const response = await AxiosInstance().post('/zaloPay/payment')
+        const response = await AxiosInstance().post('/zaloPay/payment');
         setIsLoading(false);
         if (response.return_code == 1) {
           var ZaloPay = NativeModules.PayZaloBridge;
@@ -253,17 +255,18 @@ const CheckOutScreen = ({ navigation, route }) => {
           setIsLoading(false);
           const checkoutUrl = response.data.data.checkoutUrl;
           if (checkoutUrl) {
-            navigation.navigate('PayOS', { checkoutUrl });
+            navigation.navigate('PayOS', {checkoutUrl});
           }
         } catch (error) {
           console.log(error);
         }
       } else if (indexPay == 2) {
         const resutl = await addOrder();
-        setIsLoading(false)
+        setIsLoading(false);
         if (resutl) {
+          Removemess();
           ToastAndroid.show('Đặt hàng thành công', ToastAndroid.SHORT);
-          navigation.navigate('Order')
+          navigation.navigate('Order');
         }
       }
     } catch (error) {
@@ -318,12 +321,14 @@ const CheckOutScreen = ({ navigation, route }) => {
 
   const handleDeleteCart = async () => {
     try {
-      const response = await AxiosInstance().delete(`/carts/delete/${user._id}/${data.shopOwner._id}`);
+      const response = await AxiosInstance().delete(
+        `/carts/delete/${user._id}/${data.shopOwner._id}`,
+      );
       console.log('response', response);
     } catch (error) {
       console.log('error', error);
     }
-  }
+  };
 
   useEffect(() => {
     setOrder(data.products || data.items);
@@ -344,7 +349,7 @@ const CheckOutScreen = ({ navigation, route }) => {
   // console.log('order', order);
 
   return (
-    <ContainerComponent styles={{ flex: 1 }}>
+    <ContainerComponent styles={{flex: 1}}>
       <ContainerComponent styles={globalStyle.container} isScroll={true}>
         <HeaderComponent text="Thanh toán" isback />
         <View style={[styles.containerAddress, globalStyle.shawdow]}>
@@ -363,17 +368,22 @@ const CheckOutScreen = ({ navigation, route }) => {
             />
           </RowComponent>
           <SpaceComponent height={10} />
-          {currentAddress ? <TextComponent
-            text={`${currentAddress.name} | ${currentAddress.phone}`}
-            fontsize={12} /> :
+          {currentAddress ? (
+            <TextComponent
+              text={`${currentAddress.name} | ${currentAddress.phone}`}
+              fontsize={12}
+            />
+          ) : (
             <TextComponent text={'Chưa chọn địa chỉ'} fontsize={14} />
-          }
+          )}
           <SpaceComponent height={10} />
-          {currentAddress && <TextComponent
-            text={currentAddress.address}
-            fontsize={12}
-            width={280}
-          />}
+          {currentAddress && (
+            <TextComponent
+              text={currentAddress.address}
+              fontsize={12}
+              width={280}
+            />
+          )}
         </View>
         <SpaceComponent height={15} />
         <RowComponent justifyContent={'space-between'}>
@@ -395,7 +405,7 @@ const CheckOutScreen = ({ navigation, route }) => {
             text={'Thêm món'}
             fontsize={14}
             color={appColor.primary}
-            onPress={() => navigation.navigate('Shop', { id: _id })}
+            onPress={() => navigation.navigate('Shop', {id: _id})}
           />
         </RowComponent>
         <SpaceComponent height={10} />
@@ -444,27 +454,47 @@ const CheckOutScreen = ({ navigation, route }) => {
         <SpaceComponent height={10} />
         <LineComponent />
         <SpaceComponent height={20} />
-        <RowComponent justifyContent={'space-between'} button onPress={() =>
-          navigation.navigate('TicketSale', {
-            totalPrice: data.totalPrice,
-            data,
-          })
-        }>
+        <RowComponent
+          justifyContent={'space-between'}
+          button
+          onPress={() =>
+            navigation.navigate('TicketSale', {
+              totalPrice: data.totalPrice,
+              data,
+            })
+          }>
           <RowComponent>
-            <Image source={require('../../../assets/images/checkout/voucher.png')} />
+            <Image
+              source={require('../../../assets/images/checkout/voucher.png')}
+            />
             <SpaceComponent width={10} />
             <TextComponent text={'Thêm voucher'} fontsize={14} />
           </RowComponent>
-          {voucher <= 0 ? <RowComponent>
-            <TextComponent text={'Chọn voucher'} fontsize={14} color={appColor.subText} />
-            <SpaceComponent width={10} />
-            <ArrowRight2 color={appColor.subText} size={14} />
-          </RowComponent> :
-            <View style={{ paddingHorizontal: 8, paddingVertical: 3, borderWidth: 1, borderColor: appColor.primary }}>
-              <TextComponent text={`Mã giảm: ${sale.code}`} fontsize={12} color={appColor.primary} />
+          {voucher <= 0 ? (
+            <RowComponent>
+              <TextComponent
+                text={'Chọn voucher'}
+                fontsize={14}
+                color={appColor.subText}
+              />
+              <SpaceComponent width={10} />
+              <ArrowRight2 color={appColor.subText} size={14} />
+            </RowComponent>
+          ) : (
+            <View
+              style={{
+                paddingHorizontal: 8,
+                paddingVertical: 3,
+                borderWidth: 1,
+                borderColor: appColor.primary,
+              }}>
+              <TextComponent
+                text={`Mã giảm: ${sale.code}`}
+                fontsize={12}
+                color={appColor.primary}
+              />
             </View>
-
-          }
+          )}
         </RowComponent>
         <SpaceComponent height={20} />
         <LineComponent />
@@ -479,10 +509,7 @@ const CheckOutScreen = ({ navigation, route }) => {
         </RowComponent>
         <SpaceComponent height={10} />
         <RowComponent justifyContent={'space-between'}>
-          <TextComponent
-            text={'Phí giao hàng'}
-            fontsize={16}
-          />
+          <TextComponent text={'Phí giao hàng'} fontsize={16} />
           <TextComponent
             text={formatPrice(shippingfee)}
             fontsize={16}
@@ -493,7 +520,9 @@ const CheckOutScreen = ({ navigation, route }) => {
         <RowComponent justifyContent={'space-between'}>
           <TextComponent text={'Mã khuyến mãi'} fontsize={16} />
           <TextComponent
-            text={voucher > 0 ? `-${formatPrice(voucher)}` : formatPrice(voucher)}
+            text={
+              voucher > 0 ? `-${formatPrice(voucher)}` : formatPrice(voucher)
+            }
             fontsize={16}
             fontFamily={fontFamilies.bold}
             color={appColor.green}
@@ -527,7 +556,8 @@ const CheckOutScreen = ({ navigation, route }) => {
           title={'Xác nhận đặt hàng'}
           description={'Bạn có chắc chắn muốn đặt hàng không?'}
           onClose={() => setVisible(false)}
-          onPress={handlePayment} />
+          onPress={handlePayment}
+        />
         {/* <AlertModel visible={visible} title={'Thành công'} fail onRequestClose={() => setVisible(false)}  description={'Thanh toán thành công'} /> */}
       </ContainerComponent>
       <BottomSheet
@@ -555,7 +585,7 @@ const CheckOutScreen = ({ navigation, route }) => {
           />
         </RowComponent>
         <SpaceComponent height={20} />
-        <View style={{ paddingHorizontal: 16 }}>
+        <View style={{paddingHorizontal: 16}}>
           <TextComponent text={'Thêm ghi chú:'} />
           <SpaceComponent height={20} />
           <TextInput

@@ -32,6 +32,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ZegoSendCallInvitationButton } from '@zegocloud/zego-uikit-prebuilt-call-rn';
 import { formatPrice } from '../../../components/format/FomatPrice';
 import { opacity } from 'react-native-reanimated/lib/typescript/Colors';
+import { Removemess } from '../../../components/Removemess';
 
 const CheckOrderScreen = ({ navigation, route }) => {
   const { item } = route.params;
@@ -46,7 +47,6 @@ const CheckOrderScreen = ({ navigation, route }) => {
   const voucher = item.voucher != null ? item.voucher.discountAmount : 0;
   const totalPrice = item.totalPrice -item.shippingfee + voucher;
 
-
   const snapPoint = ['50%'];
   const bottomSheetRef = useRef(null);
   const handleOpenBottomSheet = () => {
@@ -60,11 +60,7 @@ const CheckOrderScreen = ({ navigation, route }) => {
     <BottomSheetBackdrop appearsOnIndex={0} disappearsOnIndex={-1} {...props} />
   ));
   //
-  useEffect(() => {
-    if (orderStatus == 'Đang giao hàng') {
-      CallConfig(item.user.phone, item.user.name, item.shipper.image[0]);
-    }
-  }, [orderStatus]);
+
   const getOrderDetail = async () => {
     try {
       setIsLoading(true)
@@ -79,14 +75,6 @@ const CheckOrderScreen = ({ navigation, route }) => {
       setIsLoading(false)
     }
   };
-console.log('order',order);
-
-  useEffect(()=>{
-    if(shipper){
-      item.shipper=shipper
-    }
-  },[shipper])
-
 
   useEffect(() => {
     // console.log(item)
@@ -122,22 +110,14 @@ console.log('order',order);
       // console.log(data)
       if (data.orderId == item._id) {
         const socketInstance = getSocket();
-        removemessage()
+        Removemess()
         socketInstance.off('receive_message');
         socketInstance.off('order_completed');
       }
     })
   }, []);
 
-  //xoá tin nhắn 
-  const removemessage = async () => {
-    try {
-      await AsyncStorage.removeItem('messageList');
-      console.log('Đã xoá AsyncStorage tin nhắn!');
-    } catch (error) {
-      console.error('Lỗi khi xoá AsyncStorage tin nhắn:', error);
-    }
-  }
+
 
   const options = [
     {
