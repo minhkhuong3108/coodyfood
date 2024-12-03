@@ -15,7 +15,7 @@ const AlertNoChoiceModal = ({ title, description, visible, onPress }) => {
                     <SpaceComponent height={20} />
                     <Image source={require('../assets/images/alert/success.png')} />
                     <SpaceComponent height={20} />
-                    <TextComponent text={description} fontsize={16} textAlign={'center'} color={appColor.subText} />
+                    <TextComponent text={description} fontsize={14} textAlign={'center'} color={appColor.subText} />
                     <SpaceComponent height={20} />
                     <ButtonComponent text={'Đồng ý'} onPress={onPress} width={100} height={50} color={appColor.white} />
                 </View>
@@ -33,7 +33,8 @@ const styles = StyleSheet.create({
         paddingVertical: 25,
         alignItems: 'center',
         zIndex: 1,
-        borderRadius: 10
+        borderRadius: 10,
+        paddingHorizontal:48,
     },
     container: {
         flex: 1,

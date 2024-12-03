@@ -16,7 +16,7 @@ import LineComponent from './LineComponent'
 
 const ShopAndProductComponent = ({ item, onPress, type, favorite, inCart, order, onPressAdd, onPressReduce, onPressIncrease, quantity, onPressFavorite, search, typeSearch, onPressProduct }) => {
     const { _id, name, images, discount, rating, distance, time, soldOut, price, oldPrice, address } = item
-    console.log('item', item);
+    // console.log('item', item);
 
     return (
         type == 'shop' ?

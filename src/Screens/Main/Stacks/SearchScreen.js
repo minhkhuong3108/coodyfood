@@ -92,7 +92,7 @@ const SearchScreen = ({ navigation, route }) => {
     const getSearch2 = async (keyword) => {
         try {
             const response = await AxiosInstance().get(`/products/search?keyword=${keyword}`)
-            console.log('search2', response.data.results[0].product);
+            console.log('search2', response.data);
             setSuggested(response.data.suggestions)
         } catch (error) {
             console.log(error);
@@ -204,7 +204,7 @@ const SearchScreen = ({ navigation, route }) => {
             })
 
             const shopSearch = response.data.results
-            navigation.navigate('ListSearch', { shop: shopSearch, name: item.name,type:item.type })
+            navigation.navigate('ListSearch', { shop: shopSearch, name: item.name, type: item.type })
         }
     }
 
@@ -243,7 +243,7 @@ const SearchScreen = ({ navigation, route }) => {
                 <SpaceComponent width={10} />
                 <SearchComponent placeholder={'Tìm kiếm'}
                     value={search} onchangeText={text => handleSearchChange(text)} ref={refSearch}
-                    onSubmitEditing={()=>handleSuggestionsShop(search)} />
+                    onSubmitEditing={() => handleSuggestionsShop(search)} />
             </RowComponent>
             {search.length > 0 ?
                 <View>
@@ -251,7 +251,7 @@ const SearchScreen = ({ navigation, route }) => {
                     <FlatList
                         data={suggested}
                         renderItem={renderSuggestionItem}
-                        keyExtractor={item => item.product_id}
+                        keyExtractor={item => item.name}
                     />
                 </View> :
                 <View>
@@ -277,7 +277,7 @@ const SearchScreen = ({ navigation, route }) => {
                         <FlatList
                             horizontal
                             showsHorizontalScrollIndicator={false}
-                            data={nearShop}
+                            data={nearShop.slice(0,5)}
                             renderItem={({ item, index }) => <ShopRecomendList item={item} index={index} list={shop} />}
                             keyExtractor={item => item._id}
                         />
