@@ -1,5 +1,6 @@
 import {
   Alert,
+  AppState,
   FlatList,
   Image,
   Linking,
@@ -10,7 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import ButtonComponent from '../../../components/ButtonComponent';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../../Redux/Reducers/LoginSlice';
@@ -38,6 +39,7 @@ import { getUserLocation } from '../../../Redux/API/UserLocation';
 import { calculateTravelTime, haversineDistance } from '../../../components/CaculateDistanceShop';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AlertNoChoiceModal from '../../../modal/AlertNoChoiceModal';
+import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 
 const HomeScreen = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -58,6 +60,9 @@ const HomeScreen = ({ navigation }) => {
   const [visible, setVisible] = useState(false);
   const [visible2, setVisible2] = useState(false);
   const [allow, setAllow] = useState(false);
+  const appState = useRef(AppState.currentState);
+  const [appStateVisible, setAppStateVisible] = useState(appState.current)
+
   // console.log('userLocation', userLocation);
 
 
@@ -71,7 +76,7 @@ const HomeScreen = ({ navigation }) => {
   const requestLocationPermission = async () => {
     if (Platform.OS === 'android') {
       setVisible(false);
-      setVisible2(false);
+      // setVisible2(false);
       const granted = await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
       );
@@ -115,8 +120,17 @@ const HomeScreen = ({ navigation }) => {
       setIsLoading(false);
     }
   };
-  const handleOpenSetting = () => {
+  const handleOpenSetting = async () => {
+    // setVisible2(false);
     Linking.openSettings();
+    // const result = await request(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION);
+    // if (result === RESULTS.GRANTED) {
+    //   dispatch(getUserLocation());
+    // } else {
+    //   await Linking.openSettings();
+    // }
+    // console.log('result', result);
+
   };
   const loadCurrentAddress = async () => {
     try {
@@ -261,24 +275,22 @@ const HomeScreen = ({ navigation }) => {
     };
     fetchData();
   }, []);
-  useFocusEffect(
-    useCallback(() => {
-      console.log('allow', allow);
-      if (allow) {
-        dispatch(getUserLocation());
-      }
-    }, [allow]),
-  );
-
   useEffect(() => {
-    if (status === 'success') {
-      setIsLoading(false);
-    } else if (status === 'failed') {
-      setIsLoading(false);
-    } else {
-      setIsLoading(true);
+    if (allow) {
+      dispatch(getUserLocation());
     }
-  }, [status]);
+    console.log('allow', allow);
+  }, [allow]),
+
+    useEffect(() => {
+      if (status === 'success') {
+        setIsLoading(false);
+      } else if (status === 'failed') {
+        setIsLoading(false);
+      } else {
+        setIsLoading(true);
+      }
+    }, [status]);
 
   useFocusEffect(
     useCallback(() => {
@@ -506,7 +518,7 @@ const HomeScreen = ({ navigation }) => {
         onPress={requestLocationPermission} />
       <AlertNoChoiceModal visible={visible2} title={'Từ chối truy cập'}
         description={'Bạn cần bật quyền truy cập vị trí từ cài đặt để tiếp tục'}
-        onPress={() => Linking.openSettings()} />
+        onPress={handleOpenSetting} />
     </ContainerComponent>
   );
 };
