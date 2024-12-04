@@ -34,7 +34,7 @@ const App = () => {
     // Kết nối socket khi ứng dụng khởi động
     connectSocket();
     //đề phòng call lỗi
-    CallConfig(user.phone, user.name);
+    
     const socketInstance = getSocket();
     console.log('get');
 

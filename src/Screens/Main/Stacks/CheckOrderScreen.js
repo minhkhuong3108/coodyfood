@@ -105,6 +105,11 @@ const CheckOrderScreen = ({ navigation, route }) => {
     } catch (error) {
       console.log(error);
     }
+    //
+    socket.on('order_status', data => {
+      console.log('*************')
+      console.log(data)
+    })
     //kiểm tra  socket hoàn thành đơn hay chưa
     socketInstance.on('order_completed', data => {
       // console.log(data)
