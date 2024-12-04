@@ -13,12 +13,15 @@ import { appColor } from './src/constants/appColor'
 import { CallConfig } from './src/Screens/Call/Callconfig'
 
 
+
 interface Order {
   order: {
     id: string;
     status: string;
     user:{
       _id:string;
+      phone: string;
+      name: string; 
     };
     shipper?: { 
       image: string[]; 
@@ -33,8 +36,6 @@ const App = () => {
   useEffect(() => {
     // Kết nối socket khi ứng dụng khởi động
     connectSocket();
-    //đề phòng call lỗi
-    
     const socketInstance = getSocket();
     console.log('get');
 
@@ -46,13 +47,8 @@ const App = () => {
     // Lắng nghe sự kiện thay đổi trạng thái đơn hàng
     socketInstance.on('order_status', async (order: Order) => {
       console.log('Order status updated:', order)
-      if (order.order.shipper) {
-        const shipperImage = order.order.shipper.image?.[0];
-        if (shipperImage) {
-          CallConfig(user.phone, user.name, shipperImage);
-        } else {
-          CallConfig(user.phone, user.name);
-        }
+      if(order.status== 'Đang đến nhà hàng'){
+        CallConfig(order.order.user.phone,order.order.user.name,order.order.shipper?.image[0]??null)
       }
       if (order.order.user._id == user._id) {
         const channelId = await notifee.createChannel({

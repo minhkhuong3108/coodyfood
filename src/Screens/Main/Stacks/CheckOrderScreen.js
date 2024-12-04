@@ -105,11 +105,6 @@ const CheckOrderScreen = ({ navigation, route }) => {
     } catch (error) {
       console.log(error);
     }
-    //
-    socket.on('order_status', data => {
-      console.log('*************')
-      console.log(data)
-    })
     //kiểm tra  socket hoàn thành đơn hay chưa
     socketInstance.on('order_completed', data => {
       // console.log(data)
@@ -305,7 +300,7 @@ const CheckOrderScreen = ({ navigation, route }) => {
       socket.off('order_status');
     };
   }, [item.paymentMethod, item._id]);
-  console.log('item', item);
+
 
   return (
     <ContainerComponent styles={{ flex: 1, backgroundColor: appColor.white }}>
