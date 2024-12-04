@@ -43,6 +43,8 @@ import {
 import {ArrowRight2} from 'iconsax-react-native';
 import {formatVoucher} from '../../../components/format/formatVoucher';
 import {Removemess} from '../../../components/Removemess';
+import { getSocket } from '../../../socket/socket';
+
 
 const CheckOutScreen = ({navigation, route}) => {
   const {data, sale} = route.params;
@@ -93,6 +95,11 @@ const CheckOutScreen = ({navigation, route}) => {
   // }, [shopOwner]);
 
   //TEST(phí giao hàng)
+
+const joinroom=(id)=>{
+  const socketInstance = getSocket();
+  socketInstance.emit('join_room', id);
+}
 
   const handleOpenBottomSheet = index => {
     setSelectedOrderIndex(index);
@@ -267,6 +274,7 @@ const CheckOutScreen = ({navigation, route}) => {
           Removemess();
           ToastAndroid.show('Đặt hàng thành công', ToastAndroid.SHORT);
           navigation.navigate('Order');
+          joinroom(resutl._id)
         }
       }
     } catch (error) {
