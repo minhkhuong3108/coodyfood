@@ -12,6 +12,7 @@ import { fontFamilies } from '../../../constants/fontFamilies'
 import ReviewList from '../../../components/ReviewList'
 import AxiosInstance from '../../../helpers/AxiosInstance'
 import LoadingModal from '../../../modal/LoadingModal'
+import { formatRating } from '../../../components/format/FormatRate'
 
 
 const ReviewShopScreen = ({ navigation, route }) => {
@@ -82,7 +83,7 @@ const ReviewShopScreen = ({ navigation, route }) => {
             <RowComponent styles={[styles.containerRate, globalStyle.shawdow]} justifyContent={'space-between'}>
                 <View >
                     <RowComponent>
-                        <TextComponent text={`${item.rating}`} fontsize={30} />
+                        <TextComponent text={`${formatRating(item.rating)}`} fontsize={30} />
                         <SpaceComponent width={7} />
                         <Image source={require('../../../assets/images/rateShop/starLarge.png')} />
                     </RowComponent>

@@ -44,7 +44,7 @@ const CheckOrderScreen = ({ navigation, route }) => {
   const [orderStatus, setOrderStatus] = useState(item.status);
   const [visible, setVisible] = useState(false);
   const voucher = item.voucher != null ? item.voucher.discountAmount : 0;
-  const totalPrice = item.totalPrice -item.shippingfee + voucher;
+  const totalPrice = item.totalPrice - item.shippingfee + voucher;
 
 
   const snapPoint = ['50%'];
@@ -79,13 +79,13 @@ const CheckOrderScreen = ({ navigation, route }) => {
       setIsLoading(false)
     }
   };
-console.log('order',order);
+  console.log('order', order);
 
-  useEffect(()=>{
-    if(shipper){
-      item.shipper=shipper
+  useEffect(() => {
+    if (shipper) {
+      item.shipper = shipper
     }
-  },[shipper])
+  }, [shipper])
 
 
   useEffect(() => {
@@ -258,7 +258,7 @@ console.log('order',order);
               },
             },
           );
-          console.log('response', response.data);
+          // console.log('response', response.data);
           setIsLoading(false);
           const checkoutUrl = response.data.data.checkoutUrl;
           if (checkoutUrl) {
@@ -281,7 +281,7 @@ console.log('order',order);
     try {
       setIsLoading(true);
       const response = await AxiosInstance().put(
-        `/orders/Success-Payment/${item._id}`,
+        `/orders/Success-Payment/${item._id}`,{paymentMethod}
       );
       if (response.status == true) {
         navigation.navigate('SuccessPayment');
@@ -360,7 +360,7 @@ console.log('order',order);
               </View>
               <SpaceComponent width={10} />
               <View>
-                {item.shipper && <TextComponent text={item.shipper.name} fontsize={18} />}
+                {item.shipper && <TextComponent text={item.shipper.name} fontsize={16} />}
                 <SpaceComponent height={20} />
                 <RowComponent>
                   <TextComponent text={`Đánh giá: 5 `} fontsize={14} />
@@ -371,7 +371,7 @@ console.log('order',order);
               </View>
             </RowComponent>
             <RowComponent>
-              {item.shipper&&<ZegoSendCallInvitationButton
+              {item.shipper && <ZegoSendCallInvitationButton
                 invitees={[
                   //{userID: Order.user.phone, userName: Order.user.name},
                   { userID: item.shipper.phone, userName: item.shipper.name },
@@ -485,6 +485,7 @@ console.log('order',order);
               text={'HỦY ĐƠN HÀNG'}
               backgroundColor={appColor.white}
               borderColor={appColor.white}
+              onPress={() => setVisible(item.shipper ? false : true)}
               width={'48%'}
             />
             <ButtonComponent

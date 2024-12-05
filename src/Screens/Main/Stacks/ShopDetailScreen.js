@@ -271,7 +271,7 @@ const ShopDetailScreen = ({ navigation, route }) => {
     const renderPopularFood = ({ item }) => {
         const { name, price, soldOut, images } = item
         return (
-            <TouchableOpacity style={styles.containerPopularFood} onPress={() => navigation.navigate('Product',{id:item._id})}>
+            <TouchableOpacity style={styles.containerPopularFood} onPress={() => navigation.navigate('Product', { id: item._id, shopOwnerId: id })}>
                 <ImageBackground source={{ uri: images[0] }} style={styles.imgProduct}>
                     <View style={styles.viewSold}>
                         <TextComponent text={`${formatSold(soldOut)} đã bán`} color={appColor.white} fontsize={10} />
@@ -283,8 +283,8 @@ const ShopDetailScreen = ({ navigation, route }) => {
                     <SpaceComponent height={30} />
                     <RowComponent justifyContent={'space-between'}>
                         <TextComponent text={`${formatPrice(price)}`} color={appColor.primary} />
-                        <ButtonComponent type={'link'} styles={styles.btnAdd} image={require('../../../assets/images/shopDetail/add.png')} 
-                        onPress={()=> handleAddToCart(item)}/>
+                        <ButtonComponent type={'link'} styles={styles.btnAdd} image={require('../../../assets/images/shopDetail/add.png')}
+                            onPress={() => handleAddToCart(item)} />
                     </RowComponent>
                 </View>
             </TouchableOpacity>

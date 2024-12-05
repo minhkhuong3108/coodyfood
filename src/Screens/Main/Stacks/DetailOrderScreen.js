@@ -22,7 +22,7 @@ const DetailOrderScreen = ({ navigation, route }) => {
   const address = item.shippingAddress
   const status = item.status
   const voucher = item.voucher != null ? item.voucher.discountAmount : 0
-  const totalPrice = item.totalPrice -item.shippingfee + voucher;
+  const totalPrice = item.totalPrice - item.shippingfee + voucher;
   console.log('item', item);
 
   // const [products, setProducts] = useState(PRODUCTS)
@@ -57,8 +57,8 @@ const DetailOrderScreen = ({ navigation, route }) => {
           <View>
             <TextComponent text={'Địa chỉ nhà hàng'} fontFamily={fontFamilies.bold} />
             <SpaceComponent height={5} />
-            <TextComponent width={280} text={shop.address}
-              fontsize={12} color={appColor.subText} />
+            <TextComponent text={shop.address}
+              fontsize={12} color={appColor.subText} styles={{ paddingRight: 24, }} />
           </View>
         </RowComponent>
         <SpaceComponent height={10} />
@@ -68,8 +68,8 @@ const DetailOrderScreen = ({ navigation, route }) => {
           <View>
             <TextComponent text={'Địa chỉ đặt hàng'} fontFamily={fontFamilies.bold} />
             <SpaceComponent height={5} />
-            <TextComponent width={280} text={address.address}
-              fontsize={12} color={appColor.subText} />
+            <TextComponent text={address.address}
+              fontsize={12} color={appColor.subText} styles={{ paddingRight: 24, }} />
           </View>
         </RowComponent>
       </View>
@@ -140,14 +140,17 @@ const DetailOrderScreen = ({ navigation, route }) => {
       <SpaceComponent height={20} />
       <RowComponent justifyContent={'space-between'}>
         <ButtonComponent
-          text={item.statusReview==true ? 'Đã đánh giá' :
+          text={item.statusReview == true ? 'Đã đánh giá' :
             status == 'Đơn hàng đã được giao hoàn tất' ? 'Đánh giá' : 'Đã hủy'}
           backgroundColor={appColor.white}
           width={'48%'} height={51} borderColor={appColor.white}
           color={status == 'Đơn hàng đã được giao hoàn tất' ? appColor.text : appColor.subText}
           onPress={() => navigation.navigate('Rating', { item: item })}
-          disabled={item.statusReview==true ? true : false}
-          styles={item.statusReview==true ? styles.btnDisabled : null} />
+          disabled={item.statusReview == true ||
+            status == 'Người dùng đã hủy đơn' ||
+            status == 'Shipper đã hủy đơn' ||
+            status == 'Nhà hàng đã hủy đơn' ? true : false}
+          styles={item.statusReview == true ? styles.btnDisabled : null} />
         <ButtonComponent text={'Đặt lại'} color={appColor.white} width={'48%'} height={51}
           onPress={() => navigation.navigate('CheckOut', { data: item })} />
       </RowComponent>

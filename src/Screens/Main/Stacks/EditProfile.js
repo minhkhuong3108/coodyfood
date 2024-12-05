@@ -29,7 +29,9 @@ const EditProfile = ({ navigation }) => {
   const [email, setEmail] = useState(user.email ?? null);
   const [phone, setPhone] = useState(user.phone ?? null);
   const [correct, setCorrect] = useState(true);
-  const [date, setDate] = useState(user.date ?? null);
+  const [date, setDate] = useState(user.birthday ? new Date(user.birthday) : null);
+  console.log('date', date);
+
   const [showPicker, setshowPicker] = useState(false);
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
@@ -66,6 +68,7 @@ const EditProfile = ({ navigation }) => {
         name,
         email,
         phone,
+        birthday: date,
       },
       id: user._id
     }
@@ -151,6 +154,7 @@ const EditProfile = ({ navigation }) => {
               <TextComponent
                 fontFamily={fontFamilies.regular}
                 fontsize={14}
+                // text={date ? date.toLocaleDateString('vi-VN') : '--/--/----'}
                 text={date ? date.toLocaleDateString('vi-VN') : '--/--/----'}
               />
             </TouchableOpacity>
