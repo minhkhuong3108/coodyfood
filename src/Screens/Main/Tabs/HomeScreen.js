@@ -68,7 +68,7 @@ const HomeScreen = ({ navigation }) => {
 
   useEffect(() => {
     //callkeep
-
+    CallConfig(user.phone, user.name);
     //socket
     // connectSocket();
   }, []);

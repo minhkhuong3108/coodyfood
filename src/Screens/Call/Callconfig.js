@@ -40,7 +40,9 @@ export const CallConfig = async (userID, userName, image) => {
                 style={{width: '100%', height: '100%'}}
                 resizeMode="cover"
                 source={{
-                  uri: `https://static.vecteezy.com/system/resources/previews/005/005/788/non_2x/user-icon-in-trendy-flat-style-isolated-on-grey-background-user-symbol-for-your-web-site-design-logo-app-ui-illustration-eps10-free-vector.jpg`,
+                  uri:
+                    image ??
+                    `https://static.vecteezy.com/system/resources/previews/005/005/788/non_2x/user-icon-in-trendy-flat-style-isolated-on-grey-background-user-symbol-for-your-web-site-design-logo-app-ui-illustration-eps10-free-vector.jpg`,
                 }}
               />
             </View>

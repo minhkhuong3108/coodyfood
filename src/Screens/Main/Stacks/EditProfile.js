@@ -6,28 +6,30 @@ import {
   ScrollView,
   ToastAndroid,
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import ContainerComponent from '../../../components/ContainerComponent';
-import { appColor } from '../../../constants/appColor';
-import { appInfor } from '../../../constants/appInfor';
+import {appColor} from '../../../constants/appColor';
+import {appInfor} from '../../../constants/appInfor';
 import InputIn4 from '../../../components/Profile/InputIn4';
 import TextComponent from '../../../components/TextComponent';
-import { fontFamilies } from '../../../constants/fontFamilies';
+import {fontFamilies} from '../../../constants/fontFamilies';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import ButtonComponent from '../../../components/ButtonComponent';
-import { validateEmail, validatePhone } from '../../../utils/Validators';
+import {handleChangeText, validateEmail, validatePhone} from '../../../utils/Validators';
 import HeaderComponent from '../../../components/HeaderComponent';
-import { globalStyle } from '../../../styles/globalStyle';
-import { useDispatch, useSelector } from 'react-redux';
-import AxiosInstance from '../../../helpers/AxiosInstance';
-import { updateProfile } from '../../../Redux/API/UserAPI';
+import {globalStyle} from '../../../styles/globalStyle';
+import {useDispatch, useSelector} from 'react-redux';
+import {updateProfile} from '../../../Redux/API/UserAPI';
 import LoadingModal from '../../../modal/LoadingModal';
+import SelectImage from '../../../components/SelectImage';
+import {uploadImageToCloudinary} from '../../../components/UploadImage';
 
-const EditProfile = ({ navigation }) => {
-  const { user, status, error } = useSelector(state => state.login);
+const EditProfile = ({navigation}) => {
+  const {user, status, error} = useSelector(state => state.login);
   const [name, setName] = useState(user.name ?? null);
   const [email, setEmail] = useState(user.email ?? null);
   const [phone, setPhone] = useState(user.phone ?? null);
+  const [avatar, setAvatar] = useState(user.image ?? null);
   const [correct, setCorrect] = useState(true);
   const [date, setDate] = useState(user.birthday ? new Date(user.birthday) : null);
   console.log('date', date);
@@ -36,6 +38,17 @@ const EditProfile = ({ navigation }) => {
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
   const [hasUpdated, setHasUpdated] = useState(false);
+  const [imagePath, setImagePath] = useState(null); //nhận ảnh khi vừa chọn từ thư viện or chụp
+  const [isSheetOpen, setIsSheetOpen] = useState(false); //quản lí state khi nhấn vào avatar để chọn ảnh
+
+  //set tạm thời ảnh đại diện
+  useEffect(() => {
+    if (imagePath) {
+      setAvatar(imagePath.uri);
+      console.log(avatar);
+    }
+  }, [imagePath]);
+
   //hàm xử lí khi DateTimePicker đc bật
   const handleDateChange = (event, selectedDate) => {
     if (event.type == 'set') {
@@ -44,8 +57,28 @@ const EditProfile = ({ navigation }) => {
     }
     setshowPicker(false);
   };
+
+  //update
+  const handleUpdate = async () => {
+    const data = {
+      data: {
+        name,
+        email,
+        phone,
+        image: await uploadImageToCloudinary(imagePath),
+      },
+      id: user._id,
+    };
+    try {
+      dispatch(updateProfile(data));
+      setHasUpdated(true);
+    } catch (error) {
+      console.log('error', error);
+    }
+  };
+
   useEffect(() => {
-    if (!name || !email || !phone) {
+    if (!name || !email || !phone || !validatePhone(phone)) {
       setCorrect(false);
     } else {
       setCorrect(true);
@@ -68,7 +101,6 @@ const EditProfile = ({ navigation }) => {
         name,
         email,
         phone,
-        birthday: date,
       },
       id: user._id
     }
@@ -84,13 +116,11 @@ const EditProfile = ({ navigation }) => {
     if (hasUpdated) {
       if (status === 'loading') {
         setIsLoading(true);
-      }
-      else if (status === 'success') {
+      } else if (status === 'success') {
         setIsLoading(false);
         ToastAndroid.show('Cập nhật thành công', ToastAndroid.SHORT);
         navigation.goBack();
-      }
-      else if (status === 'failed') {
+      } else if (status === 'failed') {
         setIsLoading(false);
         ToastAndroid.show('Cập nhật thất bại', ToastAndroid.SHORT);
       }
@@ -102,16 +132,20 @@ const EditProfile = ({ navigation }) => {
       {/*avatar*/}
       <ScrollView scrollEnabled={false}>
         <View style={styles.body1}>
-          <TouchableOpacity style={{ flexDirection: 'row-reverse' }}>
+          <TouchableOpacity
+            style={{flexDirection: 'row-reverse'}}
+            onPress={() => {
+              setIsSheetOpen(true);
+            }}>
             <Image
               style={styles.camera}
               source={require('../../../assets/images/profile/camera.png')}
             />
             <View style={styles.boximg}>
               <Image
-                style={{ flex: 1 }}
+                style={{flex: 1}}
                 source={{
-                  uri: user.image,
+                  uri: avatar,
                 }}
               />
             </View>
@@ -134,16 +168,19 @@ const EditProfile = ({ navigation }) => {
               setEmail(text);
             }}
             error={email ? checkEmail(email) : 'Đây là thông tin bắt buộc'}
+            editable={false}
+            opacity={0.5}
           />
           <InputIn4
             text={'Số điện thoại'}
-            value={phone}
+            value={phone ? handleChangeText(phone) : phone}
             onChangeText={text => {
               setPhone(text);
             }}
-            error={phone ? checkPhone(phone) : 'Đây là thông tin bắt buộc'}
+            error={phone ? checkPhone(handleChangeText(phone)) : 'Đây là thông tin bắt buộc'}
+            keyboardType={"numeric"}
           />
-          <View style={{ paddingBottom: '5%' }}>
+          <View style={{paddingBottom: '5%'}}>
             <TextComponent text={'Ngày sinh'} fontFamily={fontFamilies.bold} />
             <TouchableOpacity
               onPress={() => {
@@ -173,11 +210,17 @@ const EditProfile = ({ navigation }) => {
         <ButtonComponent
           text={'Cập nhật'}
           color={appColor.white}
-          styles={{ opacity: correct ? 1 : 0.5 }}
+          styles={{opacity: correct ? 1 : 0.5}}
           onPress={handleUpdate}
         />
       </View>
       <LoadingModal visible={isLoading} />
+      {isSheetOpen && (
+        <SelectImage
+          setImagePath={setImagePath}
+          setIsSheetOpen={setIsSheetOpen}
+        />
+      )}
     </ContainerComponent>
   );
 };
@@ -190,7 +233,7 @@ const styles = StyleSheet.create({
     paddingBottom: '2%',
   },
   boximg: {
-    width: appInfor.sizes.width * 0.2,
+    width: appInfor.sizes.width * 0.26,
     aspectRatio: 1,
     borderRadius: 99,
     overflow: 'hidden',
@@ -198,7 +241,6 @@ const styles = StyleSheet.create({
   camera: {
     position: 'absolute',
     zIndex: 1,
-    right: '-2%',
     resizeMode: 'contain',
     width: '8%',
   },

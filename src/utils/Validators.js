@@ -1,17 +1,23 @@
-export const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    return emailRegex.test(email)
-}
+export const validateEmail = email => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
 
-export const validatePass = (password) => {
-    return password.length > 5
-}
+export const validatePass = password => {
+  return password.length > 5;
+};
 
-export const validatePhone = (phone) => {
-    const phoneRegex = /^0\d{9,}$/
-    return phoneRegex.test(phone)
-}
+export const validatePhone = phone => {
+  const phoneRegex = /^0\d{9,}$/;
+  return phoneRegex.test(phone);
+};
 
-export const validatePhoneOrEmail = (input) => {
-    return validateEmail(input) || validatePhone(input)
-}
+// Loại bỏ các ký tự không phải là số
+export const handleChangeText = text => {
+  const numericText = text.replace(/[^0-9]/g, '');
+  return numericText;
+};
+
+export const validatePhoneOrEmail = input => {
+  return validateEmail(input) || validatePhone(input);
+};
