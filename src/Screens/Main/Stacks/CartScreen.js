@@ -27,8 +27,8 @@ const CartScreen = ({ navigation }) => {
             setIsLoading(true)
             const response = await AxiosInstance().get(`/carts/${user._id}`)
             console.log('cart', response.data);
-            if (response.data != null) {
-                setCart(response.data)
+            if (response.data.carts) {
+                setCart(response.data.carts)
             } else {
                 setCart([])
             }

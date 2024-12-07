@@ -64,7 +64,8 @@ const ListSearchScreen = ({ navigation, route }) => {
             {shop.length > 0 ? <FlatList
                 data={shop}
                 renderItem={({ item }) => <ShopAndProductComponent typeSearch={true} type={'shop'} item={item} search={true}
-                    onPress={() => navigation.navigate('Shop', { id: item.shopId })} onPressProduct={() => navigation.navigate('Product', { id: item.product[0].product_id, shopOwnerId: item.shopId })} />}
+                    onPress={() => navigation.navigate('Shop', { id: item.shopId })}
+                    onPressProduct={() => navigation.navigate('Product', { id: item.product[0].product_id, shopOwnerId: item.shopId })} />}
             /> :
                 <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                     <Image source={require('../../../assets/images/search/search.png')} />

@@ -31,7 +31,9 @@ const EditProfile = ({navigation}) => {
   const [phone, setPhone] = useState(user.phone ?? null);
   const [avatar, setAvatar] = useState(user.image ?? null);
   const [correct, setCorrect] = useState(true);
-  const [date, setDate] = useState(user.date ?? null);
+  const [date, setDate] = useState(user.birthday ? new Date(user.birthday) : null);
+  console.log('date', date);
+
   const [showPicker, setshowPicker] = useState(false);
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
@@ -63,6 +65,7 @@ const EditProfile = ({navigation}) => {
         name,
         email,
         phone,
+        birthday: date,
         image: await uploadImageToCloudinary(imagePath),
       },
       id: user._id,
@@ -91,6 +94,7 @@ const EditProfile = ({navigation}) => {
   const checkEmail = data => {
     return validateEmail(data) ? null : 'Email không hợp lệ';
   };
+
 
   useEffect(() => {
     if (hasUpdated) {
@@ -171,6 +175,7 @@ const EditProfile = ({navigation}) => {
               <TextComponent
                 fontFamily={fontFamilies.regular}
                 fontsize={14}
+                // text={date ? date.toLocaleDateString('vi-VN') : '--/--/----'}
                 text={date ? date.toLocaleDateString('vi-VN') : '--/--/----'}
               />
             </TouchableOpacity>

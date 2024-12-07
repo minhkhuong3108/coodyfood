@@ -204,6 +204,8 @@ const MyOrderScreen = ({ navigation }) => {
           () => {
             if (selectedOrder == 'Chưa giải quyết' || selectedOrder == 'Đang giao hàng') {
               navigation.navigate('CheckOrder', { item: item });
+            }else if(selectedOrder == 'Lịch sử'){
+              navigation.navigate('DetailOrder', { item: item });
             }
           }
         }>

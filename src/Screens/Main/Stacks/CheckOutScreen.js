@@ -10,16 +10,16 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import ContainerComponent from '../../../components/ContainerComponent';
 import HeaderComponent from '../../../components/HeaderComponent';
 import RowComponent from '../../../components/RowComponent';
 import TextComponent from '../../../components/TextComponent';
-import {fontFamilies} from '../../../constants/fontFamilies';
+import { fontFamilies } from '../../../constants/fontFamilies';
 import ButtonComponent from '../../../components/ButtonComponent';
-import {appColor} from '../../../constants/appColor';
+import { appColor } from '../../../constants/appColor';
 import SpaceComponent from '../../../components/SpaceComponent';
-import {globalStyle} from '../../../styles/globalStyle';
+import { globalStyle } from '../../../styles/globalStyle';
 import OrderItem from '../../../components/OrderItem';
 import LineComponent from '../../../components/LineComponent';
 import NoteModel from '../../../modal/NoteModel';
@@ -30,26 +30,26 @@ import axios from 'axios';
 import moment from 'moment';
 import crypto from 'crypto-js';
 import LoadingModal from '../../../modal/LoadingModal';
-import BottomSheet, {BottomSheetBackdrop} from '@gorhom/bottom-sheet';
-import {appInfor} from '../../../constants/appInfor';
+import BottomSheet, { BottomSheetBackdrop } from '@gorhom/bottom-sheet';
+import { appInfor } from '../../../constants/appInfor';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {formatPrice} from '../../../components/format/FomatPrice';
-import {useFocusEffect} from '@react-navigation/native';
-import {useSelector} from 'react-redux';
+import { formatPrice } from '../../../components/format/FomatPrice';
+import { useFocusEffect } from '@react-navigation/native';
+import { useSelector } from 'react-redux';
 import {
   calculateTravelTime,
   haversineDistance,
 } from '../../../components/CaculateDistanceShop';
-import {ArrowRight2} from 'iconsax-react-native';
-import {formatVoucher} from '../../../components/format/formatVoucher';
-import {Removemess} from '../../../components/Removemess';
+import { ArrowRight2 } from 'iconsax-react-native';
+import { formatVoucher } from '../../../components/format/formatVoucher';
+import { Removemess } from '../../../components/Removemess';
 import { getSocket } from '../../../socket/socket';
 
 
-const CheckOutScreen = ({navigation, route}) => {
-  const {data, sale} = route.params;
-  const {user} = useSelector(state => state.login);
-  const {userLocation} = useSelector(state => state.userLocation);
+const CheckOutScreen = ({ navigation, route }) => {
+  const { data, sale } = route.params;
+  const { user } = useSelector(state => state.login);
+  const { userLocation } = useSelector(state => state.userLocation);
   console.log('userLocation', userLocation);
 
   const [voucher, setVoucher] = useState(0);
@@ -68,7 +68,7 @@ const CheckOutScreen = ({navigation, route}) => {
   // console.log('paymentMethod', paymentMethod);
   // console.log('data', data);
 
-  const {name, _id} = data.shopOwner;
+  const { name, _id } = data.shopOwner;
   const shopOwner = data.shopOwner;
   console.log('shopOwner', shopOwner.latitude);
 
@@ -96,10 +96,10 @@ const CheckOutScreen = ({navigation, route}) => {
 
   //TEST(phí giao hàng)
 
-const joinroom=(id)=>{
-  const socketInstance = getSocket();
-  socketInstance.emit('join_room', id);
-}
+  const joinroom = (id) => {
+    const socketInstance = getSocket();
+    socketInstance.emit('join_room', id);
+  }
 
   const handleOpenBottomSheet = index => {
     setSelectedOrderIndex(index);
@@ -116,7 +116,7 @@ const joinroom=(id)=>{
   const handleNote = () => {
     const updatedOrder = order.map((item, index) => {
       if (index === selectedOrderIndex) {
-        return {...item, note: note};
+        return { ...item, note: note };
       }
       return item;
     });
@@ -262,7 +262,7 @@ const joinroom=(id)=>{
           setIsLoading(false);
           const checkoutUrl = response.data.data.checkoutUrl;
           if (checkoutUrl) {
-            navigation.navigate('PayOS', {checkoutUrl});
+            navigation.navigate('PayOS', { checkoutUrl });
           }
         } catch (error) {
           console.log(error);
@@ -357,8 +357,8 @@ const joinroom=(id)=>{
   // console.log('order', order);
 
   return (
-    <ContainerComponent styles={{flex: 1}}>
-      <ContainerComponent styles={globalStyle.container} isScroll={true}>
+    <ContainerComponent styles={{ flex: 1 }}>
+      <ContainerComponent styles={globalStyle.container} isScroll={true} >
         <HeaderComponent text="Thanh toán" isback />
         <View style={[styles.containerAddress, globalStyle.shawdow]}>
           <RowComponent justifyContent={'space-between'}>
@@ -407,13 +407,18 @@ const joinroom=(id)=>{
             text={name}
             fontsize={14}
             fontFamily={fontFamilies.bold}
+            numberOfLines={1}
+            ellipsizeMode={'tail'}
+            // styles={{paddingRight: 40}}
+            width={200}
           />
           <ButtonComponent
             type={'link'}
             text={'Thêm món'}
             fontsize={14}
             color={appColor.primary}
-            onPress={() => navigation.navigate('Shop', {id: _id})}
+            onPress={() => navigation.navigate('Shop', { id: _id })}
+          // styles={{paddingLeft: 20}}
           />
         </RowComponent>
         <SpaceComponent height={10} />
@@ -593,7 +598,7 @@ const joinroom=(id)=>{
           />
         </RowComponent>
         <SpaceComponent height={20} />
-        <View style={{paddingHorizontal: 16}}>
+        <View style={{ paddingHorizontal: 16 }}>
           <TextComponent text={'Thêm ghi chú:'} />
           <SpaceComponent height={20} />
           <TextInput
@@ -605,7 +610,7 @@ const joinroom=(id)=>{
         </View>
       </BottomSheet>
       <LoadingModal visible={isLoading} />
-    </ContainerComponent>
+    </ContainerComponent >
   );
 };
 

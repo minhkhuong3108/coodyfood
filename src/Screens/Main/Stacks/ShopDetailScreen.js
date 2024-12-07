@@ -22,6 +22,7 @@ import { calculateTravelTime, haversineDistance } from '../../../components/Cacu
 import { formatDistance } from '../../../components/format/FormatDistance'
 import formatTime from '../../../components/format/FormatTime'
 import { useFocusEffect } from '@react-navigation/native'
+import AlertNoChoiceModal from '../../../modal/AlertNoChoiceModal'
 
 const ShopDetailScreen = ({ navigation, route }) => {
     const { id } = route.params
@@ -40,6 +41,8 @@ const ShopDetailScreen = ({ navigation, route }) => {
     const [isFavorite, setIsFavorite] = useState(false)
     const [distance, setDistance] = useState(null)
     const [time, setTime] = useState(null)
+    const [visible, setVisible] = useState(false)
+    const [visible2, setVisible2] = useState(false)
     // console.log('shopDetail', shopDetail);
     console.log('cart', cart);
 
@@ -96,14 +99,16 @@ const ShopDetailScreen = ({ navigation, route }) => {
         setIsLoading(true);
         try {
             const response = await AxiosInstance().get(`/carts/${user._id}/${id}`)
-            console.log('getcart', response);
+            console.log('getcart', response.data);
             // console.log('response.data == null', response.data == null);
-            if (response.status == true && response.data != null) {
-                setData(response.data)
-                const product = response.data.products
+            if (response.status == true && response.data.carts != null) {
+                console.log('response.data', response.data);
+
+                setData(response.data.carts)
+                const product = response.data.carts.products
                 setCart(product)
             }
-            if (response.status == true && response.data == null) {
+            if (response.status == true && response.data.carts == null) {
                 setData(null)
                 setCart(null)
             }
@@ -156,8 +161,19 @@ const ShopDetailScreen = ({ navigation, route }) => {
         }
         try {
             const response = await AxiosInstance().post('/carts/add', data)
-            console.log('response', response);
-            if (response.status == true) {
+            console.log('addcart', response.data);
+            if (response.data.errors) {
+                if (response.data.errors.status == 'Đóng cửa') {
+                    setVisible(true)
+                    return
+                }
+                if (response.data.errors.status == 'Ngưng hoạt động') {
+                    setVisible2(true)
+                    return
+                }
+            }
+
+            if (response.data.carts) {
                 getCart()
             }
         } catch (error) {
@@ -230,6 +246,12 @@ const ShopDetailScreen = ({ navigation, route }) => {
         }
     }
 
+    const handleShopClose = () => {
+        setVisible(false)
+        setVisible2(false)
+        navigation.navigate('Home')
+    }
+
     useEffect(() => {
         if (category.length > 0) {
             setSelectedCategory(category[0]._id);
@@ -263,7 +285,7 @@ const ShopDetailScreen = ({ navigation, route }) => {
                 onPressAdd={() => handleAddToCart(item)}
                 inCart={inCart}
                 onPressReduce={() => handleReduceProduct(item)}
-                onPressIncrease={() => handleIncreaseProduct(item)}
+                onPressIncrease={() => handleAddToCart(item)}
                 quantity={quantity} />
         )
     }
@@ -271,7 +293,7 @@ const ShopDetailScreen = ({ navigation, route }) => {
     const renderPopularFood = ({ item }) => {
         const { name, price, soldOut, images } = item
         return (
-            <TouchableOpacity style={styles.containerPopularFood} onPress={() => navigation.navigate('Product',{id:item._id})}>
+            <TouchableOpacity style={styles.containerPopularFood} onPress={() => navigation.navigate('Product', { id: item._id, shopOwnerId: id })}>
                 <ImageBackground source={{ uri: images[0] }} style={styles.imgProduct}>
                     <View style={styles.viewSold}>
                         <TextComponent text={`${formatSold(soldOut)} đã bán`} color={appColor.white} fontsize={10} />
@@ -283,8 +305,8 @@ const ShopDetailScreen = ({ navigation, route }) => {
                     <SpaceComponent height={30} />
                     <RowComponent justifyContent={'space-between'}>
                         <TextComponent text={`${formatPrice(price)}`} color={appColor.primary} />
-                        <ButtonComponent type={'link'} styles={styles.btnAdd} image={require('../../../assets/images/shopDetail/add.png')} 
-                        onPress={()=> handleAddToCart(item)}/>
+                        <ButtonComponent type={'link'} styles={styles.btnAdd} image={require('../../../assets/images/shopDetail/add.png')}
+                            onPress={() => handleAddToCart(item)} />
                     </RowComponent>
                 </View>
             </TouchableOpacity>
@@ -435,6 +457,18 @@ const ShopDetailScreen = ({ navigation, route }) => {
                 />
             </BottomSheet>}
             <LoadingModal visible={isLoading} />
+            <AlertNoChoiceModal visible={visible}
+                title={'Thông báo'}
+                description={'Nhà hàng này hiện đang đóng cửa. Vui lòng chọn sản phẩm khác.'}
+                noImg
+                onPress={handleShopClose}
+            />
+            <AlertNoChoiceModal visible={visible2}
+                title={'Thông báo'}
+                description={'Nhà hàng này hiện ngưng hoạt động. Vui lòng chọn sản phẩm khác.'}
+                noImg
+                onPress={handleShopClose}
+            />
         </ContainerComponent>
     )
 }

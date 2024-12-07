@@ -6,15 +6,18 @@ import SpaceComponent from '../components/SpaceComponent'
 import ButtonComponent from '../components/ButtonComponent'
 import { appColor } from '../constants/appColor'
 
-const AlertNoChoiceModal = ({ title, description, visible, onPress }) => {
+const AlertNoChoiceModal = ({ title, description, visible, onPress, noImg }) => {
     return (
         <Modal visible={visible} transparent statusBarTranslucent animationType='fade'>
             <View style={styles.container}>
                 <View style={styles.body}>
-                    <TextComponent text={title} fontsize={22}  />
+                    <TextComponent text={title} fontsize={22} />
                     <SpaceComponent height={20} />
-                    <Image source={require('../assets/images/alert/success.png')} />
-                    <SpaceComponent height={20} />
+                    {!noImg && <View>
+                        <Image source={require('../assets/images/alert/success.png')} />
+                        <SpaceComponent height={20} />
+                    </View>
+                    }
                     <TextComponent text={description} fontsize={14} textAlign={'center'} color={appColor.subText} />
                     <SpaceComponent height={20} />
                     <ButtonComponent text={'Đồng ý'} onPress={onPress} width={100} height={50} color={appColor.white} />
@@ -34,7 +37,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         zIndex: 1,
         borderRadius: 10,
-        paddingHorizontal:48,
+        paddingHorizontal: 24,
     },
     container: {
         flex: 1,
