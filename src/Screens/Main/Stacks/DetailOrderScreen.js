@@ -58,7 +58,7 @@ const DetailOrderScreen = ({ navigation, route }) => {
             <TextComponent text={'Địa chỉ nhà hàng'} fontFamily={fontFamilies.bold} />
             <SpaceComponent height={5} />
             <TextComponent text={shop.address}
-              fontsize={12} color={appColor.subText} styles={{ paddingRight: 24, }} />
+              fontsize={12} color={appColor.subText} styles={{ paddingRight: 48, }} />
           </View>
         </RowComponent>
         <SpaceComponent height={10} />
@@ -69,7 +69,7 @@ const DetailOrderScreen = ({ navigation, route }) => {
             <TextComponent text={'Địa chỉ đặt hàng'} fontFamily={fontFamilies.bold} />
             <SpaceComponent height={5} />
             <TextComponent text={address.address}
-              fontsize={12} color={appColor.subText} styles={{ paddingRight: 24, }} />
+              fontsize={12} color={appColor.subText} styles={{ paddingRight: 48, }} />
           </View>
         </RowComponent>
       </View>

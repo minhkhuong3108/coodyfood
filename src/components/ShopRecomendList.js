@@ -16,7 +16,7 @@ const ShopRecomendList = ({ item, onpress, type, index, list }) => {
         {images && <Image style={styles.imgRecomend} source={{ uri: images[0] }} />}
         <RowComponent justifyContent={'space-between'} styles={styles.viewInfo}>
           <View>
-            <TextComponent text={name} fontsize={14} numberOfLines={1} ellipsizeMode={'tail'} width={170} />
+            <TextComponent text={name} fontsize={14} numberOfLines={1} ellipsizeMode={'tail'} width={150} />
             <TextComponent text={`${formatDistance(distance)} | ${time} phút`} fontsize={12} color={appColor.subText} />
           </View>
           <RowComponent styles={styles.viewRate}>

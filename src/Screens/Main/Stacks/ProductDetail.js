@@ -59,12 +59,12 @@ const ProductDetail = ({ navigation, route }) => {
         setIsLoading(true);
         try {
             const response = await AxiosInstance().get(`/carts/${user._id}/${shopOwnerId}`)
-            if (response.status == true && response.data != null) {
-                setData(response.data)
-                const product = response.data.products
+            if (response.status == true && response.data.carts != null) {
+                setData(response.data.carts)
+                const product = response.data.carts.products
                 setCart(product)
             }
-            if (response.status == true && response.data == null) {
+            if (response.status == true && response.data.carts == null) {
                 setData(null)
                 setCart(null)
             }

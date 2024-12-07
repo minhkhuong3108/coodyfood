@@ -1,5 +1,5 @@
 import { Image, StyleSheet, Text, TextInput, ToastAndroid, View } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import ContainerComponent from '../../../components/ContainerComponent'
 import { globalStyle } from '../../../styles/globalStyle'
 import HeaderComponent from '../../../components/HeaderComponent'
@@ -13,6 +13,7 @@ import { useSelector } from 'react-redux'
 import AxiosInstance from '../../../helpers/AxiosInstance'
 import LoadingModal from '../../../modal/LoadingModal'
 import LineComponent from '../../../components/LineComponent'
+import SelectImage from '../../../components/SelectImage'
 
 const RatingShopScreen = ({ navigation, route }) => {
     const { item } = route.params
@@ -20,13 +21,19 @@ const RatingShopScreen = ({ navigation, route }) => {
     const shopOwner = item.shopOwner
     const shipper = item.shipper
     const [isLoading, setIsLoading] = useState(false)
-    console.log('user', user._id);
-
-
-
     const [ratingShop, setRatingShop] = useState(0)
     const [ratingShipper, setRatingShipper] = useState(0)
     const [commentShop, setCommentShop] = useState('')
+    const [imagePath, setImagePath] = useState(null); //nhận ảnh khi vừa chọn từ thư viện or chụp
+    const [isSheetOpen, setIsSheetOpen] = useState(false); //quản lí state khi nhấn vào avatar để chọn ảnh
+    const [image, setImage] = useState('')
+
+    useEffect(() => {
+        if (imagePath) {
+            setImage(imagePath.uri);
+            console.log(image);
+        }
+    }, [imagePath]);
 
     const handleAddRating = async () => {
         if (ratingShop == 0 || ratingShipper == 0) {
@@ -38,7 +45,7 @@ const RatingShopScreen = ({ navigation, route }) => {
             user_id: user._id,
             rating: ratingShop,
             comment: commentShop,
-            image: ''
+            image
         }
         const dataShipper = {
             order_id: item._id,
@@ -46,7 +53,6 @@ const RatingShopScreen = ({ navigation, route }) => {
             shipper_id: shipper._id,
             rating: ratingShipper,
             comment: '',
-            image: ''
         }
         try {
             setIsLoading(true)
@@ -117,17 +123,25 @@ const RatingShopScreen = ({ navigation, route }) => {
                     onFinishRating={rating => setRatingShop(rating)}
                 />
                 <SpaceComponent height={20} />
-                <View style={{ width: '100%' }}>
+                <View style={[styles.input, image&&{height:200}]}>
                     <TextInput value={commentShop}
                         onChangeText={text => setCommentShop(text)} placeholder={'Nhập bình luận'}
-                        style={styles.input} textAlignVertical='top' multiline />
-                    <ButtonComponent image={require('../../../assets/images/rating/camera.png')} type={'link'} styles={styles.btnCamera} />
+                        textAlignVertical='top' multiline style={{paddingRight:20,height:100}}/>
+                    <ButtonComponent image={require('../../../assets/images/rating/camera.png')} type={'link'} styles={styles.btnCamera}
+                        onPress={() => setIsSheetOpen(true)} />
+                    {image && <Image source={{ uri: image }} style={{width:80,height:80,borderRadius:8}} />}
                 </View>
             </View>
             <SpaceComponent height={20} />
             <ButtonComponent text={'Gửi đánh giá'} color={appColor.white} onPress={handleAddRating} />
             <SpaceComponent height={70} />
             <LoadingModal visible={isLoading} />
+            {isSheetOpen && (
+                <SelectImage
+                    setImagePath={setImagePath}
+                    setIsSheetOpen={setIsSheetOpen}
+                />
+            )}
         </ContainerComponent>
     )
 }

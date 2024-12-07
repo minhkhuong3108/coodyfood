@@ -235,7 +235,9 @@ const HomeScreen = ({ navigation }) => {
   const getCart = async () => {
     try {
       const response = await AxiosInstance().get(`/carts/${user._id}`);
-      setCart(response.data);
+      console.log('cart', response.data);
+
+      setCart(response.data.carts);
     } catch (error) {
       console.log('error', error);
     }
@@ -296,6 +298,8 @@ const HomeScreen = ({ navigation }) => {
     useCallback(() => {
       loadCurrentAddress();
       getCart();
+      getCategories(),
+        getShop()
     }, []),
   );
 
@@ -507,7 +511,7 @@ const HomeScreen = ({ navigation }) => {
         <Image source={require('../../../assets/images/home/cart.png')} />
         <View style={styles.viewQuantityCart}>
           <TextComponent
-            text={cart.length > 0 ? cart.length : '0'}
+            text={cart ? cart.length : '0'}
             color={appColor.white}
             fontsize={10}
           />

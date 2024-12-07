@@ -65,6 +65,7 @@ const EditProfile = ({navigation}) => {
         name,
         email,
         phone,
+        birthday: date,
         image: await uploadImageToCloudinary(imagePath),
       },
       id: user._id,
@@ -94,23 +95,6 @@ const EditProfile = ({navigation}) => {
     return validateEmail(data) ? null : 'Email không hợp lệ';
   };
 
-  const handleUpdate = () => {
-    const data =
-    {
-      data: {
-        name,
-        email,
-        phone,
-      },
-      id: user._id
-    }
-    try {
-      dispatch(updateProfile(data));
-      setHasUpdated(true);
-    } catch (error) {
-      console.log('error', error);
-    }
-  }
 
   useEffect(() => {
     if (hasUpdated) {

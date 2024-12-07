@@ -57,7 +57,7 @@ const SearchScreen = ({ navigation, route }) => {
         useCallback(() => {
             if (name) {
                 setSearch(name);
-                getSearch(name) // Cập nhật giá trị của search khi màn hình được focus
+                // getSearch(name) // Cập nhật giá trị của search khi màn hình được focus
                 getSearch2(name)
             }
         }, [name])
@@ -72,7 +72,7 @@ const SearchScreen = ({ navigation, route }) => {
         setSearch(text);
         if (text.length > 0) {
             setModalVisible(true);
-            getSearch(text)
+            // getSearch(text)
             getSearch2(text)
         } else {
             setModalVisible(false);
@@ -150,7 +150,7 @@ const SearchScreen = ({ navigation, route }) => {
             console.log(error);
         }
     }
-
+        
     const saveHistorySearch = async (history) => {
         try {
             await AsyncStorage.setItem(historyKey, JSON.stringify(history))
@@ -267,7 +267,7 @@ const SearchScreen = ({ navigation, route }) => {
                         <FlatList
                             data={historySearch}
                             renderItem={renderHistorySearch}
-                            keyExtractor={item => item._id}
+                            keyExtractor={item => item.name}
                         />
                     </View>
                     <SpaceComponent height={30} />
