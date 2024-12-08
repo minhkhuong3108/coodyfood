@@ -44,6 +44,7 @@ import { ArrowRight2 } from 'iconsax-react-native';
 import { formatVoucher } from '../../../components/format/formatVoucher';
 import { Removemess } from '../../../components/Removemess';
 import { getSocket } from '../../../socket/socket';
+import AlertNoChoiceModal from '../../../modal/AlertNoChoiceModal';
 
 
 const CheckOutScreen = ({ navigation, route }) => {
@@ -65,6 +66,8 @@ const CheckOutScreen = ({ navigation, route }) => {
   const [paymentMethod, setPaymentMethod] = useState('Tiền mặt');
   const [selectedOrderIndex, setSelectedOrderIndex] = useState(null);
   console.log('currentAddress', currentAddress);
+  const [visible2, setVisible2] = useState(false);
+  const [visible3, setVisible3] = useState(false);
   // console.log('paymentMethod', paymentMethod);
   // console.log('data', data);
 
@@ -314,8 +317,18 @@ const CheckOutScreen = ({ navigation, route }) => {
     setIsLoading(true);
     try {
       const response = await AxiosInstance().post('/orders/add-order', body);
-      console.log('response', response);
+      console.log('addorder', response);
       if (response.status == true) {
+        if (response.data.errors) {
+          if (response.data.errors.status == 'Đóng cửa') {
+            setVisible2(true);
+            return;
+          }
+          if (response.data.errors.status == 'Ngưng hoạt động') {
+            setVisible3(true);
+            return;
+          }
+        }
         const result = response.data;
         handleDeleteCart();
         return result;
@@ -336,6 +349,12 @@ const CheckOutScreen = ({ navigation, route }) => {
     } catch (error) {
       console.log('error', error);
     }
+  };
+
+  const handleShopClose = () => {
+    setVisible2(false);
+    setVisible3(false);
+    navigation.navigate('Home');
   };
 
   useEffect(() => {
@@ -610,6 +629,12 @@ const CheckOutScreen = ({ navigation, route }) => {
         </View>
       </BottomSheet>
       <LoadingModal visible={isLoading} />
+      <AlertNoChoiceModal visible={visible2} title={'Thông báo'}
+        description={'Nhà hàng này hiện đang đóng của. Vui lòng đặt hàng vào ngày mai'}
+        noImg onPress={handleShopClose} />
+      <AlertNoChoiceModal visible={visible3} title={'Thông báo'}
+        description={'Nhà hàng này hiện đang ngưng hoạt động. Vui lòng chọn nhà hàng khác'} noImg
+        onPress={handleShopClose} />
     </ContainerComponent >
   );
 };

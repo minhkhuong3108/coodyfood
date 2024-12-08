@@ -40,7 +40,7 @@ const MyOrderScreen = ({ navigation }) => {
   const { user } = useSelector(state => state.login)
   const [data, setData] = useState([]);
   const [order, setOrder] = useState([]);
-  const [selectedOrder, setSelectedOrder] = useState('Chưa giải quyết');
+  const [selectedOrder, setSelectedOrder] = useState('Đang xử lý');
   const [isLoading, setIsLoading] = useState(false);
   const transx = useSharedValue(0);
   const [valueDrop, setValueDrop] = useState(status[0].value)
@@ -84,7 +84,7 @@ const MyOrderScreen = ({ navigation }) => {
   console.log('selectedOrder', selectedOrder);
 
   const filterCart = () => {
-    if (selectedOrder == 'Chưa giải quyết') {
+    if (selectedOrder == 'Đang xử lý') {
       getOrderWattting()
     }
     else if (selectedOrder == 'Đang giao hàng') {
@@ -126,10 +126,10 @@ const MyOrderScreen = ({ navigation }) => {
   const getOrderWattting = async () => {
     try {
       if (order) {
-        const result = order.filter(item => item.status === 'Chưa giải quyết' ||
+        const result = order.filter(item => item.status === 'Đang xử lý' ||
           item.status === 'Chờ thanh toán' ||
-          item.status === 'Tìm tài xế'||
-          item.status === 'Đang đến nhà hàng'||
+          item.status === 'Tìm tài xế' ||
+          item.status === 'Tài xế đang đến nhà hàng' ||
           item.status === 'Tài xế đã đến nhà hàng')
         // console.log('result', result);
         setData(result)
@@ -142,7 +142,7 @@ const MyOrderScreen = ({ navigation }) => {
   const getOrderShipping = async () => {
     try {
       if (order) {
-        const result = order.filter(item => item.status === 'Đang giao hàng'||
+        const result = order.filter(item => item.status === 'Đang giao hàng' ||
           item.status === 'Shipper đã đến điểm giao hàng'
         )
         // console.log('result', result);
@@ -202,9 +202,9 @@ const MyOrderScreen = ({ navigation }) => {
         activeOpacity={status == 'đã giao' ? 1 : 0.7}
         onPress={
           () => {
-            if (selectedOrder == 'Chưa giải quyết' || selectedOrder == 'Đang giao hàng') {
+            if (selectedOrder == 'Đang xử lý' || selectedOrder == 'Đang giao hàng') {
               navigation.navigate('CheckOrder', { item: item });
-            }else if(selectedOrder == 'Lịch sử'){
+            } else if (selectedOrder == 'Lịch sử') {
               navigation.navigate('DetailOrder', { item: item });
             }
           }
@@ -225,8 +225,7 @@ const MyOrderScreen = ({ navigation }) => {
 
               {
                 selectedOrder == 'Lịch sử' ?
-                  <TextComponent text={`${
-                    status == 'Đơn hàng đã được giao hoàn tất' ? 'Đã giao hàng' : 'Đã hủy'}`}
+                  <TextComponent text={`${status == 'Đơn hàng đã được giao hoàn tất' ? 'Đã giao hàng' : 'Đã hủy'}`}
                     color={status == 'Đơn hàng đã được giao hoàn tất' ?
                       appColor.green :
                       status == 'Đã đánh giá đơn hàng' ? appColor.yellow : appColor.primary}
@@ -274,7 +273,7 @@ const MyOrderScreen = ({ navigation }) => {
         <View style={styles.orders}>
           <Animated.View style={animatedStyle} />
           <OrderComponent
-            order={'Chưa giải quyết'}
+            order={'Đang xử lý'}
             selectedOrder={selectedOrder}
             handleSelectOrder={handleSelectOrder}
           />

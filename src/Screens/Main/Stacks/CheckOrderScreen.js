@@ -315,7 +315,7 @@ console.log('order',order);
     <ContainerComponent styles={{ flex: 1, backgroundColor: appColor.white }}>
       <ContainerComponent styles={globalStyle.container} isScroll>
         <HeaderComponent text={'Đơn hàng chi tiết'} isback />
-        {orderStatus == 'Tìm tài xế' || orderStatus == 'Chờ thanh toán' || orderStatus == 'Chưa giải quyết' ? (
+        {orderStatus == 'Tìm tài xế' || orderStatus == 'Chờ thanh toán' || orderStatus == 'Đang xử lý' ? (
           <View style={[styles.viewWait, globalStyle.shawdow]}>
             <TextComponent
               text={'Đang xử lý đơn hàng của bạn...'}
