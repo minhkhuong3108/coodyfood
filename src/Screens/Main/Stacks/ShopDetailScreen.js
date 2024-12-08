@@ -23,6 +23,7 @@ import { formatDistance } from '../../../components/format/FormatDistance'
 import formatTime from '../../../components/format/FormatTime'
 import { useFocusEffect } from '@react-navigation/native'
 import AlertNoChoiceModal from '../../../modal/AlertNoChoiceModal'
+import ChangeQuantityModal from '../../../modal/ChangeQuantityModal'
 
 const ShopDetailScreen = ({ navigation, route }) => {
     const { id } = route.params
@@ -43,7 +44,12 @@ const ShopDetailScreen = ({ navigation, route }) => {
     const [time, setTime] = useState(null)
     const [visible, setVisible] = useState(false)
     const [visible2, setVisible2] = useState(false)
+    const [visibleQuantity, setVisibleQuantity] = useState(false)
+    const [quantity, setQuantity] = useState('')
+    const [currentItem, setCurrentItem] = useState(null); // State để lưu trữ item hiện tại
     // console.log('shopDetail', shopDetail);
+    console.log('selectedCategory', selectedCategory);
+
     console.log('cart', cart);
 
 
@@ -171,6 +177,11 @@ const ShopDetailScreen = ({ navigation, route }) => {
                     setVisible2(true)
                     return
                 }
+                if (response.data.errors.status == 'Hết món') {
+                    ToastAndroid.show('Sản phẩm đã hết món', ToastAndroid.SHORT)
+                    getProductByShop()
+                    getProductsByCategory()
+                }
             }
 
             if (response.data.carts) {
@@ -202,19 +213,36 @@ const ShopDetailScreen = ({ navigation, route }) => {
         }
     }
 
-    const handleIncreaseProduct = async (item) => {
+    const handleChangeQuantityProduct = async (item) => {
         const cartItem = cart && cart.find(cartItem => cartItem._id === item._id);
-        const quantity = cartItem && cartItem.quantity;
+        // const quantity = cartItem && cartItem.quantity;
+        setVisibleQuantity(false)
         const data = {
             user: user._id,
             shopOwner: id,
             product: item._id,
-            quantity: quantity + 1
+            quantity: parseInt(quantity)
         }
         setIsLoading(true);
         try {
             const response = await AxiosInstance().put('/carts/update', data)
-            if (response.status == true) {
+            console.log('change', response.data);
+            if (response.data.errors) {
+                if (response.data.errors.status == 'Đóng cửa') {
+                    setVisible(true)
+                    return
+                }
+                if (response.data.errors.status == 'Ngưng hoạt động') {
+                    setVisible2(true)
+                    return
+                }
+                if (response.data.errors.status == 'Hết món') {
+                    ToastAndroid.show('Sản phẩm đã hết món', ToastAndroid.SHORT)
+                    getProductByShop()
+                    getProductsByCategory()
+                }
+            }
+            if (response.data.carts) {
                 getCart()
             }
         } catch (error) {
@@ -230,13 +258,31 @@ const ShopDetailScreen = ({ navigation, route }) => {
         const data = {
             user: user._id,
             shopOwner: id,
-            product: item._id,
+            products: item._id,
             // quantity: quantity - 1
         }
         setIsLoading(true);
         try {
             const response = await AxiosInstance().put('/carts/delete', data)
-            if (response.status == true) {
+            console.log('tru', response.data);
+
+            if (response.data.errors) {
+                if (response.data.errors.status == 'Đóng cửa') {
+                    setVisible(true)
+                    return
+                }
+                if (response.data.errors.status == 'Ngưng hoạt động') {
+                    setVisible2(true)
+                    return
+                }
+                if (response.data.errors.status == 'Hết món') {
+                    ToastAndroid.show('Sản phẩm đã hết món', ToastAndroid.SHORT)
+                    getProductByShop()
+                    getProductsByCategory()
+                }
+            }
+
+            if (response.data.carts) {
                 getCart()
             }
         } catch (error) {
@@ -252,20 +298,23 @@ const ShopDetailScreen = ({ navigation, route }) => {
         navigation.navigate('Home')
     }
 
+
     useEffect(() => {
         if (category.length > 0) {
             setSelectedCategory(category[0]._id);
         }
     }, [category]);
 
-    useEffect(() => {
-        if (selectedCategory) {
-            getProductsByCategory();
-        }
-    }, [selectedCategory]);
-    useEffect(() => {
-        getProductByShop()
-    }, [])
+    useFocusEffect(
+        useCallback(() => {
+            if (selectedCategory) {
+                getProductsByCategory();
+            }
+        }, [selectedCategory])
+    );
+
+
+
 
     const { name, images, rating, sold, price, countReview } = shopDetail
 
@@ -304,7 +353,7 @@ const ShopDetailScreen = ({ navigation, route }) => {
                     <TextComponent text={name} fontsize={14} ellipsizeMode={'tail'} numberOfLines={1} />
                     <SpaceComponent height={30} />
                     <RowComponent justifyContent={'space-between'}>
-                        <TextComponent text={`${formatPrice(price)}`} color={appColor.primary} />
+                        {price && <TextComponent text={`${formatPrice(price)}`} color={appColor.primary} />}
                         <ButtonComponent type={'link'} styles={styles.btnAdd} image={require('../../../assets/images/shopDetail/add.png')}
                             onPress={() => handleAddToCart(item)} />
                     </RowComponent>
@@ -327,7 +376,7 @@ const ShopDetailScreen = ({ navigation, route }) => {
         useCallback(() => {
             const fetchData = async () => {
                 setIsLoading(true);
-                await Promise.all([getShopDetail(), getCart(), getShopFavorite(), getCategoriesProduct()]);
+                await Promise.all([getShopDetail(), getCart(), getShopFavorite(), getCategoriesProduct(), getProductByShop(),]);
                 setIsLoading(false);
             };
             fetchData();
@@ -425,7 +474,7 @@ const ShopDetailScreen = ({ navigation, route }) => {
                     <Image source={require('../../../assets/images/cart/cart.png')} />
                 </View>
                 <RowComponent>
-                    <TextComponent text={formatPrice(data.totalPrice)} />
+                    {data.totalPrice && <TextComponent text={formatPrice(data.totalPrice)} />}
                     <SpaceComponent width={10} />
                     <ButtonComponent text={'Giao hàng'} color={appColor.white} height={70} width={150} borderRadius={0}
                         onPress={() => navigation.navigate('CheckOut', { data })} />
@@ -450,8 +499,14 @@ const ShopDetailScreen = ({ navigation, route }) => {
                     data={cart}
                     renderItem={({ item }) =>
                         <ShopAndProductComponent item={item} quantity={item.quantity} inCart
-                            onPressIncrease={() => handleIncreaseProduct(item)}
-                            onPressReduce={() => handleReduceProduct(item)} />}
+                            onPressIncrease={() => handleAddToCart(item)}
+                            onPressReduce={() => handleReduceProduct(item)}
+                            onPressQuantity={() => {
+                                setCurrentItem(item)
+                                setVisibleQuantity(true)
+                                setQuantity('')
+                            }} />
+                    }
                     keyExtractor={item => item._id}
                     contentContainerStyle={{ paddingHorizontal: 16 }}
                 />
@@ -469,6 +524,12 @@ const ShopDetailScreen = ({ navigation, route }) => {
                 noImg
                 onPress={handleShopClose}
             />
+            <ChangeQuantityModal visible={visibleQuantity}
+                value={quantity}
+                onChangeText={text => setQuantity(text)}
+                title={'Số lượng'}
+                onClose={() => setVisibleQuantity(false)}
+                onPress={() => handleChangeQuantityProduct(currentItem)} />
         </ContainerComponent>
     )
 }

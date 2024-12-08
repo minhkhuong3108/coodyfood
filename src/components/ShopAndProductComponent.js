@@ -14,7 +14,7 @@ import { formatRating } from './format/FormatRate'
 import { formatPrice } from './format/FomatPrice'
 import LineComponent from './LineComponent'
 
-const ShopAndProductComponent = ({ item, onPress, type, favorite, inCart, order, onPressAdd, onPressReduce, onPressIncrease, quantity, onPressFavorite, search, typeSearch, onPressProduct }) => {
+const ShopAndProductComponent = ({ item, onPress, type, favorite, inCart, order, onPressAdd, onPressReduce, onPressIncrease, quantity, onPressFavorite, search, typeSearch, onPressProduct, onPressQuantity }) => {
     const { _id, name, images, discount, rating, distance, time, soldOut, price, oldPrice, address } = item
     // console.log('item', item);
 
@@ -74,7 +74,7 @@ const ShopAndProductComponent = ({ item, onPress, type, favorite, inCart, order,
                     </View>
                 }
                 {
-                    typeSearch && 
+                    typeSearch &&
                     <View>
                         <SpaceComponent height={20} />
                         <LineComponent />
@@ -106,7 +106,7 @@ const ShopAndProductComponent = ({ item, onPress, type, favorite, inCart, order,
                                         <Image source={require('../assets/images/home/reduce.png')} />
                                     </TouchableOpacity>
                                     <SpaceComponent width={5} />
-                                    <TextComponent text={quantity} fontsize={14} styles={{ marginHorizontal: 10 }} />
+                                    <TextComponent text={quantity} fontsize={14} styles={{ marginHorizontal: 10 }} onPress={onPressQuantity} />
                                     <SpaceComponent width={5} />
                                     <TouchableOpacity onPress={onPressIncrease}>
                                         <Image source={require('../assets/images/home/add.png')} />

@@ -1,4 +1,4 @@
-import { FlatList, Image, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { FlatList, Image, ImageBackground, StyleSheet, Text, ToastAndroid, TouchableOpacity, View } from 'react-native'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import ContainerComponent from '../../../components/ContainerComponent'
 import { appColor } from '../../../constants/appColor'
@@ -16,6 +16,7 @@ import BottomSheet, { BottomSheetBackdrop, BottomSheetFlatList } from '@gorhom/b
 import ShopAndProductComponent from '../../../components/ShopAndProductComponent'
 import { useSelector } from 'react-redux'
 import LoadingModal from '../../../modal/LoadingModal'
+import ChangeQuantityModal from '../../../modal/ChangeQuantityModal'
 
 const ProductDetail = ({ navigation, route }) => {
     const { user } = useSelector(state => state.login)
@@ -25,9 +26,12 @@ const ProductDetail = ({ navigation, route }) => {
     const [isLoading, setIsLoading] = useState(false)
     const [data, setData] = useState({})
     const [cart, setCart] = useState([])
-    console.log('product', product);
-    
-    
+    const [visibleQuantity, setVisibleQuantity] = useState(false)
+    const [quantityText, setQuantityText] = useState('')
+    const [currentItem, setCurrentItem] = useState(null);
+    // console.log('product', product);
+
+
 
     const snapPoint = ['80%']
     const bottomSheetRef = useRef(null)
@@ -47,7 +51,7 @@ const ProductDetail = ({ navigation, route }) => {
     const getProduct = async () => {
         try {
             const response = await AxiosInstance().get(`/products/${id}`)
-            console.log('response', response.data);
+            // console.log('response', response.data);
 
             setProduct(response.data)
         } catch (error) {
@@ -98,7 +102,23 @@ const ProductDetail = ({ navigation, route }) => {
         }
         try {
             const response = await AxiosInstance().post('/carts/add', data)
-            if (response.status == true) {
+            if (response.data.errors) {
+                if (response.data.errors.status == 'Đóng cửa') {
+                    setVisible(true)
+                    return
+                }
+                if (response.data.errors.status == 'Ngưng hoạt động') {
+                    setVisible2(true)
+                    return
+                }
+                if (response.data.errors.status == 'Hết món') {
+                    ToastAndroid.show('Sản phẩm đã hết món', ToastAndroid.SHORT)
+                    getProductByShop()
+                    getProductsByCategory()
+                }
+            }
+
+            if (response.data.carts) {
                 getCart()
             }
         } catch (error) {
@@ -106,19 +126,35 @@ const ProductDetail = ({ navigation, route }) => {
         }
     }
 
-    const handleIncreaseProduct = async (item) => {
-        const cartItem = cart && cart.find(cartItem => cartItem._id === item._id);
-        const quantity = cartItem && cartItem.quantity;
+    const handleChangeQuantityProduct = async (item) => {
+        // const cartItem = cart && cart.find(cartItem => cartItem._id === item._id);
+        // const quantity = cartItem && cartItem.quantity;
+        setVisibleQuantity(false)
         const data = {
             user: user._id,
             shopOwner: shopOwnerId,
             product: item._id,
-            quantity: quantity + 1
+            quantity: parseInt(quantityText)
         }
         setIsLoading(true);
         try {
             const response = await AxiosInstance().put('/carts/update', data)
-            if (response.status == true) {
+            // console.log('change', response.data.carts);
+            if (response.data.errors) {
+                if (response.data.errors.status == 'Đóng cửa') {
+                    setVisible(true)
+                    return
+                }
+                if (response.data.errors.status == 'Ngưng hoạt động') {
+                    setVisible2(true)
+                    return
+                }
+                if (response.data.errors.status == 'Hết món') {
+                    ToastAndroid.show('Sản phẩm đã hết món', ToastAndroid.SHORT)
+                    navigation.goBack()
+                }
+            }
+            if (response.data.carts) {
                 getCart()
             }
         } catch (error) {
@@ -134,13 +170,27 @@ const ProductDetail = ({ navigation, route }) => {
         const data = {
             user: user._id,
             shopOwner: shopOwnerId,
-            product: item._id,
+            products: item._id,
             // quantity: quantity - 1
         }
         setIsLoading(true);
         try {
             const response = await AxiosInstance().put('/carts/delete', data)
-            if (response.status == true) {
+            if (response.data.errors) {
+                if (response.data.errors.status == 'Đóng cửa') {
+                    setVisible(true)
+                    return
+                }
+                if (response.data.errors.status == 'Ngưng hoạt động') {
+                    setVisible2(true)
+                    return
+                }
+                if (response.data.errors.status == 'Hết món') {
+                    ToastAndroid.show('Sản phẩm đã hết món', ToastAndroid.SHORT)
+                }
+            }
+
+            if (response.data.carts) {
                 getCart()
             }
         } catch (error) {
@@ -154,7 +204,7 @@ const ProductDetail = ({ navigation, route }) => {
         try {
             setIsLoading(true)
             const response = await AxiosInstance().get(`/productReviews/product/${id}`)
-            console.log('review', response.data);
+            // console.log('review', response.data);
             setRate(response.data)
 
         } catch (error) {
@@ -189,9 +239,10 @@ const ProductDetail = ({ navigation, route }) => {
                                     <Image source={require('../../../assets/images/home/reduce.png')} />
                                 </TouchableOpacity>
                                 <SpaceComponent width={5} />
-                                <TextComponent text={quantity} fontsize={14} styles={{ marginHorizontal: 10 }} />
+                                <TextComponent text={quantity} fontsize={14} styles={{ marginHorizontal: 10 }}
+                                 />
                                 <SpaceComponent width={5} />
-                                <TouchableOpacity onPress={() => handleIncreaseProduct(product)}>
+                                <TouchableOpacity onPress={() => handleAddToCart(product)}>
                                     <Image source={require('../../../assets/images/home/add.png')} />
                                 </TouchableOpacity>
                             </RowComponent> :
@@ -205,17 +256,17 @@ const ProductDetail = ({ navigation, route }) => {
                     <SpaceComponent height={20} />
                     <TextComponent text={'Đánh giá'} fontsize={18} fontFamily={fontFamilies.bold} />
                     <SpaceComponent height={20} />
-                    {rate?<FlatList
+                    {rate ? <FlatList
                         showsVerticalScrollIndicator={false}
                         scrollEnabled={false}
                         data={rate}
                         renderItem={({ item }) => <ReviewList item={item} />}
                         keyExtractor={item => item._id}
-                    />:
-                   <View style={{height:'100%',justifyContent:'center',alignItems:'center'}}>
-                     <TextComponent text={'Chưa có đánh giá nào'} fontsize={18} color={appColor.subText} />
-                   </View>
-                }
+                    /> :
+                        <View style={{ height: '100%', justifyContent: 'center', alignItems: 'center' }}>
+                            <TextComponent text={'Chưa có đánh giá nào'} fontsize={18} color={appColor.subText} />
+                        </View>
+                    }
                 </ContainerComponent>
             </ContainerComponent>
             {cart && data && <RowComponent onPress={handleOpenBottomSheet}
@@ -252,13 +303,24 @@ const ProductDetail = ({ navigation, route }) => {
                     data={cart}
                     renderItem={({ item }) =>
                         <ShopAndProductComponent item={item} quantity={item.quantity} inCart
-                            onPressIncrease={() => handleIncreaseProduct(item)}
-                            onPressReduce={() => handleReduceProduct(item)} />}
+                            onPressIncrease={() => handleAddToCart(item)}
+                            onPressReduce={() => handleReduceProduct(item)}
+                            onPressQuantity={() => {
+                                setCurrentItem(item)
+                                setVisibleQuantity(true)
+                                setQuantityText('')
+                            }} />}
                     keyExtractor={item => item._id}
                     contentContainerStyle={{ paddingHorizontal: 16 }}
                 />
             </BottomSheet>}
             <LoadingModal visible={isLoading} />
+            <ChangeQuantityModal visible={visibleQuantity}
+                value={quantityText}
+                onChangeText={text => setQuantityText(text)}
+                title={'Số lượng'}
+                onClose={() => setVisibleQuantity(false)}
+                onPress={() => handleChangeQuantityProduct(currentItem)} />
         </ContainerComponent>
     )
 }
