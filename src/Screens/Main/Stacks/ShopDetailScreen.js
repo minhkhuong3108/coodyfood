@@ -1,5 +1,5 @@
 import { FlatList, Image, ImageBackground, StyleSheet, Text, ToastAndroid, TouchableOpacity, View } from 'react-native'
-import React, { act, useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import ButtonComponent from '../../../components/ButtonComponent'
 import SpaceComponent from '../../../components/SpaceComponent'
 import TextComponent from '../../../components/TextComponent'
@@ -11,7 +11,6 @@ import { globalStyle } from '../../../styles/globalStyle'
 import LineComponent from '../../../components/LineComponent'
 import ShopAndProductComponent from '../../../components/ShopAndProductComponent'
 import BottomSheet, { BottomSheetBackdrop, BottomSheetFlatList, BottomSheetModal, BottomSheetView } from '@gorhom/bottom-sheet'
-import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry'
 import AxiosInstance from '../../../helpers/AxiosInstance'
 import { formatRating } from '../../../components/format/FormatRate'
 import { formatSold } from '../../../components/format/FormatSold'
@@ -47,10 +46,10 @@ const ShopDetailScreen = ({ navigation, route }) => {
     const [visibleQuantity, setVisibleQuantity] = useState(false)
     const [quantity, setQuantity] = useState('')
     const [currentItem, setCurrentItem] = useState(null); // State để lưu trữ item hiện tại
-    // console.log('shopDetail', shopDetail);
-    console.log('selectedCategory', selectedCategory);
+    console.log('shopDetail', shopDetail);
+    // console.log('selectedCategory', selectedCategory);
 
-    console.log('cart', cart);
+    // console.log('cart', cart);
 
 
 
@@ -74,7 +73,10 @@ const ShopDetailScreen = ({ navigation, route }) => {
     const getShopDetail = async () => {
         try {
             const response = await AxiosInstance().get(`/shopOwner/${id}`)
-            setShopDetail(response.data)
+            // console.log('shopDetail', response.data);
+            if (response.status == true) {
+                setShopDetail(response.data)
+            }
         } catch (error) {
             console.log('error', error);
         }
@@ -105,10 +107,10 @@ const ShopDetailScreen = ({ navigation, route }) => {
         setIsLoading(true);
         try {
             const response = await AxiosInstance().get(`/carts/${user._id}/${id}`)
-            console.log('getcart', response.data);
+            // console.log('getcart', response.data);
             // console.log('response.data == null', response.data == null);
             if (response.status == true && response.data.carts != null) {
-                console.log('response.data', response.data);
+                // console.log('response.data', response.data);
 
                 setData(response.data.carts)
                 const product = response.data.carts.products
@@ -316,7 +318,7 @@ const ShopDetailScreen = ({ navigation, route }) => {
 
 
 
-    const { name, images, rating, sold, price, countReview } = shopDetail
+    // const { name, images, rating, sold, price, countReview } = shopDetail
 
     const isProductInCart = (productId) => {
         return cart && cart.some(item => item._id === productId);
@@ -376,17 +378,21 @@ const ShopDetailScreen = ({ navigation, route }) => {
         useCallback(() => {
             const fetchData = async () => {
                 setIsLoading(true);
-                await Promise.all([getShopDetail(), getCart(), getShopFavorite(), getCategoriesProduct(), getProductByShop(),]);
+                await Promise.all([ getCart(), getShopFavorite(), getCategoriesProduct(), getProductByShop(),]);
                 setIsLoading(false);
             };
             fetchData();
         }, [])
     )
 
+    useEffect(() => {
+        getShopDetail()
+    }, [id])
+
     return (
         <ContainerComponent styles={{ flex: 1, backgroundColor: appColor.white }}>
             <ContainerComponent styles={{ flex: 1, backgroundColor: appColor.white }} isScroll>
-                {images && <ImageBackground style={styles.imageBackground} source={{ uri: images[0] }}>
+                {!!shopDetail.images && <ImageBackground style={styles.imageBackground} source={{ uri: shopDetail.images[0] }}>
                     <ButtonComponent
                         image={require('../../../assets/images/shopDetail/back.png')}
                         styles={styles.btnBack}
@@ -398,13 +404,13 @@ const ShopDetailScreen = ({ navigation, route }) => {
                 <ContainerComponent styles={[globalStyle.container, { paddingTop: 0 }]}>
                     <RowComponent justifyContent={'space-between'}>
                         <View>
-                            <TextComponent text={name} fontsize={18} fontFamily={fontFamilies.bold}
-                                numberOfLines={1} ellipsizeMode={'tail'} styles={{ paddingRight: 20 }} />
+                            {!!shopDetail.name && <TextComponent text={shopDetail.name} fontsize={18} fontFamily={fontFamilies.bold}
+                                numberOfLines={1} ellipsizeMode={'tail'} styles={{ paddingRight: 20 }} />}
                             <SpaceComponent height={15} />
                             <RowComponent button onPress={() => navigation.navigate('ReviewShop', { item: shopDetail })}>
                                 <Image source={require('../../../assets/images/shopDetail/star.png')} />
-                                {rating && <TextComponent text={formatRating(rating)} fontsize={14} styles={{ marginHorizontal: 5 }} />}
-                                <TextComponent text={`(${countReview} đánh giá)`} fontsize={12} color={appColor.subText} />
+                                {!!shopDetail.rating && <TextComponent text={formatRating(shopDetail.rating)} fontsize={14} styles={{ marginHorizontal: 5 }} />}
+                                {!!shopDetail.countReview && <TextComponent text={`(${shopDetail.countReview} đánh giá)`} fontsize={12} color={appColor.subText} />}
                             </RowComponent>
                             <SpaceComponent height={15} />
                             <RowComponent>

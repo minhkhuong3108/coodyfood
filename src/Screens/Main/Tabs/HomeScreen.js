@@ -235,7 +235,7 @@ const HomeScreen = ({ navigation }) => {
   const getCart = async () => {
     try {
       const response = await AxiosInstance().get(`/carts/${user._id}`);
-      console.log('cart', response.data);
+      // console.log('cart', response.data);
 
       setCart(response.data.carts);
     } catch (error) {
