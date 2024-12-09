@@ -33,9 +33,12 @@ import { ZegoSendCallInvitationButton } from '@zegocloud/zego-uikit-prebuilt-cal
 import { formatPrice } from '../../../components/format/FomatPrice';
 import { opacity } from 'react-native-reanimated/lib/typescript/Colors';
 import { Removemess } from '../../../components/Removemess';
+import { showNotification } from '../../../components/Notification';
+import { useSelector } from 'react-redux';
 
 const CheckOrderScreen = ({ navigation, route }) => {
   const { item } = route.params;
+  const { user } = useSelector(state => state.login);
   const [order, setOrder] = useState(item.items);
   const [imagePayment, setImagePayment] = useState('');
   const [indexPay, setIndexPay] = useState(2);
@@ -44,6 +47,7 @@ const CheckOrderScreen = ({ navigation, route }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [orderStatus, setOrderStatus] = useState(item.status);
   const [visible, setVisible] = useState(false);
+  const isInMessageScreenRef = useRef(false);
   const voucher = item.voucher != null ? item.voucher.discountAmount : 0;
   const totalPrice = item.totalPrice -item.shippingfee + voucher;
 
@@ -83,7 +87,14 @@ console.log('order',order);
       item.shipper=shipper
     }
   },[shipper])
-
+  
+  //khi tu component khac tro ve
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+        isInMessageScreenRef.current=false
+    });
+    return unsubscribe;
+  }, [navigation]);
 
   useEffect(() => {
     // console.log(item)
@@ -91,7 +102,8 @@ console.log('order',order);
     const socketInstance = getSocket();
     // Tham gia room
     socketInstance.emit('join_room', item._id);
-    // Lắng nghe socket tin nhắn và lưuu vào 
+    //xoá receive_message cũ và Lắng nghe mới 
+    socketInstance.off('receive_message')
     try {
       socketInstance.on('receive_message', async data => {
         // Lấy tin nhắn hiện tại từ AsyncStorage
@@ -106,6 +118,9 @@ console.log('order',order);
           'messageList',
           JSON.stringify(newMessageList),
         );
+        if(user.name!=data.name&&!isInMessageScreenRef.current){
+         await showNotification()
+        }
       });
       socketInstance.on('order_status', (order) => {
         getOrderDetail()
@@ -122,11 +137,11 @@ console.log('order',order);
         Removemess()
         socketInstance.off('receive_message');
         socketInstance.off('order_completed');
+        socketInstance.off('receive_message')
       }
     })
+
   }, []);
-
-
 
   const options = [
     {
@@ -377,7 +392,7 @@ console.log('order',order);
               <ButtonComponent
                 type={'link'}
                 image={require('../../../assets/images/checkOrder/chat.png')}
-                onPress={() => { navigation.navigate("Message", { items: item }) }}
+                onPress={() => {      navigation.navigate("Message", { items: item });isInMessageScreenRef.current=true }}
               />
             </RowComponent>
           </RowComponent>

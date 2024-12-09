@@ -22,7 +22,6 @@ const Message = ({route}) => {
   const flatListRef = useRef();
 
   useEffect(() => {
-    console.log(items);
     // Kết nối socket
     const socketInstance = getSocket();
     // Lấy dữ liệu từ localStorage khi component được khởi tạo
