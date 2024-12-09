@@ -47,7 +47,7 @@ const App = () => {
     // Lắng nghe sự kiện thay đổi trạng thái đơn hàng
     socketInstance.on('order_status', async (order: Order) => {
       console.log('Order status updated:', order)
-      if(order.status== 'Đang đến nhà hàng'){
+      if(order.status== 'Tài xế đang đến nhà hàng'){
         CallConfig(order.order.user.phone,order.order.user.name,order.order.shipper?.image[0]??null)
       }
       if (order.order.user._id == user._id) {
