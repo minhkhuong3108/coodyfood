@@ -137,12 +137,17 @@ const ReviewShopScreen = ({ navigation, route }) => {
             <SpaceComponent height={20} />
             <TextComponent text={'Đánh giá'} fontsize={18} fontFamily={fontFamilies.bold} />
             <SpaceComponent height={20} />
-            <FlatList
+            {data.length > 0 ? <FlatList
                 scrollEnabled={false}
                 data={data}
                 renderItem={({ item }) => <ReviewList item={item} />}
                 keyExtractor={item => item._id}
-            />
+            /> :
+                <View style={{ height: '100%', justifyContent: 'center', alignItems: 'center' }}>
+                    <TextComponent text={'Chưa có đánh giá nào'} color={appColor.subText}/>
+                </View>
+
+            }
             <LoadingModal visible={isLoading} />
         </ContainerComponent>
     )

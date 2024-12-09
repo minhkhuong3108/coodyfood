@@ -378,7 +378,7 @@ const ShopDetailScreen = ({ navigation, route }) => {
         useCallback(() => {
             const fetchData = async () => {
                 setIsLoading(true);
-                await Promise.all([ getCart(), getShopFavorite(), getCategoriesProduct(), getProductByShop(),]);
+                await Promise.all([getCart(), getShopFavorite(), getCategoriesProduct(), getProductByShop(),]);
                 setIsLoading(false);
             };
             fetchData();
@@ -409,8 +409,8 @@ const ShopDetailScreen = ({ navigation, route }) => {
                             <SpaceComponent height={15} />
                             <RowComponent button onPress={() => navigation.navigate('ReviewShop', { item: shopDetail })}>
                                 <Image source={require('../../../assets/images/shopDetail/star.png')} />
-                                {!!shopDetail.rating && <TextComponent text={formatRating(shopDetail.rating)} fontsize={14} styles={{ marginHorizontal: 5 }} />}
-                                {!!shopDetail.countReview && <TextComponent text={`(${shopDetail.countReview} đánh giá)`} fontsize={12} color={appColor.subText} />}
+                                {shopDetail.rating != null && <TextComponent text={formatRating(shopDetail.rating)} fontsize={14} styles={{ marginHorizontal: 5 }} />}
+                                {shopDetail.countReview!=null && <TextComponent text={`(${shopDetail.countReview} đánh giá)`} fontsize={12} color={appColor.subText} />}
                             </RowComponent>
                             <SpaceComponent height={15} />
                             <RowComponent>

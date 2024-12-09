@@ -35,7 +35,7 @@ const ShopAndProductComponent = ({ item, onPress, type, favorite, inCart, order,
                                 <RowComponent styles={{ marginVertical: 8 }}>
                                     <Image source={require('../assets/images/home/star.png')} style={{ marginRight: 5 }} />
                                     <TextComponent
-                                        text={`${rating && formatRating(rating)} | ${distance && formatDistance(distance)} | ${time} phút`}
+                                        text={`${formatRating(rating)} | ${distance && formatDistance(distance)} | ${time} phút`}
                                         fontsize={12} color={appColor.subText} />
                                 </RowComponent>
                         }
