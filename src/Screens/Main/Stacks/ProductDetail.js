@@ -1,4 +1,4 @@
-import { FlatList, Image, ImageBackground, StyleSheet, Text, ToastAndroid, TouchableOpacity, View } from 'react-native'
+import { FlatList, Image, ImageBackground, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from 'react-native'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import ContainerComponent from '../../../components/ContainerComponent'
 import { appColor } from '../../../constants/appColor'
@@ -17,6 +17,7 @@ import ShopAndProductComponent from '../../../components/ShopAndProductComponent
 import { useSelector } from 'react-redux'
 import LoadingModal from '../../../modal/LoadingModal'
 import ChangeQuantityModal from '../../../modal/ChangeQuantityModal'
+import AlertChoiceModal from '../../../modal/AlertChoiceModal'
 
 const ProductDetail = ({ navigation, route }) => {
     const { user } = useSelector(state => state.login)
@@ -27,8 +28,11 @@ const ProductDetail = ({ navigation, route }) => {
     const [data, setData] = useState({})
     const [cart, setCart] = useState([])
     const [visibleQuantity, setVisibleQuantity] = useState(false)
+    const [visibleDelete, setVisibleDelete] = useState(false)
     const [quantityText, setQuantityText] = useState('')
     const [currentItem, setCurrentItem] = useState(null);
+    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [note, setNote] = useState('');
     // console.log('product', product);
 
 
@@ -47,6 +51,45 @@ const ProductDetail = ({ navigation, route }) => {
             <BottomSheetBackdrop appearsOnIndex={0} disappearsOnIndex={-1} {...props} />
         )
     )
+
+    const snapPoint2 = ['50%']
+    const bottomSheetRef2 = useRef(null)
+    const handleOpenBottomSheet2 = (item) => {
+        setSelectedProduct(item._id)
+        setNote(item.note || '')
+        bottomSheetRef2.current?.expand()
+    }
+    const handleCloseBottomSheet2 = () => {
+        bottomSheetRef2.current?.close()
+    }
+
+    const renderBackdrop2 = useCallback(
+        (props) => (
+            <BottomSheetBackdrop appearsOnIndex={0} disappearsOnIndex={-1} {...props} />
+        )
+    )
+
+    const handleUpdateNote = async () => {
+        if (!note) {
+            handleCloseBottomSheet2()
+            return
+        }
+        const body = {
+            note,
+        }
+        try {
+            const response = await AxiosInstance().put(`/carts/update-note/${data._id}/${selectedProduct}`, body)
+            console.log('response', response);
+            if (response.data) {
+                ToastAndroid.show('Cập nhật ghi chú thành công', ToastAndroid.SHORT)
+                handleCloseBottomSheet2()
+                getCart()
+            }
+        } catch (error) {
+            console.log('error', error);
+        }
+    }
+
 
     const getProduct = async () => {
         try {
@@ -79,6 +122,8 @@ const ProductDetail = ({ navigation, route }) => {
             setIsLoading(false);
         }
     }
+
+
 
     useEffect(() => {
         getProduct()
@@ -200,6 +245,21 @@ const ProductDetail = ({ navigation, route }) => {
         }
     }
 
+    const handleDeleteCart = async () => {
+        try {
+            const response = await AxiosInstance().delete(
+                `/carts/delete/${user._id}/${shopOwnerId}`,
+            );
+            if (response.status == true) {
+                setVisibleDelete(false)
+                getCart()
+                handleCloseBottomSheet()
+            }
+        } catch (error) {
+            console.log('error', error);
+        }
+    };
+
     const getRate = async () => {
         try {
             setIsLoading(true)
@@ -240,7 +300,7 @@ const ProductDetail = ({ navigation, route }) => {
                                 </TouchableOpacity>
                                 <SpaceComponent width={5} />
                                 <TextComponent text={quantity} fontsize={14} styles={{ marginHorizontal: 10 }}
-                                 />
+                                />
                                 <SpaceComponent width={5} />
                                 <TouchableOpacity onPress={() => handleAddToCart(product)}>
                                     <Image source={require('../../../assets/images/home/add.png')} />
@@ -293,7 +353,7 @@ const ProductDetail = ({ navigation, route }) => {
                 index={-1}
             >
                 <RowComponent styles={styles.headerBottomSheet} justifyContent={'space-between'}>
-                    <ButtonComponent type={'link'} text={'Xóa '} color={appColor.white} />
+                    <ButtonComponent type={'link'} text={'Xóa '} color={appColor.white} onPress={() => setVisibleDelete(true)} />
                     <TextComponent text={'Giỏ hàng'} color={appColor.white} />
                     <ButtonComponent type={'link'} text={'Đóng'} color={appColor.white} onPress={handleCloseBottomSheet} />
                 </RowComponent>
@@ -308,12 +368,51 @@ const ProductDetail = ({ navigation, route }) => {
                             onPressQuantity={() => {
                                 setCurrentItem(item)
                                 setVisibleQuantity(true)
-                                setQuantityText('')
-                            }} />}
+                                setQuantityText(`${item.quantity}`)
+                            }}
+                            noted
+                            onPressNote={() => handleOpenBottomSheet2(item)}
+                        />}
                     keyExtractor={item => item._id}
                     contentContainerStyle={{ paddingHorizontal: 16 }}
                 />
             </BottomSheet>}
+            <BottomSheet
+                enablePanDownToClose
+                ref={bottomSheetRef2}
+                snapPoints={snapPoint2}
+                backdropComponent={renderBackdrop2}
+                handleComponent={null}
+                index={-1}>
+                <RowComponent
+                    styles={styles.headerBottomSheet}
+                    justifyContent={'space-between'}>
+                    <ButtonComponent
+                        type={'link'}
+                        text={'Đóng'}
+                        color={appColor.white}
+                        onPress={handleCloseBottomSheet2}
+                    />
+                    <TextComponent text={'Ghi chú'} color={appColor.white} />
+                    <ButtonComponent
+                        type={'link'}
+                        text={'Xong'}
+                        color={appColor.white}
+                        onPress={handleUpdateNote}
+                    />
+                </RowComponent>
+                <SpaceComponent height={20} />
+                <View style={{ paddingHorizontal: 16 }}>
+                    <TextComponent text={'Thêm ghi chú:'} />
+                    <SpaceComponent height={20} />
+                    <TextInput
+                        placeholder={'Nhập ghi chú...'}
+                        style={styles.inputNote}
+                        value={note}
+                        onChangeText={text => setNote(text)}
+                    />
+                </View>
+            </BottomSheet>
             <LoadingModal visible={isLoading} />
             <ChangeQuantityModal visible={visibleQuantity}
                 value={quantityText}
@@ -321,6 +420,10 @@ const ProductDetail = ({ navigation, route }) => {
                 title={'Số lượng'}
                 onClose={() => setVisibleQuantity(false)}
                 onPress={() => handleChangeQuantityProduct(currentItem)} />
+            <AlertChoiceModal visible={visibleDelete} onPress={handleDeleteCart}
+                title={'Xóa giỏ hàng'}
+                description={'Bạn có chắc muốn xóa tất cả sản phẩm trong giỏ hàng'}
+                onClose={() => setVisibleDelete(false)} />
         </ContainerComponent>
     )
 }
@@ -328,6 +431,14 @@ const ProductDetail = ({ navigation, route }) => {
 export default ProductDetail
 
 const styles = StyleSheet.create({
+    inputNote: {
+        height: 140,
+        borderRadius: 10,
+        backgroundColor: appColor.opacity,
+        paddingHorizontal: 16,
+        textAlignVertical: 'top',
+        paddingTop: 10,
+    },
     headerBottomSheet: {
         backgroundColor: appColor.primary,
         height: 50,

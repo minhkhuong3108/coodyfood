@@ -13,6 +13,7 @@ import { fontFamilies } from '../../../constants/fontFamilies'
 import { formatPrice } from '../../../components/format/FomatPrice'
 import ButtonComponent from '../../../components/ButtonComponent'
 import { formatDate } from '../../../components/format/FormatDate'
+import { appInfor } from '../../../constants/appInfor'
 
 const DetailOrderScreen = ({ navigation, route }) => {
   const { item } = route.params
@@ -84,8 +85,10 @@ const DetailOrderScreen = ({ navigation, route }) => {
             justifyContent={'space-between'} styles={{ marginBottom: 10 }}>
             <RowComponent>
               <TextComponent text={`${item.quantity}x`} fontsize={14} width={30} />
+              <SpaceComponent width={10} />
+              {item.images[0] && <Image source={{ uri: item.images[0] }} width={40} height={40} />}
               <SpaceComponent width={40} />
-              <TextComponent text={item.name} />
+              <TextComponent text={item.name} fontsize={14} width={appInfor.sizes.width*0.5} numberOfLines={1} ellipsizeMode={'tail'}/>
             </RowComponent>
             <TextComponent text={`${formatPrice(item.price)}`} fontsize={14} />
           </RowComponent>

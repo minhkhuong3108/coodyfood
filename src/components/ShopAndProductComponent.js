@@ -14,8 +14,8 @@ import { formatRating } from './format/FormatRate'
 import { formatPrice } from './format/FomatPrice'
 import LineComponent from './LineComponent'
 
-const ShopAndProductComponent = ({ item, onPress, type, favorite, inCart, order, onPressAdd, onPressReduce, onPressIncrease, quantity, onPressFavorite, search, typeSearch, onPressProduct, onPressQuantity }) => {
-    const { _id, name, images, discount, rating, distance, time, soldOut, price, oldPrice, address } = item
+const ShopAndProductComponent = ({ item, onPress, type, favorite, inCart, order, onPressAdd, onPressReduce, onPressIncrease, quantity, onPressFavorite, search, typeSearch, onPressProduct, onPressQuantity, noted, onPressNote }) => {
+    const { _id, name, images, discount, rating, distance, time, soldOut, price, oldPrice, address, note } = item
     // console.log('item', item);
 
     return (
@@ -86,7 +86,13 @@ const ShopAndProductComponent = ({ item, onPress, type, favorite, inCart, order,
                 {images && <Image source={{ uri: images[0] }} style={styles.img} />}
                 <View style={{ flex: 1 }}>
                     <TextComponent text={name} numberOfLines={1} ellipsizeMode={'tail'} />
-                    <TextComponent text={`${soldOut} đã bán`} fontsize={12} color={appColor.subText} styles={{ marginTop: 8, marginBottom: 10 }} />
+                    {noted ?
+                        <RowComponent styles={{ marginTop: 8, marginBottom: 10 }} button onPress={onPressNote}>
+                            <Image source={require('../assets/images/checkout/note.png')} />
+                            <SpaceComponent width={8} />
+                            <TextComponent text={note || 'Ghi chú'} fontsize={12} />
+                        </RowComponent> :
+                        <TextComponent text={`${soldOut} đã bán`} fontsize={12} color={appColor.subText} styles={{ marginTop: 8, marginBottom: 10 }} />}
                     <RowComponent justifyContent={'space-between'}>
                         <RowComponent>
                             {oldPrice &&
