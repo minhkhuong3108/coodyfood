@@ -2,6 +2,7 @@ import {
   Alert,
   FlatList,
   Image,
+  NativeEventEmitter,
   NativeModules,
   StyleSheet,
   Text,
@@ -45,6 +46,16 @@ import { formatVoucher } from '../../../components/format/formatVoucher';
 import { Removemess } from '../../../components/Removemess';
 import { getSocket } from '../../../socket/socket';
 import AlertNoChoiceModal from '../../../modal/AlertNoChoiceModal';
+
+const { PayZaloBridge } = NativeModules;
+// const eventEmitter = new NativeEventEmitter(PayZaloBridge);
+// const eventListener = eventEmitter.addListener('EventPayZalo', (event) => {
+//   console.log('event', event);
+//   if (event.returnCode == 1) {
+//     // Điều hướng về trang home
+//     Alert.alert('Thông báo', 'Thanh toán thành công');
+//   }
+// });
 
 
 const CheckOutScreen = ({ navigation, route }) => {
@@ -141,6 +152,20 @@ const CheckOutScreen = ({ navigation, route }) => {
       image: require('../../../assets/images/checkout/cash.png'),
     },
   ];
+  // const eventEmitter = new NativeEventEmitter(PayZaloBridge);
+  // useEffect(() => {
+  //   const eventListener = eventEmitter.addListener('EventPayZalo', (event) => {
+  //     console.log('event', event);
+  //     if (event.returnCode == 1) {
+  //       // Điều hướng về trang home
+  //       navigation.navigate('Home');
+  //     }
+  //   });
+  //   // Cleanup
+  //   // return () => {
+  //   //   eventListener.remove();
+  //   // };
+  // }, [navigation, eventEmitter]);
 
   const handlePayment = async () => {
     if (!currentAddress) {
@@ -150,78 +175,78 @@ const CheckOutScreen = ({ navigation, route }) => {
     setVisible(false);
     try {
       if (indexPay == 0) {
-        setIsLoading(true);
-        const response = await AxiosInstance().post('/zaloPay/payment');
-        setIsLoading(false);
-        if (response.return_code == 1) {
-          var ZaloPay = NativeModules.PayZaloBridge;
-          ZaloPay.payOrder(response.zp_trans_token);
-        } else {
-          Alert.alert('Error', 'Failed  to create order');
-        }
-        console.log('response', response);
-
-        // const result2 = await addOrder();
-        // const config = {
-        //   appid: 2554,
-        //   key1: 'sdngKKJmqEMzvh5QQcdD2A9XBSKUNaYn',
-        //   key2: 'trMrHtvjo6myautxDUiAcYsVtaeQ8nhf',
-        //   endpoint: 'https://sb-openapi.zalopay.vn/v2/create',
-        // };
-        // const embed_data = `{"redirecturl": "https://docs.zalopay.vn/result"}`
-        // console.log('embed_data', embed_data.toString());
-
-        // const transID = Math.floor(Math.random() * 1000000);
-        // let appid = config.appid;
-        // let app_trans_id = `${moment().format('YYMMDD')}_${transID}`;
-        // let amount = total;
-        // let appuser = 'ZaloPayDemo';
-        // let apptime = Date.now();
-        // // let embeddata = '{}';
-        // let item = '[]';
-        // let callback_url = `https://d1d8-2405-4803-c75b-a410-b521-5adb-e7ec-1049.ngrok-free.app/zaloPay/callback`;
-        // let description = 'CoodyFood - Thanh toán cho đơn hàng #' + app_trans_id;
-        // let hmacInput =
-        //   appid +
-        //   '|' +
-        //   app_trans_id +
-        //   '|' +
-        //   appuser +
-        //   '|' +
-        //   amount +
-        //   '|' +
-        //   apptime +
-        //   '|' +
-        //   embed_data +
-        //   '|' +
-        //   item;
-        // let mac = crypto.HmacSHA256(hmacInput, config.key1).toString();
-        // const order = {
-        //   app_id: appid,
-        //   app_trans_id: app_trans_id,
-        //   app_user: appuser,
-        //   amount: amount,
-        //   app_time: apptime,
-        //   item: item,
-        //   embed_data: embed_data,
-        //   // embed_data: JSON.stringify(embeddata),
-        //   description: description,
-        //   mac: mac,
-        //   callback_url: callback_url,
-        //   // return_url: return_url,
-        // };
-
-        // const response = await axios.post(config.endpoint, order);
+        // setIsLoading(true);
+        // const response = await AxiosInstance().post('/zaloPay/payment');
         // setIsLoading(false);
-        // // Handle response from server
-        // const result = response.data;
-        // console.log('result', result);
-        // if (result.return_code == 1) {
+        // if (response.return_code == 1) {
         //   var ZaloPay = NativeModules.PayZaloBridge;
-        //   ZaloPay.payOrder(result.zp_trans_token);
+        //   ZaloPay.payOrder(response.zp_trans_token);
         // } else {
         //   Alert.alert('Error', 'Failed  to create order');
         // }
+        // console.log('response', response);
+
+        // const result2 = await addOrder();
+        const config = {
+          appid: 2554,
+          key1: 'sdngKKJmqEMzvh5QQcdD2A9XBSKUNaYn',
+          key2: 'trMrHtvjo6myautxDUiAcYsVtaeQ8nhf',
+          endpoint: 'https://sb-openapi.zalopay.vn/v2/create',
+        };
+        const embed_data = `{"redirecturl": "https://docs.zalopay.vn/result"}`
+        console.log('embed_data', embed_data.toString());
+
+        const transID = Math.floor(Math.random() * 1000000);
+        let appid = config.appid;
+        let app_trans_id = `${moment().format('YYMMDD')}_${transID}`;
+        let amount = total;
+        let appuser = 'ZaloPayDemo';
+        let apptime = Date.now();
+        // let embeddata = '{}';
+        let item = '[]';
+        let callback_url = `https://d1d8-2405-4803-c75b-a410-b521-5adb-e7ec-1049.ngrok-free.app/zaloPay/callback`;
+        let description = 'CoodyFood - Thanh toán cho đơn hàng #' + app_trans_id;
+        let hmacInput =
+          appid +
+          '|' +
+          app_trans_id +
+          '|' +
+          appuser +
+          '|' +
+          amount +
+          '|' +
+          apptime +
+          '|' +
+          embed_data +
+          '|' +
+          item;
+        let mac = crypto.HmacSHA256(hmacInput, config.key1).toString();
+        const order = {
+          app_id: appid,
+          app_trans_id: app_trans_id,
+          app_user: appuser,
+          amount: amount,
+          app_time: apptime,
+          item: item,
+          embed_data: embed_data,
+          // embed_data: JSON.stringify(embeddata),
+          description: description,
+          mac: mac,
+          callback_url: callback_url,
+          // return_url: return_url,
+        };
+
+        const response = await axios.post(config.endpoint, order);
+        setIsLoading(false);
+        // Handle response from server
+        const result = response.data;
+        console.log('result', result);
+        if (result.return_code == 1) {
+          var ZaloPay = NativeModules.PayZaloBridge;
+          ZaloPay.payOrder(result.zp_trans_token);
+        } else {
+          Alert.alert('Error', 'Failed  to create order');
+        }
       } else if (indexPay == 1) {
         // Handle payment with PayOS
         setIsLoading(true);
@@ -447,7 +472,8 @@ const CheckOutScreen = ({ navigation, route }) => {
               key={index}
               item={item}
               onpress={() => handleOpenBottomSheet(index)}
-              textNote={item.note}
+              // textNote={item.note}
+              noTouch
             />
           ))}
         <LineComponent />
@@ -592,7 +618,7 @@ const CheckOutScreen = ({ navigation, route }) => {
         />
         {/* <AlertModel visible={visible} title={'Thành công'} fail onRequestClose={() => setVisible(false)}  description={'Thanh toán thành công'} /> */}
       </ContainerComponent>
-      <BottomSheet
+      {/* <BottomSheet
         enablePanDownToClose
         ref={bottomSheetRef}
         snapPoints={snapPoint}
@@ -627,7 +653,7 @@ const CheckOutScreen = ({ navigation, route }) => {
             onChangeText={text => setNote(text)}
           />
         </View>
-      </BottomSheet>
+      </BottomSheet> */}
       <LoadingModal visible={isLoading} />
       <AlertNoChoiceModal visible={visible2} title={'Thông báo'}
         description={'Nhà hàng này hiện đang đóng của. Vui lòng đặt hàng vào ngày mai'}

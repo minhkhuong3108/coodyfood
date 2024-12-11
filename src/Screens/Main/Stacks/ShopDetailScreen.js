@@ -1,4 +1,4 @@
-import { FlatList, Image, ImageBackground, StyleSheet, Text, ToastAndroid, TouchableOpacity, View } from 'react-native'
+import { FlatList, Image, ImageBackground, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from 'react-native'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import ButtonComponent from '../../../components/ButtonComponent'
 import SpaceComponent from '../../../components/SpaceComponent'
@@ -23,6 +23,7 @@ import formatTime from '../../../components/format/FormatTime'
 import { useFocusEffect } from '@react-navigation/native'
 import AlertNoChoiceModal from '../../../modal/AlertNoChoiceModal'
 import ChangeQuantityModal from '../../../modal/ChangeQuantityModal'
+import AlertChoiceModal from '../../../modal/AlertChoiceModal'
 
 const ShopDetailScreen = ({ navigation, route }) => {
     const { id } = route.params
@@ -43,11 +44,15 @@ const ShopDetailScreen = ({ navigation, route }) => {
     const [time, setTime] = useState(null)
     const [visible, setVisible] = useState(false)
     const [visible2, setVisible2] = useState(false)
+    const [visibleDelete, setVisibleDelete] = useState(false)
     const [visibleQuantity, setVisibleQuantity] = useState(false)
     const [quantity, setQuantity] = useState('')
     const [currentItem, setCurrentItem] = useState(null); // State để lưu trữ item hiện tại
-    console.log('shopDetail', shopDetail);
+    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [note, setNote] = useState('');
+    // console.log('shopDetail', shopDetail);
     // console.log('selectedCategory', selectedCategory);
+    // console.log('data', data);
 
     // console.log('cart', cart);
 
@@ -69,6 +74,43 @@ const ShopDetailScreen = ({ navigation, route }) => {
         )
     )
 
+    const snapPoint2 = ['50%']
+    const bottomSheetRef2 = useRef(null)
+    const handleOpenBottomSheet2 = (item) => {
+        setSelectedProduct(item._id)
+        setNote(item.note || '')
+        bottomSheetRef2.current?.expand()
+    }
+    const handleCloseBottomSheet2 = () => {
+        bottomSheetRef2.current?.close()
+    }
+
+    const renderBackdrop2 = useCallback(
+        (props) => (
+            <BottomSheetBackdrop appearsOnIndex={0} disappearsOnIndex={-1} {...props} />
+        )
+    )
+
+    const handleUpdateNote = async () => {
+        if (!note) {
+            handleCloseBottomSheet2()
+            return
+        }
+        const body = {
+            note,
+        }
+        try {
+            const response = await AxiosInstance().put(`/carts/update-note/${data._id}/${selectedProduct}`, body)
+            console.log('response', response);
+            if (response.data) {
+                ToastAndroid.show('Cập nhật ghi chú thành công', ToastAndroid.SHORT)
+                handleCloseBottomSheet2()
+                getCart()
+            }
+        } catch (error) {
+            console.log('error', error);
+        }
+    }
 
     const getShopDetail = async () => {
         try {
@@ -300,6 +342,21 @@ const ShopDetailScreen = ({ navigation, route }) => {
         navigation.navigate('Home')
     }
 
+    const handleDeleteCart = async () => {
+        try {
+            const response = await AxiosInstance().delete(
+                `/carts/delete/${user._id}/${id}`,
+            );
+            if (response.status == true) {
+                setVisibleDelete(false)
+                getCart()
+                handleCloseBottomSheet()
+            }
+        } catch (error) {
+            console.log('error', error);
+        }
+    };
+
 
     useEffect(() => {
         if (category.length > 0) {
@@ -314,9 +371,6 @@ const ShopDetailScreen = ({ navigation, route }) => {
             }
         }, [selectedCategory])
     );
-
-
-
 
     // const { name, images, rating, sold, price, countReview } = shopDetail
 
@@ -405,12 +459,21 @@ const ShopDetailScreen = ({ navigation, route }) => {
                     <RowComponent justifyContent={'space-between'}>
                         <View>
                             {!!shopDetail.name && <TextComponent text={shopDetail.name} fontsize={18} fontFamily={fontFamilies.bold}
-                                numberOfLines={1} ellipsizeMode={'tail'} styles={{ paddingRight: 20 }} />}
+                                numberOfLines={1} ellipsizeMode={'tail'} styles={{ paddingRight: 60 }} />}
                             <SpaceComponent height={15} />
-                            <RowComponent button onPress={() => navigation.navigate('ReviewShop', { item: shopDetail })}>
-                                <Image source={require('../../../assets/images/shopDetail/star.png')} />
-                                {shopDetail.rating != null && <TextComponent text={formatRating(shopDetail.rating)} fontsize={14} styles={{ marginHorizontal: 5 }} />}
-                                {shopDetail.countReview!=null && <TextComponent text={`(${shopDetail.countReview} đánh giá)`} fontsize={12} color={appColor.subText} />}
+                            <RowComponent justifyContent={'space-between'} styles={{ width: '100%' }}>
+                                <RowComponent button onPress={() => navigation.navigate('ReviewShop', { item: shopDetail })}>
+                                    <Image source={require('../../../assets/images/shopDetail/star.png')} />
+                                    {shopDetail.rating != null && <TextComponent text={formatRating(shopDetail.rating)} fontsize={14} styles={{ marginHorizontal: 5 }} />}
+                                    {shopDetail.countReview != null && <TextComponent text={`(${shopDetail.countReview} đánh giá)`} fontsize={12} color={appColor.subText} />}
+                                </RowComponent>
+                                <ButtonComponent
+                                    type={'link'}
+                                    image={isFavorite ? require('../../../assets/images/shopDetail/favorited.png') :
+                                        require('../../../assets/images/shopDetail/favorite.png')}
+                                    onPress={handleShopFavorite}
+
+                                />
                             </RowComponent>
                             <SpaceComponent height={15} />
                             <RowComponent>
@@ -427,13 +490,7 @@ const ShopDetailScreen = ({ navigation, route }) => {
                                 </RowComponent>
                             </RowComponent>
                         </View>
-                        <ButtonComponent
-                            type={'link'}
-                            image={isFavorite ? require('../../../assets/images/shopDetail/favorited.png') :
-                                require('../../../assets/images/shopDetail/favorite.png')}
-                            onPress={handleShopFavorite}
 
-                        />
                     </RowComponent>
                     <SpaceComponent height={20} />
                     <LineComponent />
@@ -495,7 +552,7 @@ const ShopDetailScreen = ({ navigation, route }) => {
                 index={-1}
             >
                 <RowComponent styles={styles.headerBottomSheet} justifyContent={'space-between'}>
-                    <ButtonComponent type={'link'} text={'Xóa '} color={appColor.white} />
+                    <ButtonComponent type={'link'} text={'Xóa '} color={appColor.white} onPress={() => setVisibleDelete(true)} />
                     <TextComponent text={'Giỏ hàng'} color={appColor.white} />
                     <ButtonComponent type={'link'} text={'Đóng'} color={appColor.white} onPress={handleCloseBottomSheet} />
                 </RowComponent>
@@ -510,13 +567,52 @@ const ShopDetailScreen = ({ navigation, route }) => {
                             onPressQuantity={() => {
                                 setCurrentItem(item)
                                 setVisibleQuantity(true)
-                                setQuantity('')
-                            }} />
+                                // setQuantity('')
+                                setQuantity(`${item.quantity}`)
+                            }}
+                            noted
+                            onPressNote={() => handleOpenBottomSheet2(item)} />
                     }
                     keyExtractor={item => item._id}
                     contentContainerStyle={{ paddingHorizontal: 16 }}
                 />
             </BottomSheet>}
+            <BottomSheet
+                enablePanDownToClose
+                ref={bottomSheetRef2}
+                snapPoints={snapPoint2}
+                backdropComponent={renderBackdrop2}
+                handleComponent={null}
+                index={-1}>
+                <RowComponent
+                    styles={styles.headerBottomSheet}
+                    justifyContent={'space-between'}>
+                    <ButtonComponent
+                        type={'link'}
+                        text={'Đóng'}
+                        color={appColor.white}
+                        onPress={handleCloseBottomSheet2}
+                    />
+                    <TextComponent text={'Ghi chú'} color={appColor.white} />
+                    <ButtonComponent
+                        type={'link'}
+                        text={'Xong'}
+                        color={appColor.white}
+                        onPress={handleUpdateNote}
+                    />
+                </RowComponent>
+                <SpaceComponent height={20} />
+                <View style={{ paddingHorizontal: 16 }}>
+                    <TextComponent text={'Thêm ghi chú:'} />
+                    <SpaceComponent height={20} />
+                    <TextInput
+                        placeholder={'Nhập ghi chú...'}
+                        style={styles.inputNote}
+                        value={note}
+                        onChangeText={text => setNote(text)}
+                    />
+                </View>
+            </BottomSheet>
             <LoadingModal visible={isLoading} />
             <AlertNoChoiceModal visible={visible}
                 title={'Thông báo'}
@@ -536,6 +632,10 @@ const ShopDetailScreen = ({ navigation, route }) => {
                 title={'Số lượng'}
                 onClose={() => setVisibleQuantity(false)}
                 onPress={() => handleChangeQuantityProduct(currentItem)} />
+            <AlertChoiceModal visible={visibleDelete} onPress={handleDeleteCart}
+                title={'Xóa giỏ hàng'}
+                description={'Bạn có chắc muốn xóa tất cả sản phẩm trong giỏ hàng'} 
+                onClose={()=>setVisibleDelete(false)}/>
         </ContainerComponent>
     )
 }
@@ -543,6 +643,14 @@ const ShopDetailScreen = ({ navigation, route }) => {
 export default ShopDetailScreen
 
 const styles = StyleSheet.create({
+    inputNote: {
+        height: 140,
+        borderRadius: 10,
+        backgroundColor: appColor.opacity,
+        paddingHorizontal: 16,
+        textAlignVertical: 'top',
+        paddingTop: 10,
+    },
     headerBottomSheet: {
         backgroundColor: appColor.primary,
         height: 50,

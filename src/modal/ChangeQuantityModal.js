@@ -14,9 +14,9 @@ const ChangeQuantityModal = ({ title, onClose, visible, onPress, description, va
                 <View style={styles.container}>
                     <TouchableOpacity style={styles.body} activeOpacity={1}>
                         <SpaceComponent height={40} />
-                        <TextComponent text={title} fontsize={18}  textAlign={'center'} />
+                        <TextComponent text={title} fontsize={18} textAlign={'center'} />
                         <SpaceComponent height={20} />
-                        <TextInput value={value} onChangeText={text => onChangeText(text)} style={styles.input} textAlign='center'/>
+                        <TextInput value={value} onChangeText={text => onChangeText(text)} style={styles.input} textAlign='center' keyboardType='number-pad' />
                         <SpaceComponent height={30} />
                         <RowComponent justifyContent={'space-between'}>
                             <ButtonComponent text={'Hủy'} width={'48%'} backgroundColor={appColor.white}
