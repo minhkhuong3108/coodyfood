@@ -200,13 +200,21 @@ const ProductDetail = ({ navigation, route }) => {
                 }
             }
             if (response.data.carts) {
-                getCart()
+                await getCart()
+                if (response.data.carts.length == 0) {
+                    handleCloseBottomSheet()
+                }
             }
         } catch (error) {
             console.log('error', error);
         } finally {
             setIsLoading(false);
         }
+    }
+
+    const handleChangeTextQuantity = (text) => {
+        const numericText = text.replace(/[^0-9]/g, '');
+        setQuantityText(numericText);
     }
 
     const handleReduceProduct = async (item) => {
@@ -236,7 +244,10 @@ const ProductDetail = ({ navigation, route }) => {
             }
 
             if (response.data.carts) {
-                getCart()
+                await getCart()
+                if (response.data.carts.length == 0) {
+                    handleCloseBottomSheet()
+                }
             }
         } catch (error) {
             console.log('error', error);
@@ -341,7 +352,10 @@ const ProductDetail = ({ navigation, route }) => {
                     {data.totalPrice && <TextComponent text={formatPrice(data.totalPrice)} />}
                     <SpaceComponent width={10} />
                     <ButtonComponent text={'Giao hàng'} color={appColor.white} height={70} width={150} borderRadius={0}
-                        onPress={() => navigation.navigate('CheckOut', { data })} />
+                        onPress={() => {
+                            navigation.navigate('CheckOut', { data })
+                            handleCloseBottomSheet()
+                        }} />
                 </RowComponent>
             </RowComponent>}
             {data && <BottomSheet
@@ -416,7 +430,7 @@ const ProductDetail = ({ navigation, route }) => {
             <LoadingModal visible={isLoading} />
             <ChangeQuantityModal visible={visibleQuantity}
                 value={quantityText}
-                onChangeText={text => setQuantityText(text)}
+                onChangeText={text => handleChangeTextQuantity(text)}
                 title={'Số lượng'}
                 onClose={() => setVisibleQuantity(false)}
                 onPress={() => handleChangeQuantityProduct(currentItem)} />

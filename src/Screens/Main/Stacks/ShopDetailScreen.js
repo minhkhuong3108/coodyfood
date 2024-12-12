@@ -24,6 +24,7 @@ import { useFocusEffect } from '@react-navigation/native'
 import AlertNoChoiceModal from '../../../modal/AlertNoChoiceModal'
 import ChangeQuantityModal from '../../../modal/ChangeQuantityModal'
 import AlertChoiceModal from '../../../modal/AlertChoiceModal'
+import { handleChangeText } from '../../../utils/Validators'
 
 const ShopDetailScreen = ({ navigation, route }) => {
     const { id } = route.params
@@ -92,10 +93,10 @@ const ShopDetailScreen = ({ navigation, route }) => {
     )
 
     const handleUpdateNote = async () => {
-        if (!note) {
-            handleCloseBottomSheet2()
-            return
-        }
+        // if (!note) {
+        //     handleCloseBottomSheet2()
+        //     return
+        // }
         const body = {
             note,
         }
@@ -103,9 +104,9 @@ const ShopDetailScreen = ({ navigation, route }) => {
             const response = await AxiosInstance().put(`/carts/update-note/${data._id}/${selectedProduct}`, body)
             console.log('response', response);
             if (response.data) {
-                ToastAndroid.show('Cập nhật ghi chú thành công', ToastAndroid.SHORT)
+                await getCart()
                 handleCloseBottomSheet2()
-                getCart()
+                ToastAndroid.show('Cập nhật ghi chú thành công', ToastAndroid.SHORT)
             }
         } catch (error) {
             console.log('error', error);
@@ -152,8 +153,7 @@ const ShopDetailScreen = ({ navigation, route }) => {
             // console.log('getcart', response.data);
             // console.log('response.data == null', response.data == null);
             if (response.status == true && response.data.carts != null) {
-                // console.log('response.data', response.data);
-
+                // console.log('response.data', response.data)
                 setData(response.data.carts)
                 const product = response.data.carts.products
                 setCart(product)
@@ -260,6 +260,10 @@ const ShopDetailScreen = ({ navigation, route }) => {
     const handleChangeQuantityProduct = async (item) => {
         const cartItem = cart && cart.find(cartItem => cartItem._id === item._id);
         // const quantity = cartItem && cartItem.quantity;
+        if (!quantity) {
+            ToastAndroid.show('Số lượng không được để trống', ToastAndroid.SHORT)
+            return
+        }
         setVisibleQuantity(false)
         const data = {
             user: user._id,
@@ -287,13 +291,21 @@ const ShopDetailScreen = ({ navigation, route }) => {
                 }
             }
             if (response.data.carts) {
-                getCart()
+                await getCart()
+                if (response.data.carts.length == 0) {
+                    handleCloseBottomSheet()
+                }
             }
         } catch (error) {
             console.log('error', error);
         } finally {
             setIsLoading(false);
         }
+    }
+
+    const handleChangeTextQuantity = (text) => {
+        const numericText = text.replace(/[^0-9]/g, '');
+        setQuantity(numericText);
     }
 
     const handleReduceProduct = async (item) => {
@@ -327,7 +339,10 @@ const ShopDetailScreen = ({ navigation, route }) => {
             }
 
             if (response.data.carts) {
-                getCart()
+                await getCart()
+                if (response.data.carts.length == 0) {
+                    handleCloseBottomSheet()
+                }
             }
         } catch (error) {
             console.log('error', error);
@@ -540,7 +555,10 @@ const ShopDetailScreen = ({ navigation, route }) => {
                     {data.totalPrice && <TextComponent text={formatPrice(data.totalPrice)} />}
                     <SpaceComponent width={10} />
                     <ButtonComponent text={'Giao hàng'} color={appColor.white} height={70} width={150} borderRadius={0}
-                        onPress={() => navigation.navigate('CheckOut', { data })} />
+                        onPress={() => {
+                            navigation.navigate('CheckOut', { data })
+                            handleCloseBottomSheet()
+                            }} />
                 </RowComponent>
             </RowComponent>}
             {data && <BottomSheet
@@ -628,14 +646,14 @@ const ShopDetailScreen = ({ navigation, route }) => {
             />
             <ChangeQuantityModal visible={visibleQuantity}
                 value={quantity}
-                onChangeText={text => setQuantity(text)}
+                onChangeText={text => handleChangeTextQuantity(text)}
                 title={'Số lượng'}
                 onClose={() => setVisibleQuantity(false)}
                 onPress={() => handleChangeQuantityProduct(currentItem)} />
             <AlertChoiceModal visible={visibleDelete} onPress={handleDeleteCart}
                 title={'Xóa giỏ hàng'}
-                description={'Bạn có chắc muốn xóa tất cả sản phẩm trong giỏ hàng'} 
-                onClose={()=>setVisibleDelete(false)}/>
+                description={'Bạn có chắc muốn xóa tất cả sản phẩm trong giỏ hàng'}
+                onClose={() => setVisibleDelete(false)} />
         </ContainerComponent>
     )
 }

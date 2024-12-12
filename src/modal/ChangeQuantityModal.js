@@ -16,7 +16,7 @@ const ChangeQuantityModal = ({ title, onClose, visible, onPress, description, va
                         <SpaceComponent height={40} />
                         <TextComponent text={title} fontsize={18} textAlign={'center'} />
                         <SpaceComponent height={20} />
-                        <TextInput value={value} onChangeText={text => onChangeText(text)} style={styles.input} textAlign='center' keyboardType='number-pad' />
+                        <TextInput value={value} onChangeText={text => onChangeText(text)} style={styles.input} textAlign='center' keyboardType='numeric' />
                         <SpaceComponent height={30} />
                         <RowComponent justifyContent={'space-between'}>
                             <ButtonComponent text={'Hủy'} width={'48%'} backgroundColor={appColor.white}

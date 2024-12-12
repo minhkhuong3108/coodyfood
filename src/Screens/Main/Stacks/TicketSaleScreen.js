@@ -19,9 +19,9 @@ const TicketSaleScreen = ({ navigation, route }) => {
     const { totalPrice } = route.params
     const [voucher, setVoucher] = useState([])
     console.log('data', data);
-    
+
     console.log('voucher', voucher);
-    
+
 
     const getVoucher = async () => {
         const response = await AxiosInstance().get(`/voucher/available/${totalPrice}`)
@@ -68,12 +68,18 @@ const TicketSaleScreen = ({ navigation, route }) => {
     return (
         <ContainerComponent styles={globalStyle.container}>
             <HeaderComponent isback text={'Phiếu giảm giá'} />
-            <FlatList
+            {voucher.length > 0 ? <FlatList
                 showsVerticalScrollIndicator={false}
                 data={voucher}
                 renderItem={renderItem}
                 keyExtractor={item => item._id}
-            />
+            /> :
+                <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
+                    <Image source={require('../../../assets/images/ticketSale/voucher.png')} />
+                    <SpaceComponent height={20} />
+                    <TextComponent text={'Hiện tại không có phiếu giảm giá nào phù hợp với đơn hàng của bạn'}
+                     color={appColor.subText} fontsize={14} textAlign={'center'}/>
+                </View>}
         </ContainerComponent>
     )
 }
@@ -90,36 +96,3 @@ const styles = StyleSheet.create({
         marginBottom: 20
     },
 })
-
-var SALE = [
-    {
-        id: 1,
-        text: 'Giảm 10k tổng tiền món ăn. \n Đơn hàng tối thiểu 200k.',
-        time: '20/10/2024'
-    },
-    {
-        id: 2,
-        text: 'Giảm 30k tổng tiền món ăn. \n Đơn hàng tối thiểu 275k.',
-        time: '20/10/2024'
-    },
-    {
-        id: 3,
-        text: 'Giảm 10% tổng tiền món ăn. \n Đơn hàng tối thiểu 599k.',
-        time: '20/10/2024'
-    },
-    {
-        id: 4,
-        text: 'Giảm 10k tổng tiền món ăn. \n Đơn hàng tối thiểu 200k.',
-        time: '20/10/2024'
-    },
-    {
-        id: 5,
-        text: 'Giảm 30k tổng tiền món ăn. \n Đơn hàng tối thiểu 275k.',
-        time: '20/10/2024'
-    },
-    {
-        id: 6,
-        text: 'Giảm 10% tổng tiền món ăn. \n Đơn hàng tối thiểu 599k.',
-        time: '20/10/2024'
-    }
-]
