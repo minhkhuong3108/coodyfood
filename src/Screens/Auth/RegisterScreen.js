@@ -145,7 +145,7 @@ const RegisterScreen = ({ navigation }) => {
             <ButtonComponent text={'Đăng ký'} color={appColor.white} onPress={handleRegister} />
             <SpaceComponent height={20} />
             <ButtonComponent text={'Đăng nhập'} color={appColor.primary} backgroundColor={appColor.white} onPress={() => navigation.navigate('Login')} />
-            <SpaceComponent height={50} />
+            <SpaceComponent height={60} />
             <LoadingModal visible={isLoading} />
         </ContainerComponent>
     )

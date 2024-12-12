@@ -1,5 +1,6 @@
 import {
   Alert,
+  DeviceEventEmitter,
   FlatList,
   Image,
   NativeEventEmitter,
@@ -152,20 +153,30 @@ const CheckOutScreen = ({ navigation, route }) => {
       image: require('../../../assets/images/checkout/cash.png'),
     },
   ];
-  // const eventEmitter = new NativeEventEmitter(PayZaloBridge);
+  const eventEmitter = new NativeEventEmitter(PayZaloBridge);
+  useEffect(() => {
+    const eventListener = eventEmitter.addListener('EventPayZalo', (event) => {
+      console.log('event', event);
+      if (event.returnCode == '1') {
+        // Điều hướng về trang home
+        navigation.navigate('FailPayment');
+      }
+    });
+    // Cleanup
+    // return () => {
+    //   eventListener.remove();
+    // };
+  }, [navigation, eventEmitter]);
+
   // useEffect(() => {
-  //   const eventListener = eventEmitter.addListener('EventPayZalo', (event) => {
-  //     console.log('event', event);
-  //     if (event.returnCode == 1) {
-  //       // Điều hướng về trang home
-  //       navigation.navigate('Home');
+  //   const subscription = DeviceEventEmitter.addListener('EventPayZalo', (event) => {
+  //     if (event.returnCode === '1') {
+  //       navigation.current?.navigate('Home');
   //     }
   //   });
-  //   // Cleanup
-  //   // return () => {
-  //   //   eventListener.remove();
-  //   // };
-  // }, [navigation, eventEmitter]);
+
+  //   return () => subscription.remove();
+  // }, [navigation]);
 
   const handlePayment = async () => {
     if (!currentAddress) {
@@ -193,8 +204,8 @@ const CheckOutScreen = ({ navigation, route }) => {
           key2: 'trMrHtvjo6myautxDUiAcYsVtaeQ8nhf',
           endpoint: 'https://sb-openapi.zalopay.vn/v2/create',
         };
-        const embed_data = `{"redirecturl": "https://docs.zalopay.vn/result"}`
-        console.log('embed_data', embed_data.toString());
+        // const embed_data = `{"redirecturl": "https://docs.zalopay.vn/result"}`
+        // console.log('embed_data', embed_data.toString());
 
         const transID = Math.floor(Math.random() * 1000000);
         let appid = config.appid;
@@ -202,9 +213,9 @@ const CheckOutScreen = ({ navigation, route }) => {
         let amount = total;
         let appuser = 'ZaloPayDemo';
         let apptime = Date.now();
-        // let embeddata = '{}';
+        let embeddata = '{}';
         let item = '[]';
-        let callback_url = `https://d1d8-2405-4803-c75b-a410-b521-5adb-e7ec-1049.ngrok-free.app/zaloPay/callback`;
+        let callback_url = `coodyfood://fail-payment`;
         let description = 'CoodyFood - Thanh toán cho đơn hàng #' + app_trans_id;
         let hmacInput =
           appid +
@@ -217,7 +228,7 @@ const CheckOutScreen = ({ navigation, route }) => {
           '|' +
           apptime +
           '|' +
-          embed_data +
+          embeddata +
           '|' +
           item;
         let mac = crypto.HmacSHA256(hmacInput, config.key1).toString();
@@ -228,7 +239,7 @@ const CheckOutScreen = ({ navigation, route }) => {
           amount: amount,
           app_time: apptime,
           item: item,
-          embed_data: embed_data,
+          embed_data: embeddata,
           // embed_data: JSON.stringify(embeddata),
           description: description,
           mac: mac,
@@ -332,6 +343,7 @@ const CheckOutScreen = ({ navigation, route }) => {
       shippingfee,
       voucher: sale ? sale._id : null,
       distance,
+      
       recipientName: currentAddress.name,
       phone: currentAddress.phone,
       address: currentAddress.address,

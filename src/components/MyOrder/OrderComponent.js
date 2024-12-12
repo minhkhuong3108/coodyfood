@@ -17,7 +17,7 @@ const OrderComponent = ({ order, selectedOrder, handleSelectOrder }) => {
         color={selectedOrder == order ? appColor.primary : appColor.lightgray}
         fontFamily={selectedOrder == order ? fontFamilies.extraBold : null}
         fontsize={16}
-        text={order == 'Chưa giải quyết' ? 'Đang xử lý' : order == 'Đang giao hàng' ? 'Đang giao' : 'Lịch sử'}
+        text={order == 'Đang xử lý' ? 'Đang xử lý' : order == 'Đang giao hàng' ? 'Đang giao' : 'Lịch sử'}
       />
     </TouchableOpacity>
   );
