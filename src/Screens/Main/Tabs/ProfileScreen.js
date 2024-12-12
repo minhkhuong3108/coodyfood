@@ -11,6 +11,7 @@ import ProfileItem from '../../../components/ProfileItem';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../../../Redux/Reducers/LoginSlice'
 import AlertChoiceModal from '../../../modal/AlertChoiceModal';
+import { CallConfig, UnmountCall } from '../../Call/Callconfig';
 
 
 const ProfileScreen = ({ navigation }) => {
@@ -61,7 +62,7 @@ const ProfileScreen = ({ navigation }) => {
       <AlertChoiceModal visible={visible} onClose={()=>setVisible(false)}
       title={'Đăng xuất'}
       description={'Bạn có chắc muốn đăng xuất?'}
-      onPress={() => dispatch(logout())} />
+      onPress={() => {dispatch(logout()),UnmountCall()}} />
     </ContainerComponent>
   );
 };
