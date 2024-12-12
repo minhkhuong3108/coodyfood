@@ -50,8 +50,12 @@ export const CallConfig = async (userID, userName, image) => {
         },
       },
     );
-    console.log('Đã bật Keepcall');
+    console.log('*************Đã bật Keepcall**************' + userID,userName);
   } catch (error) {
-    console.error('Keepcall không thành công: ' + error.message);
+    console.error('*************Keepcall không thành công: ' + error.message);
   }
 };
+
+export const UnmountCall = async()=>{
+  await ZegoUIKitPrebuiltCallService.uninit()
+}
