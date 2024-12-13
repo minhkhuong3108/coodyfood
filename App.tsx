@@ -10,7 +10,7 @@ import ZaloPay from './src/utils/ZaloPay'
 import { connectSocket, getSocket } from './src/socket/socket'
 import notifee, { AndroidImportance, AndroidVisibility } from '@notifee/react-native';
 import { appColor } from './src/constants/appColor'
-import { CallConfig } from './src/Screens/Call/Callconfig'
+import { CallConfig, UnmountCall } from './src/Screens/Call/Callconfig'
 
 
 
@@ -51,6 +51,10 @@ const App = () => {
         CallConfig(order.order.user.phone,order.order.user.name,order.order.shipper?.image[0]??null)
       }
       if (order.order.user._id == user._id) {
+        if(order.status== 'Tài xế đang đến nhà hàng'){
+          UnmountCall();
+          CallConfig(order.order.user.phone,order.order.user.name,order.order.shipper?.image[0]??null)
+        }
         const channelId = await notifee.createChannel({
           id: 'high-priority',
           name: 'High Priority Channel',
