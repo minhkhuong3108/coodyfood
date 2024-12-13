@@ -4,6 +4,7 @@ import ZegoUIKitPrebuiltCallService, {
   ZegoUIKitPrebuiltCallInCallScreen,
   ZegoSendCallInvitationButton,
 } from '@zegocloud/zego-uikit-prebuilt-call-rn';
+import {ZegoLayoutMode, ZegoViewPosition} from '@zegocloud/zego-uikit-rn';
 import {Image, View} from 'react-native';
 import * as ZIM from 'zego-zim-react-native';
 import * as ZPNs from 'zego-zpns-react-native';
@@ -47,6 +48,16 @@ export const CallConfig = async (userID, userName, image) => {
               />
             </View>
           );
+        },
+        requireConfig: () => {
+          return {
+            layout: {
+              mode: ZegoLayoutMode.pictureInPicture,
+              config: {
+                smallViewSize: {width: 0, height: 0},
+              },
+            },
+          };
         },
       },
     );
