@@ -81,9 +81,9 @@ const ProductDetail = ({ navigation, route }) => {
             const response = await AxiosInstance().put(`/carts/update-note/${data._id}/${selectedProduct}`, body)
             console.log('response', response);
             if (response.data) {
-                ToastAndroid.show('Cập nhật ghi chú thành công', ToastAndroid.SHORT)
+                await getCart()
                 handleCloseBottomSheet2()
-                getCart()
+                ToastAndroid.show('Cập nhật ghi chú thành công', ToastAndroid.SHORT)
             }
         } catch (error) {
             console.log('error', error);
