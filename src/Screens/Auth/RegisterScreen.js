@@ -109,7 +109,7 @@ const RegisterScreen = ({ navigation }) => {
     return (
         <ContainerComponent isScroll={true} styles={globalStyle.container}>
             <Image source={require('../../assets/images/auth/login-regis/logo.png')} />
-            <SpaceComponent height={30} />
+            <SpaceComponent height={10} />
             <RowComponent >
                 <TextComponent text={'Coody '} fontsize={28} fontFamily={fontFamilies.bold} color={appColor.primary} />
                 <TextComponent text={'Xin Chào'} fontsize={28} fontFamily={fontFamilies.bold} />

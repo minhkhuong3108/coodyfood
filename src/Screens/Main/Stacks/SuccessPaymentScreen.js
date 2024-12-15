@@ -7,9 +7,12 @@ import ButtonComponent from '../../../components/ButtonComponent'
 import { globalStyle } from '../../../styles/globalStyle'
 import { appColor } from '../../../constants/appColor'
 import AxiosInstance from '../../../helpers/AxiosInstance'
+import RowComponent from '../../../components/RowComponent'
 
 const SuccessPaymentScreen = ({ navigation, route }) => {
-    const { orderId, paymentMethod } = route.params
+    // const { orderId, paymentMethod } = route.params
+    const orderId = route.params?.orderId
+    const paymentMethod = route.params?.paymentMethod
     console.log('paymentMethod', paymentMethod);
     console.log('orderId', orderId);
 
@@ -17,14 +20,14 @@ const SuccessPaymentScreen = ({ navigation, route }) => {
 
     const updateOrder = async () => {
         try {
-            await AxiosInstance().put(`/orders/Success-Payment/${orderId}`)
+            await AxiosInstance().put(`/orders/Success-Payment/${orderId}`, { paymentMethod })
         } catch (error) {
             console.log(error);
         }
     }
 
     useEffect(() => {
-        if (paymentMethod == 'PayOS') {
+        if (paymentMethod == 'PayOS' || paymentMethod == 'ZaloPay') {
             updateOrder()
         }
     }, [])
@@ -38,7 +41,12 @@ const SuccessPaymentScreen = ({ navigation, route }) => {
                 text={'Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi. \n Chúc bạn 1 ngày tốt lành!'} textAlign={'center'}
                 fontsize={16} color={appColor.subText} />
             <SpaceComponent height={40} />
-            <ButtonComponent text={'Quay lại trang chủ'} onPress={() => navigation.navigate('Home')} color={appColor.white} />
+            <RowComponent justifyContent={'space-between'} width={'100%'}>
+                <ButtonComponent width={'45%'} text={'Xem đơn hàng'} onPress={() => navigation.navigate('Order')}
+                    color={appColor.white} fontsize={14} />
+                <ButtonComponent width={'45%'} text={'Tiếp tục mua sắm'} onPress={() => navigation.navigate('Home')}
+                    color={appColor.text} backgroundColor={appColor.white} fontsize={14} />
+            </RowComponent>
         </ContainerComponent>
     )
 }

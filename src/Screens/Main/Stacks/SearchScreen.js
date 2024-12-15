@@ -37,6 +37,7 @@ const SearchScreen = ({ navigation, route }) => {
     // console.log('historySearch', historySearch);
     const refSearch = useRef()
     // console.log('suggest', suggested);
+    
 
     useFocusEffect(
         useCallback(() => {
@@ -251,7 +252,7 @@ const SearchScreen = ({ navigation, route }) => {
                     <FlatList
                         data={suggested}
                         renderItem={renderSuggestionItem}
-                        keyExtractor={item => item.name}
+                        // keyExtractor={item => item.name}
                     />
                 </View> :
                 <View>

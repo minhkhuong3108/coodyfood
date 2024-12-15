@@ -77,7 +77,7 @@ class ZPModule(private val mReactContext: ReactApplicationContext) : ReactContex
         val currentActivity = currentActivity
         ZaloPaySDK.getInstance().payOrder(
             currentActivity!!,
-            zpTransToken!!, "demozpdk://app", listener
+            zpTransToken!!, "coodyfood://app", listener
         )
     }
 

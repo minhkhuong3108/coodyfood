@@ -49,7 +49,7 @@ const CheckOrderScreen = ({ navigation, route }) => {
   const [visible, setVisible] = useState(false);
   const isInMessageScreenRef = useRef(false);
   const voucher = item.voucher != null ? item.voucher.discountAmount : 0;
-  const totalPrice = item.totalPrice -item.shippingfee + voucher;
+  const totalPrice = item.totalPrice - item.shippingfee + voucher;
 
 
   const snapPoint = ['50%'];
@@ -80,18 +80,18 @@ const CheckOrderScreen = ({ navigation, route }) => {
       setIsLoading(false)
     }
   };
-console.log('order',order);
+  console.log('order', order);
 
-  useEffect(()=>{
-    if(shipper){
-      item.shipper=shipper
+  useEffect(() => {
+    if (shipper) {
+      item.shipper = shipper
     }
-  },[shipper])
-  
+  }, [shipper])
+
   //khi tu component khac tro ve
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
-        isInMessageScreenRef.current=false
+      isInMessageScreenRef.current = false
     });
     return unsubscribe;
   }, [navigation]);
@@ -118,8 +118,8 @@ console.log('order',order);
           'messageList',
           JSON.stringify(newMessageList),
         );
-        if(user.name!=data.name&&!isInMessageScreenRef.current){
-         await showNotification()
+        if (user.name != data.name && !isInMessageScreenRef.current) {
+          await showNotification()
         }
       });
       socketInstance.on('order_status', (order) => {
@@ -272,9 +272,13 @@ console.log('order',order);
           console.log(error);
         }
       } else if (indexPay == 2) {
-        await updatedOrder();
-        ToastAndroid.show('Đặt hàng thành công', ToastAndroid.SHORT);
-        navigation.navigate('Home')
+        const result = await updatedOrder();
+        if (result) {
+          ToastAndroid.show('Thanh toán thành công', ToastAndroid.SHORT);
+          navigation.navigate('Order');
+        }else{
+          ToastAndroid.show('Thanh toán thất bại', ToastAndroid.SHORT);
+        }
       }
     } catch (error) {
       console.log('error', error);
@@ -285,10 +289,11 @@ console.log('order',order);
     try {
       setIsLoading(true);
       const response = await AxiosInstance().put(
-        `/orders/Success-Payment/${item._id}`,{paymentMethod}
+        `/orders/Success-Payment/${item._id}`, { paymentMethod }
       );
       if (response.status == true) {
-        navigation.navigate('SuccessPayment');
+        // navigation.navigate('SuccessPayment');
+        return response.data;
       }
     } catch (error) {
       console.log('error', error);
@@ -392,7 +397,7 @@ console.log('order',order);
               <ButtonComponent
                 type={'link'}
                 image={require('../../../assets/images/checkOrder/chat.png')}
-                onPress={() => {      navigation.navigate("Message", { items: item });isInMessageScreenRef.current=true }}
+                onPress={() => { navigation.navigate("Message", { items: item }); isInMessageScreenRef.current = true }}
               />
             </RowComponent>
           </RowComponent>
