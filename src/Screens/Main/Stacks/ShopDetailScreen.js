@@ -458,6 +458,44 @@ const ShopDetailScreen = ({ navigation, route }) => {
         getShopDetail()
     }, [id])
 
+    const handleCheckShopAndProduct = async () => {
+        // navigation.navigate('CheckOut', { data })
+        // handleCloseBottomSheet()
+        try {
+            setIsLoading(true)
+            const response = await AxiosInstance().post(`/carts/validate/${user._id}/${id}`)
+            console.log('cart', response.data);
+            if (response.data.errors) {
+                if (response.data.errors.status == 'Đóng cửa') {
+                    setVisible(true)
+                    return
+                    // setCart(response.data.carts)
+                }
+                if (response.data.errors.status == 'Ngưng hoạt động') {
+                    setVisible2(true)
+                    return
+                }
+                if (response.data.errors.status == 'Hết món') {
+                    ToastAndroid.show('Sản phẩm đã hết món', ToastAndroid.SHORT)
+                    await getCart()
+                    await getProductByShop()
+                    await getProductsByCategory()
+                    return
+                }
+            }
+            if (response.data.errors == null) {
+                navigation.navigate('CheckOut', { data: response.data.carts })
+                handleCloseBottomSheet()
+            }
+
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+
     return (
         <ContainerComponent styles={{ flex: 1, backgroundColor: appColor.white }}>
             <ContainerComponent styles={{ flex: 1, backgroundColor: appColor.white }} isScroll>
@@ -555,10 +593,7 @@ const ShopDetailScreen = ({ navigation, route }) => {
                     {data.totalPrice && <TextComponent text={formatPrice(data.totalPrice)} />}
                     <SpaceComponent width={10} />
                     <ButtonComponent text={'Giao hàng'} color={appColor.white} height={70} width={150} borderRadius={0}
-                        onPress={() => {
-                            navigation.navigate('CheckOut', { data })
-                            handleCloseBottomSheet()
-                            }} />
+                        onPress={handleCheckShopAndProduct} />
                 </RowComponent>
             </RowComponent>}
             {data && <BottomSheet
@@ -634,13 +669,13 @@ const ShopDetailScreen = ({ navigation, route }) => {
             <LoadingModal visible={isLoading} />
             <AlertNoChoiceModal visible={visible}
                 title={'Thông báo'}
-                description={'Nhà hàng này hiện đang đóng cửa. Vui lòng chọn sản phẩm khác.'}
+                description={'Nhà hàng này hiện đang đóng cửa. Vui lòng chọn nhà hàng khác.'}
                 noImg
                 onPress={handleShopClose}
             />
             <AlertNoChoiceModal visible={visible2}
                 title={'Thông báo'}
-                description={'Nhà hàng này hiện ngưng hoạt động. Vui lòng chọn sản phẩm khác.'}
+                description={'Nhà hàng này hiện ngưng hoạt động. Vui lòng chọn nhà hàng khác.'}
                 noImg
                 onPress={handleShopClose}
             />

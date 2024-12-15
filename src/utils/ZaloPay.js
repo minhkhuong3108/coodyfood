@@ -7,23 +7,44 @@ import { appColor } from '../constants/appColor';
 const { PayZaloBridge } = NativeModules;
 
 const payZaloBridgeEmitter = new NativeEventEmitter(PayZaloBridge);
+const zpEventEmitter = new NativeEventEmitter(PayZaloBridge);
 
-const subscription = payZaloBridgeEmitter.addListener(
-  'EventPayZalo',
-  (data) => {
-    if (data.returnCode == 1) {
-      alert('Pay success!');
-    } else {
-      alert('Pay errror! ' + data.returnCode);
+
+// const subscription = payZaloBridgeEmitter.addListener(
+//   'EventPayZalo',
+//   (data) => {
+//     if (data.returnCode == 1) {
+//       alert('Pay success!');
+//     } else {
+//       alert('Pay errror! ' + data.returnCode);
+//     }
+//   }
+// );
+
+React.useEffect(() => {
+  const subscription = payZaloBridgeEmitter.addListener(
+    'EventPayZalo',
+    (data) => {
+      if (data.returnCode == 1) {
+        alert('Thanh toán thành công!');
+      } else {
+        alert('Thanh toán thất bại! Mã lỗi: ' + data.returnCode);
+      }
     }
-  }
-);
+  );
+  // Cleanup khi component bị unmount
+  return () => {
+    subscription.remove();
+  };
+}, []);
 
 
 export default function ZaloPay() {
   const [money, setMoney] = React.useState('10000')
   const [token, setToken] = React.useState('')
   const [returncode, setReturnCode] = React.useState('')
+
+
 
 
   function getCurrentDateYYMMDD() {
@@ -130,7 +151,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     textAlign: 'center',
-    backgroundColor:appColor.white
+    backgroundColor: appColor.white
   },
   welcomeHead: {
     fontSize: 20,

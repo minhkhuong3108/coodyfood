@@ -3,6 +3,7 @@ import {
   DeviceEventEmitter,
   FlatList,
   Image,
+  Linking,
   NativeEventEmitter,
   NativeModules,
   StyleSheet,
@@ -49,15 +50,6 @@ import { getSocket } from '../../../socket/socket';
 import AlertNoChoiceModal from '../../../modal/AlertNoChoiceModal';
 
 const { PayZaloBridge } = NativeModules;
-// const eventEmitter = new NativeEventEmitter(PayZaloBridge);
-// const eventListener = eventEmitter.addListener('EventPayZalo', (event) => {
-//   console.log('event', event);
-//   if (event.returnCode == 1) {
-//     // Điều hướng về trang home
-//     Alert.alert('Thông báo', 'Thanh toán thành công');
-//   }
-// });
-
 
 const CheckOutScreen = ({ navigation, route }) => {
   const { data, sale } = route.params;
@@ -80,6 +72,7 @@ const CheckOutScreen = ({ navigation, route }) => {
   console.log('currentAddress', currentAddress);
   const [visible2, setVisible2] = useState(false);
   const [visible3, setVisible3] = useState(false);
+  const [visible4, setVisible4] = useState(false);
   // console.log('paymentMethod', paymentMethod);
   // console.log('data', data);
 
@@ -105,11 +98,6 @@ const CheckOutScreen = ({ navigation, route }) => {
       calculateDistanceToShop([shopOwner.latitude, shopOwner.longitude]);
     }, [shopOwner]),
   );
-  // useEffect(() => {
-  //   calculateDistanceToShop([shopOwner.latitude, shopOwner.longtitude]);
-  // }, [shopOwner]);
-
-  //TEST(phí giao hàng)
 
   const joinroom = (id) => {
     const socketInstance = getSocket();
@@ -153,30 +141,107 @@ const CheckOutScreen = ({ navigation, route }) => {
       image: require('../../../assets/images/checkout/cash.png'),
     },
   ];
-  const eventEmitter = new NativeEventEmitter(PayZaloBridge);
-  useEffect(() => {
-    const eventListener = eventEmitter.addListener('EventPayZalo', (event) => {
-      console.log('event', event);
-      if (event.returnCode == '1') {
-        // Điều hướng về trang home
-        navigation.navigate('FailPayment');
-      }
-    });
-    // Cleanup
-    // return () => {
-    //   eventListener.remove();
-    // };
-  }, [navigation, eventEmitter]);
 
+
+  const checkOrderStatus = async () => {
+    try {
+      const response = await fetch('https://sb-openapi.zalopay.vn/v2/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+        },
+        body: zpTransToken
+      });
+      console.log('response', response);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.log('HTTP error: ', errorText);
+        throw new Error('HTTP error: ' + errorText);
+      }
+      return response.status;
+    } catch (error) {
+      console.log('error', error);
+      return 'FAILED';
+    }
+  };
+  // const eventEmitter = new NativeEventEmitter(PayZaloBridge);
   // useEffect(() => {
-  //   const subscription = DeviceEventEmitter.addListener('EventPayZalo', (event) => {
-  //     if (event.returnCode === '1') {
-  //       navigation.current?.navigate('Home');
+  //   const eventEmitter = new NativeEventEmitter(PayZaloBridge);
+  //   const eventListener = eventEmitter.addListener('EventPayZalo', (event) => {
+  //     console.log('event', event);
+
+  //     const { returnCode } = event;
+
+  //     if (returnCode === '1') {
+  //       Alert.alert('Thanh toán thành công', 'Cảm ơn bạn đã thanh toán.');
+  //     } else if (returnCode === '-1') {
+  //       Alert.alert('Thanh toán thất bại', 'Đã có lỗi xảy ra trong quá trình thanh toán.');
+  //     } else if (returnCode === '4') {
+  //       Alert.alert('Thanh toán bị hủy', 'Bạn đã hủy thanh toán.');
   //     }
   //   });
 
-  //   return () => subscription.remove();
-  // }, [navigation]);
+  //   // Clean up listener when component unmounts
+  //   return () => {
+  //     eventListener.remove();
+  //   };
+  // }, []);
+
+  const parseQueryParams = (url) => {
+    const queryParams = {};
+    const [_, queryString] = url.split('?'); // Lấy phần sau dấu '?'
+    const pairs = queryString.split('&'); // Tách từng cặp key=value
+
+    pairs.forEach((pair) => {
+      const [key, value] = pair.split('=');
+      queryParams[key] = decodeURIComponent(value); // Giải mã các ký tự đặc biệt
+    });
+
+    return queryParams;
+  };
+
+  // useEffect(() => {
+  //   const handleURL = async () => {
+  //     const url = await Linking.getInitialURL(); // URL khi mở app từ trạng thái tắt
+  //     if (url) {
+  //       console.log('URL received:', url);
+
+  //       const params = parseQueryParams(url); // Phân tích query parameters
+  //       console.log('Parsed params:', params);
+
+  //       const { code, message, appTransID, zpTransToken, transactionId } = params;
+
+  //       if (code === '1') {
+  //         navigation.navigate('SuccessPayment', { paymentMethod: 'ZaloPay', orderId: appTransID });
+  //       } else {
+  //         Alert.alert('Thông báo', `Thanh toán thất bại: ${message}`);
+  //       }
+  //     }
+  //   };
+
+  //   // const subscription = Linking.addEventListener('url', (event) => {
+  //   //   const url = event.url; // URL callback từ ZaloPay
+  //   //   console.log('Received URL:', url);
+
+  //   //   const params = parseQueryParams(url);
+  //   //   console.log('Parsed params:', params);
+
+  //   //   const { code, message, appTransID, zpTransToken, transactionId } = params;
+
+  //   //   if (code === '1') {
+  //   //     Alert.alert('Thông báo', `Thanh toán thành công! Giao dịch ID: ${appTransID}`);
+  //   //   } else {
+  //   //     Alert.alert('Thông báo', `Thanh toán thất bại: ${message}`);
+  //   //   }
+  //   // });
+
+  //   // handleURL(); // Xử lý URL khi mở app từ trạng thái tắt
+
+  //   return () => {
+  //     subscription.remove(); // Hủy đăng ký khi component unmount
+  //   };
+  // }, []);
 
   const handlePayment = async () => {
     if (!currentAddress) {
@@ -197,7 +262,7 @@ const CheckOutScreen = ({ navigation, route }) => {
         // }
         // console.log('response', response);
 
-        // const result2 = await addOrder();
+        const result2 = await addOrder();
         const config = {
           appid: 2554,
           key1: 'sdngKKJmqEMzvh5QQcdD2A9XBSKUNaYn',
@@ -258,6 +323,24 @@ const CheckOutScreen = ({ navigation, route }) => {
         } else {
           Alert.alert('Error', 'Failed  to create order');
         }
+        Linking.addEventListener('url', (event) => {
+          const url = event.url; // URL callback từ ZaloPay
+          console.log('Received URL:', url);
+
+          const params = parseQueryParams(url);
+          console.log('Parsed params:', params);
+
+          const { code, message, appTransID, zpTransToken, transactionId } = params;
+
+          if (code === '1') {
+            navigation.navigate('SuccessPayment', { paymentMethod: 'ZaloPay', orderId: result2._id });
+          } else if (code === '-1') {
+            navigation.navigate('FailPayment');
+          }
+          else {
+            navigation.navigate('FailPayment');
+          }
+        });
       } else if (indexPay == 1) {
         // Handle payment with PayOS
         setIsLoading(true);
@@ -314,6 +397,8 @@ const CheckOutScreen = ({ navigation, route }) => {
           ToastAndroid.show('Đặt hàng thành công', ToastAndroid.SHORT);
           navigation.navigate('Order');
           joinroom(resutl._id)
+        }else {
+          ToastAndroid.show('Đặt hàng thất bại', ToastAndroid.SHORT)
         }
       }
     } catch (error) {
@@ -343,7 +428,7 @@ const CheckOutScreen = ({ navigation, route }) => {
       shippingfee,
       voucher: sale ? sale._id : null,
       distance,
-      
+
       recipientName: currentAddress.name,
       phone: currentAddress.phone,
       address: currentAddress.address,
@@ -354,7 +439,7 @@ const CheckOutScreen = ({ navigation, route }) => {
     setIsLoading(true);
     try {
       const response = await AxiosInstance().post('/orders/add-order', body);
-      console.log('addorder', response);
+      console.log('addorder', response.data);
       if (response.status == true) {
         if (response.data.errors) {
           if (response.data.errors.status == 'Đóng cửa') {
@@ -364,6 +449,10 @@ const CheckOutScreen = ({ navigation, route }) => {
           if (response.data.errors.status == 'Ngưng hoạt động') {
             setVisible3(true);
             return;
+          }
+          if (response.data.errors.status == 'Hết món') {
+            setVisible4(true);
+            return
           }
         }
         const result = response.data;
@@ -387,6 +476,11 @@ const CheckOutScreen = ({ navigation, route }) => {
       console.log('error', error);
     }
   };
+
+  const handleProductSoldOut = async () => {
+    setVisible4(false);
+    navigation.goBack();
+  }
 
   const handleShopClose = () => {
     setVisible2(false);
@@ -673,6 +767,9 @@ const CheckOutScreen = ({ navigation, route }) => {
       <AlertNoChoiceModal visible={visible3} title={'Thông báo'}
         description={'Nhà hàng này hiện đang ngưng hoạt động. Vui lòng chọn nhà hàng khác'} noImg
         onPress={handleShopClose} />
+      <AlertNoChoiceModal visible={visible4} title={'Thông báo'}
+        description={'Món bạn chọn hiện đang hết. Vui lòng chọn món khác'} noImg
+        onPress={handleProductSoldOut} />
     </ContainerComponent >
   );
 };
