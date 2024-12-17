@@ -172,7 +172,7 @@ const ShopDetailScreen = ({ navigation, route }) => {
 
     const getShopFavorite = async () => {
         try {
-            const response = await AxiosInstance().get(`/favorites/shop/${id}`)
+            const response = await AxiosInstance().get(`/favorites/user/${user._id}`)
             if (response.data.length > 0) {
                 setIsFavorite(true)
             }

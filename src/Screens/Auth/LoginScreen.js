@@ -168,7 +168,7 @@ const LoginScreen = ({ navigation }) => {
             <SpaceComponent height={30} />
             <RowComponent justifyContent='space-between'>
                 <ButtonComponent
-                    width={appInfor.sizes.width * 0.37}
+                    // width={appInfor.sizes.width * 0.37}
                     height={51}
                     icon={<Image source={require('../../assets/images/auth/login-regis/gg.png')} />}
                     text={'Google'}
@@ -176,7 +176,7 @@ const LoginScreen = ({ navigation }) => {
                     borderColor={appColor.subText}
                     onPress={handleLoginWithGG}
                 />
-                <ButtonComponent
+                {/* <ButtonComponent
                     width={appInfor.sizes.width * 0.37}
                     height={51}
                     icon={<Image source={require('../../assets/images/auth/login-regis/fb.png')} />}
@@ -184,7 +184,7 @@ const LoginScreen = ({ navigation }) => {
                     backgroundColor={appColor.white}
                     borderColor={appColor.subText}
                     onPress={handleLoginWithFB}
-                />
+                /> */}
             </RowComponent>
             {/* <ButtonComponent text={'Clear'} onPress={() => dispatch(logout())} type={'link'} /> */}
             <LoadingModal visible={isLoading} />

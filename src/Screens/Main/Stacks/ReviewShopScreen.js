@@ -148,6 +148,7 @@ const ReviewShopScreen = ({ navigation, route }) => {
                 </View>
 
             }
+            <SpaceComponent height={60} />
             <LoadingModal visible={isLoading} />
         </ContainerComponent>
     )
@@ -164,31 +165,3 @@ const styles = StyleSheet.create({
         borderRadius: 20
     }
 })
-var RATE = [
-    {
-        id: 1,
-        name: 'Nguyễn Văn A',
-        rate: 4.5,
-        comment: 'Sản phẩm rất tốt',
-        images: [require('../../../assets/images/productDetail/p1.png'), require('../../../assets/images/productDetail/p1.png')],
-        avatar: require('../../../assets/images/productDetail/avatar.png'),
-        day: '26-05-2024'
-    },
-    {
-        id: 2,
-        name: 'Nguyễn Văn B',
-        rate: 4.5,
-        comment: 'Sản phẩm rất tốt',
-        avatar: require('../../../assets/images/productDetail/avatar.png'),
-        images: [require('../../../assets/images/productDetail/p1.png')],
-        day: '26-05-2024'
-    },
-    {
-        id: 3,
-        name: 'Nguyễn Văn C',
-        rate: 4.5,
-        comment: 'Sản phẩm rất tốt',
-        avatar: require('../../../assets/images/productDetail/avatar.png'),
-        day: '26-05-2024'
-    }
-]

@@ -126,8 +126,9 @@ const CheckOrderScreen = ({ navigation, route }) => {
         }
       });
       socketInstance.on('order_status', (order) => {
+        console.log('******order_status', order);
+        
         getOrderDetail()
-
       })
     } catch (error) {
       console.log(error);
@@ -365,13 +366,13 @@ const CheckOrderScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     getPayment();
-    const socket = getSocket();
-    socket.on('order_status', (order) => {
-      setOrderStatus(order.status)
-    })
-    return () => {
-      socket.off('order_status');
-    };
+    // const socket = getSocket();
+    // socket.on('order_status', (order) => {
+    //   setOrderStatus(order.status)
+    // })
+    // return () => {
+    //   socket.off('order_status');
+    // };
   }, [item.paymentMethod, item._id]);
 
 
