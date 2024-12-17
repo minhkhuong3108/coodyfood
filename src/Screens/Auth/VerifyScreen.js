@@ -38,7 +38,8 @@ const VerifyScreen = ({ navigation, route }) => {
         return () => clearTimeout(timer);
     }, [])
     const handleChangeCode = (value, index) => {
-        if (value.length > 0) {
+        const filteredValue = value.replace(/[^0-9]/g, '');
+        if (filteredValue.length > 0) {
             if (index === 0) {
                 ref2.current.focus()
             }
@@ -54,7 +55,7 @@ const VerifyScreen = ({ navigation, route }) => {
         }
         const data = [...codevalue]
 
-        data[index] = value
+        data[index] = filteredValue
         console.log('data', data);
         setCodeValue(data)
     }

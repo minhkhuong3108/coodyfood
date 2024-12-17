@@ -224,6 +224,8 @@ const CheckOutScreen = ({ navigation, route }) => {
         // console.log('response', response);
 
         const result2 = await addOrder();
+        Removemess();
+        joinroom(result2._id)
         const config = {
           appid: 2554,
           key1: 'sdngKKJmqEMzvh5QQcdD2A9XBSKUNaYn',
@@ -311,10 +313,12 @@ const CheckOutScreen = ({ navigation, route }) => {
         // Handle payment with PayOS
         setIsLoading(true);
         const result = await addOrder();
+        Removemess();
+        joinroom(result._id)
         const urlPayOS = 'https://api-merchant.payos.vn/v2/payment-requests';
         const body = {
           orderCode: Number(String(Date.now()).slice(-6)),
-          amount: 10000,
+          amount: 2000,
           description: 'VQRIO123',
           items: order,
           cancelUrl: 'coodyfood://fail-payment', // URL khi thanh toán thất bại
@@ -360,9 +364,9 @@ const CheckOutScreen = ({ navigation, route }) => {
         setIsLoading(false);
         if (resutl) {
           Removemess();
+          joinroom(resutl._id)
           ToastAndroid.show('Đặt hàng thành công', ToastAndroid.SHORT);
           navigation.navigate('Order');
-          joinroom(resutl._id)
         } else {
           ToastAndroid.show('Đặt hàng thất bại', ToastAndroid.SHORT)
         }

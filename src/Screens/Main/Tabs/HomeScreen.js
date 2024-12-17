@@ -70,7 +70,7 @@ const HomeScreen = ({ navigation }) => {
     //callkeep
     CallConfig(user.phone, user.name);
     //socket
-    // connectSocket();
+    connectSocket();
   }, []);
 
   const requestLocationPermission = async () => {
@@ -185,7 +185,7 @@ const HomeScreen = ({ navigation }) => {
 
       // const filteredShops = updatedShops.filter(shop => shop.distance <= 5); // Lọc các shop trong bán kính 5 km
       const filteredShops = updatedShops.filter(
-        shop => shop.distance <= 1000000,
+        shop => shop.distance <= 5,
       ); // Lọc các shop trong bán kính 5 km
       setNearShop(filteredShops);
     }
@@ -216,7 +216,7 @@ const HomeScreen = ({ navigation }) => {
 
   const handleNewShop = async () => {
     const shopNew = [...nearShop].sort(
-      (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt),
+      (a, b) => new Date(b.created_at) - new Date(a.created_at),
     );
     setShopView(shopNew);
   };
@@ -226,9 +226,9 @@ const HomeScreen = ({ navigation }) => {
     if (id == 1) {
       handleNearByShops();
     } else if (id == 2) {
-      handleNewShop();
-    } else if (id == 3) {
       handleRateShop();
+    } else if (id == 3) {
+      handleNewShop();
     }
   };
 
@@ -615,59 +615,6 @@ const styles = StyleSheet.create({
   },
 });
 
-var CATE = [
-  {
-    id: 1,
-    name: 'Pizza',
-    image: require('../../../assets/images/home/piza.png'),
-  },
-  {
-    id: 2,
-    name: 'a',
-    image: require('../../../assets/images/home/piza.png'),
-  },
-  {
-    id: 3,
-    name: 'b',
-    image: require('../../../assets/images/home/piza.png'),
-  },
-  {
-    id: 4,
-    name: 'c',
-    image: require('../../../assets/images/home/piza.png'),
-  },
-  {
-    id: 5,
-    name: 'Pizza',
-    image: require('../../../assets/images/home/piza.png'),
-  },
-  {
-    id: 6,
-    name: 'Pizza',
-    image: require('../../../assets/images/home/piza.png'),
-  },
-  {
-    id: 7,
-    name: 'Pizza',
-    image: require('../../../assets/images/home/piza.png'),
-  },
-  {
-    id: 8,
-    name: 'Pizza',
-    image: require('../../../assets/images/home/piza.png'),
-  },
-  {
-    id: 9,
-    name: 'Pizza',
-    image: require('../../../assets/images/home/piza.png'),
-  },
-  {
-    id: 10,
-    name: 'Pizza',
-    image: require('../../../assets/images/home/piza.png'),
-  },
-];
-
 var CATE2 = [
   {
     id: 1,
@@ -675,123 +622,11 @@ var CATE2 = [
   },
   {
     id: 2,
-    name: 'Bán chạy',
-  },
-  {
-    id: 3,
-    name: 'Món mới',
-  },
-  {
-    id: 4,
     name: 'Đánh giá',
   },
-];
-
-var FEATURE = [
-  {
-    id: 1,
-    name: 'Drumsteak Thai Ha',
-    distance: 2,
-    time: 20,
-    rating: 4.3,
-    images: [
-      'https://mcdonalds.vn/uploads/2018/food/burgers/xcheesedlx_bb.png.pagespeed.ic.T9fdYoxRFN.webp',
-    ],
-  },
-  {
-    id: 2,
-    name: 'Chicken salan',
-    distance: 2,
-    rating: 4.8,
-    images: [
-      'https://mcdonalds.vn/uploads/2018/food/burgers/xcheesedlx_bb.png.pagespeed.ic.T9fdYoxRFN.webp',
-    ],
-  },
   {
     id: 3,
-    name: 'Drumsteak Thai Ha',
-    distance: 2,
-    time: 20,
-    rating: 4.5,
-    images: [
-      'https://mcdonalds.vn/uploads/2018/food/burgers/xcheesedlx_bb.png.pagespeed.ic.T9fdYoxRFN.webp',
-    ],
-  },
-];
-var SHOP = [
-  {
-    id: 1,
-    name: 'Drumsteak Thai Ha',
-    rating: 4.8,
-    discount: 20,
-    images: [
-      'https://mcdonalds.vn/uploads/2018/food/burgers/xcheesedlx_bb.png.pagespeed.ic.T9fdYoxRFN.webp',
-    ],
-    latitude: 10.787273,
-    longitude: 106.749809,
-  },
-  {
-    id: 2,
-    name: 'Chicken salan',
-    rating: 5,
-    discount: 20,
-    images: [
-      'https://mcdonalds.vn/uploads/2018/food/burgers/xcheesedlx_bb.png.pagespeed.ic.T9fdYoxRFN.webp',
-    ],
-    latitude: 10.84191,
-    longitude: 106.64361,
-  },
-  {
-    id: 3,
-    name: 'Drumsteak Thai Ha',
-    rating: 4.6,
-    discount: 20,
-    images: [
-      'https://mcdonalds.vn/uploads/2018/food/burgers/xcheesedlx_bb.png.pagespeed.ic.T9fdYoxRFN.webp',
-    ],
-    latitude: 10.83392,
-    longitude: 106.64337,
+    name: 'Nhà hàng mới',
   },
 ];
 
-var PRODUCT = [
-  {
-    id: 1,
-    name: 'Drumsteak Thai Ha',
-    location: 2,
-    time: 20,
-    rate: 4.5,
-    sold: 20,
-    price: 20,
-    oldPrice: 25,
-    image: require('../../../assets/images/home/p1.png'),
-    latitude: 10.867153,
-    longitude: 106.641335,
-  },
-  {
-    id: 2,
-    name: 'Chicken salan',
-    location: 2,
-    time: 20,
-    rate: 4.5,
-    sold: 20,
-    price: 20,
-    oldPrice: 25,
-    image: require('../../../assets/images/home/p2.png'),
-    latitude: 10.84191,
-    longitude: 106.64361,
-  },
-  {
-    id: 3,
-    name: 'Drumsteak Thai Ha',
-    location: 2,
-    time: 20,
-    rate: 4.5,
-    sold: 20,
-    price: 20,
-    oldPrice: 25,
-    image: require('../../../assets/images/home/p1.png'),
-    latitude: 10.775659,
-    longitude: 106.700424,
-  },
-];

@@ -34,7 +34,8 @@ import { Dropdown } from 'react-native-element-dropdown'
 import LineComponent from '../../../components/LineComponent';
 import { formatPrice } from '../../../components/format/FomatPrice';
 import { getSocket } from '../../../socket/socket';
-import { CallConfig } from '../../Call/Callconfig';
+import { CallConfig, UnmountCall } from '../../Call/Callconfig';
+import { NotificationOrderStatus } from '../../../components/NotificationOrderStatus';
 
 const MyOrderScreen = ({ navigation }) => {
   const { user } = useSelector(state => state.login)
@@ -44,12 +45,26 @@ const MyOrderScreen = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
   const transx = useSharedValue(0);
   const [valueDrop, setValueDrop] = useState(status[0].value)
+  // console.log('user', user);
+
 
   useEffect(() => {
     const socketInstance = getSocket()
-    socketInstance.on('order_status', (data) => {
+    socketInstance.on('order_status', async (data) => {
+      console.log('order_status', data);
+      // const userIdString = data.order.user._id.toString();
+      if (data.order.user._id.toString() == user._id) {
+        if (data.status == 'Tài xế đang đến nhà hàng') {
+          UnmountCall();
+          CallConfig(data.order.shippingAddress.phone, data.order.shippingAddress.recipientName, data.order.shipper?.image[0] ?? null)
+        }
+        await NotificationOrderStatus(data)
+      }
       getOrder()
     })
+    return () => {
+      socketInstance.off('order_status')
+    }
   }, [])
 
   const handleSelectOrder = orderType => {

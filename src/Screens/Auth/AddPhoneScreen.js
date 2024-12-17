@@ -12,6 +12,7 @@ import InputComponent from '../../components/InputComponent'
 import { validatePhone } from '../../utils/Validators'
 import { useDispatch } from 'react-redux'
 import { loginWithSocial } from '../../Redux/API/UserAPI'
+import { GoogleSignin } from '@react-native-google-signin/google-signin'
 
 const AddPhoneScreen = ({ navigation, route }) => {
   const user = route.params.userInfo
@@ -20,7 +21,8 @@ const AddPhoneScreen = ({ navigation, route }) => {
   const [errorPhone, setErrorPhone] = useState(null)
   const dispatch = useDispatch()
   const changePhone = (text) => {
-    setPhone(text)
+    const filteredValue = text.replace(/[^0-9]/g, '');
+    setPhone(filteredValue);
     setErrorPhone(null)
   }
   const handleSubmit = async () => {
@@ -40,7 +42,10 @@ const AddPhoneScreen = ({ navigation, route }) => {
   }
   return (
     <ContainerComponent styles={globalStyle.container}>
-      <ButtonComponent image={require('../../assets/images/auth/login-regis/back.png')} type={'link'} onPress={() => navigation.goBack()} />
+      <ButtonComponent image={require('../../assets/images/auth/login-regis/back.png')} type={'link'} onPress={() => {
+        navigation.goBack()
+        GoogleSignin.signOut()
+      }} />
       <SpaceComponent height={20} />
       <Image source={require('../../assets/images/auth/login-regis/logo.png')} />
       <SpaceComponent height={20} />
