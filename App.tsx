@@ -20,8 +20,11 @@ interface Order {
     status: string;
     user:{
       _id:string;
+    };
+    shippingAddress:{
       phone: string;
       name: string; 
+      recipientName: string; 
     };
     shipper?: { 
       image: string[]; 
@@ -48,12 +51,12 @@ const App = () => {
     socketInstance.on('order_status', async (order: Order) => {
       console.log('Order status updated:', order)
       if(order.status== 'Tài xế đang đến nhà hàng'){
-        CallConfig(order.order.user.phone,order.order.user.name,order.order.shipper?.image[0]??null)
+        CallConfig(order.order.shippingAddress.phone,order.order.shippingAddress.recipientName,order.order.shipper?.image[0]??null)
       }
       if (order.order.user._id == user._id) {
         if(order.status== 'Tài xế đang đến nhà hàng'){
           UnmountCall();
-          CallConfig(order.order.user.phone,order.order.user.name,order.order.shipper?.image[0]??null)
+          CallConfig(order.order.shippingAddress.phone,order.order.shippingAddress.recipientName,order.order.shipper?.image[0]??null)
         }
         const channelId = await notifee.createChannel({
           id: 'high-priority',
