@@ -1,6 +1,8 @@
 import {
   FlatList,
   Image,
+  Linking,
+  NativeModules,
   StyleSheet,
   Text,
   ToastAndroid,
@@ -50,6 +52,7 @@ const CheckOrderScreen = ({ navigation, route }) => {
   const isInMessageScreenRef = useRef(false);
   const voucher = item.voucher != null ? item.voucher.discountAmount : 0;
   const totalPrice = item.totalPrice - item.shippingfee + voucher;
+  const priceZaloPay = item.totalPrice;
 
 
   const snapPoint = ['50%'];
@@ -168,6 +171,19 @@ const CheckOrderScreen = ({ navigation, route }) => {
     }
   };
 
+  const parseQueryParams = (url) => {
+    const queryParams = {};
+    const [_, queryString] = url.split('?'); // Lấy phần sau dấu '?'
+    const pairs = queryString.split('&'); // Tách từng cặp key=value
+
+    pairs.forEach((pair) => {
+      const [key, value] = pair.split('=');
+      queryParams[key] = decodeURIComponent(value); // Giải mã các ký tự đặc biệt
+    });
+
+    return queryParams;
+  };
+
   const handlePayment = async () => {
     try {
       if (indexPay == 0) {
@@ -181,7 +197,7 @@ const CheckOrderScreen = ({ navigation, route }) => {
         const transID = Math.floor(Math.random() * 1000000);
         let appid = config.appid;
         let app_trans_id = `${moment().format('YYMMDD')}_${transID}`;
-        let amount = 10000;
+        let amount = priceZaloPay;
         let appuser = 'ZaloPayDemo';
         let apptime = Date.now();
         let embeddata = '{}';
@@ -214,6 +230,31 @@ const CheckOrderScreen = ({ navigation, route }) => {
           mac: mac,
         };
 
+        const handleLinking = async (event) => {
+          const url = event.url;
+          console.log('Received URL:', url);
+
+          const params = parseQueryParams(url);
+          console.log('Parsed params:', params);
+
+          const { code } = params;
+
+          if (code === '1') {
+            const result2 = await updatedOrder();
+            if (result2) {
+              navigation.navigate('SuccessPayment');
+            } else {
+              ToastAndroid.show('Thanh toán thất bại', ToastAndroid.SHORT);
+            }
+          } else {
+            navigation.navigate('FailPayment');
+          }
+
+          subscription.remove() // Hủy listener sau khi xử lý
+        };
+
+        const subscription = Linking.addListener('url', handleLinking);
+
         const response = await axios.post(config.endpoint, order);
         setIsLoading(false);
         // Handle response from server
@@ -221,6 +262,9 @@ const CheckOrderScreen = ({ navigation, route }) => {
         if (result.return_code == 1) {
           var ZaloPay = NativeModules.PayZaloBridge;
           ZaloPay.payOrder(result.zp_trans_token);
+        } else if (result.return_code == -1) {
+          var ZaloPay = NativeModules.PayZaloBridge;
+          ZaloPay.installApp();
         } else {
           Alert.alert('Error', 'Failed  to create order');
         }
@@ -276,7 +320,7 @@ const CheckOrderScreen = ({ navigation, route }) => {
         if (result) {
           ToastAndroid.show('Thanh toán thành công', ToastAndroid.SHORT);
           navigation.navigate('Order');
-        }else{
+        } else {
           ToastAndroid.show('Thanh toán thất bại', ToastAndroid.SHORT);
         }
       }
