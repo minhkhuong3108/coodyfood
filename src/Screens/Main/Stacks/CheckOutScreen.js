@@ -73,6 +73,7 @@ const CheckOutScreen = ({ navigation, route }) => {
   const [visible2, setVisible2] = useState(false);
   const [visible3, setVisible3] = useState(false);
   const [visible4, setVisible4] = useState(false);
+  const [orderResult, setOrderResult] = useState(null);
   // console.log('paymentMethod', paymentMethod);
   // console.log('data', data);
 
@@ -201,47 +202,7 @@ const CheckOutScreen = ({ navigation, route }) => {
     return queryParams;
   };
 
-  // useEffect(() => {
-  //   const handleURL = async () => {
-  //     const url = await Linking.getInitialURL(); // URL khi mở app từ trạng thái tắt
-  //     if (url) {
-  //       console.log('URL received:', url);
 
-  //       const params = parseQueryParams(url); // Phân tích query parameters
-  //       console.log('Parsed params:', params);
-
-  //       const { code, message, appTransID, zpTransToken, transactionId } = params;
-
-  //       if (code === '1') {
-  //         navigation.navigate('SuccessPayment', { paymentMethod: 'ZaloPay', orderId: appTransID });
-  //       } else {
-  //         Alert.alert('Thông báo', `Thanh toán thất bại: ${message}`);
-  //       }
-  //     }
-  //   };
-
-  //   // const subscription = Linking.addEventListener('url', (event) => {
-  //   //   const url = event.url; // URL callback từ ZaloPay
-  //   //   console.log('Received URL:', url);
-
-  //   //   const params = parseQueryParams(url);
-  //   //   console.log('Parsed params:', params);
-
-  //   //   const { code, message, appTransID, zpTransToken, transactionId } = params;
-
-  //   //   if (code === '1') {
-  //   //     Alert.alert('Thông báo', `Thanh toán thành công! Giao dịch ID: ${appTransID}`);
-  //   //   } else {
-  //   //     Alert.alert('Thông báo', `Thanh toán thất bại: ${message}`);
-  //   //   }
-  //   // });
-
-  //   // handleURL(); // Xử lý URL khi mở app từ trạng thái tắt
-
-  //   return () => {
-  //     subscription.remove(); // Hủy đăng ký khi component unmount
-  //   };
-  // }, []);
 
   const handlePayment = async () => {
     if (!currentAddress) {
@@ -251,7 +212,7 @@ const CheckOutScreen = ({ navigation, route }) => {
     setVisible(false);
     try {
       if (indexPay == 0) {
-        // setIsLoading(true);
+        setIsLoading(true);
         // const response = await AxiosInstance().post('/zaloPay/payment');
         // setIsLoading(false);
         // if (response.return_code == 1) {
@@ -280,7 +241,7 @@ const CheckOutScreen = ({ navigation, route }) => {
         let apptime = Date.now();
         let embeddata = '{}';
         let item = '[]';
-        let callback_url = `coodyfood://fail-payment`;
+        // let callback_url = `coodyfood://fail-payment`;
         let description = 'CoodyFood - Thanh toán cho đơn hàng #' + app_trans_id;
         let hmacInput =
           appid +
@@ -308,9 +269,29 @@ const CheckOutScreen = ({ navigation, route }) => {
           // embed_data: JSON.stringify(embeddata),
           description: description,
           mac: mac,
-          callback_url: callback_url,
+          // callback_url: callback_url,
           // return_url: return_url,
         };
+
+        const handleLinking = (event) => {
+          const url = event.url;
+          console.log('Received URL:', url);
+
+          const params = parseQueryParams(url);
+          console.log('Parsed params:', params);
+
+          const { code } = params;
+
+          if (code === '1') {
+            navigation.navigate('SuccessPayment', { paymentMethod: 'ZaloPay', orderId: result2._id });
+          } else {
+            navigation.navigate('FailPayment');
+          }
+
+          subscription.remove() // Hủy listener sau khi xử lý
+        };
+
+        const subscription = Linking.addListener('url', handleLinking);
 
         const response = await axios.post(config.endpoint, order);
         setIsLoading(false);
@@ -320,27 +301,12 @@ const CheckOutScreen = ({ navigation, route }) => {
         if (result.return_code == 1) {
           var ZaloPay = NativeModules.PayZaloBridge;
           ZaloPay.payOrder(result.zp_trans_token);
+        } else if (result.return_code == -1) {
+          var ZaloPay = NativeModules.PayZaloBridge;
+          ZaloPay.installApp();
         } else {
           Alert.alert('Error', 'Failed  to create order');
         }
-        Linking.addEventListener('url', (event) => {
-          const url = event.url; // URL callback từ ZaloPay
-          console.log('Received URL:', url);
-
-          const params = parseQueryParams(url);
-          console.log('Parsed params:', params);
-
-          const { code, message, appTransID, zpTransToken, transactionId } = params;
-
-          if (code === '1') {
-            navigation.navigate('SuccessPayment', { paymentMethod: 'ZaloPay', orderId: result2._id });
-          } else if (code === '-1') {
-            navigation.navigate('FailPayment');
-          }
-          else {
-            navigation.navigate('FailPayment');
-          }
-        });
       } else if (indexPay == 1) {
         // Handle payment with PayOS
         setIsLoading(true);
@@ -348,7 +314,7 @@ const CheckOutScreen = ({ navigation, route }) => {
         const urlPayOS = 'https://api-merchant.payos.vn/v2/payment-requests';
         const body = {
           orderCode: Number(String(Date.now()).slice(-6)),
-          amount: 2000,
+          amount: 10000,
           description: 'VQRIO123',
           items: order,
           cancelUrl: 'coodyfood://fail-payment', // URL khi thanh toán thất bại
@@ -397,7 +363,7 @@ const CheckOutScreen = ({ navigation, route }) => {
           ToastAndroid.show('Đặt hàng thành công', ToastAndroid.SHORT);
           navigation.navigate('Order');
           joinroom(resutl._id)
-        }else {
+        } else {
           ToastAndroid.show('Đặt hàng thất bại', ToastAndroid.SHORT)
         }
       }
