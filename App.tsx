@@ -31,6 +31,7 @@ import { CallConfig, UnmountCall } from './src/Screens/Call/Callconfig'
 //   // Các thuộc tính khác của đơn hàng
 // }
 
+
 const App = () => {
   // useEffect(() => {
   //   // Kết nối socket khi ứng dụng khởi động
@@ -41,6 +42,7 @@ const App = () => {
   //   socketInstance.on('connect', () => {
   //     console.log('Socket connected');
   //   });
+
 
   //   notifee.requestPermission()
   //   // Lắng nghe sự kiện thay đổi trạng thái đơn hàng
